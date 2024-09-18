@@ -1,12 +1,7 @@
-import Navbar from "@components/Navbar";
 import React from "react";
 
 const userPage = () => {
-  return (
-    <div className="flex">
-      <Navbar />
-    </div>
-  );
+  return <main>main content</main>;
 };
 
 export default userPage;
