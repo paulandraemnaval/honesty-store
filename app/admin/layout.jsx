@@ -1,12 +1,7 @@
 import React from "react";
 
 const adminLayout = ({ children }) => {
-  return (
-    <div>
-      layout
-      {children}
-    </div>
-  );
+  return <>{children}</>;
 };
 
 export default adminLayout;
