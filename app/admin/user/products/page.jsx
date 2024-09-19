@@ -2,9 +2,9 @@
 
 import React from "react";
 import ProductList from "@components/ProductList";
-
+import { useRouter } from "next/navigation";
 const productspage = () => {
-  const [showRecieptInput, setShowRecieptInput] = React.useState(false);
+  const router = useRouter();
   const products = [
     {
       name: "Product 1",
@@ -43,7 +43,7 @@ const productspage = () => {
           </button>
         </form>
         <button
-          onClick={() => setShowRecieptInput((prev) => !prev)}
+          onClick={router.push("/admin/user/products/addProduct")}
           className="bg-green-400 px-4 text-white rounded-lg self-center h-10 w-fit items-center"
         >
           Add...

@@ -35,7 +35,7 @@ export async function POST(request) {
   const productDoc = doc(productRef);
   try {
     const reqBody = await request.json();
-    const { productName, file } = reqBody;
+    const { productName, file = null } = reqBody; //null for checking lang muna
 
     await setDoc(productDoc, {
       productName,
@@ -55,7 +55,9 @@ export async function POST(request) {
       );
     }
 
-    const imageURL = await getImageURL(file, productDoc.id);
+    const imageURL = file //remind me to check this
+      ? "dummyURL.com"
+      : await getImageURL(file, productDoc.id);
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
