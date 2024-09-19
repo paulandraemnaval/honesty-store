@@ -9,9 +9,10 @@ export default async function getImageURL(file, prodId) {
   const productsImageFolderRef = ref(storage, `products/${prodId}`);
   try {
     await uploadBytes(productsImageFolderRef, file);
-    const downloadURL = await getDownloadURL(filesFolderRef);
+    const downloadURL = await getDownloadURL(productsImageFolderRef); // fixed reference
     return downloadURL;
   } catch (error) {
-    console.log(error);
+    console.log("Error uploading file:", error);
+    return null;
   }
 }
