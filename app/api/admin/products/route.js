@@ -34,8 +34,9 @@ export async function POST(request) {
   const productRef = collection(db, "products");
   const productDoc = doc(productRef);
   try {
-    const reqBody = await request.json();
-    const { productName, file } = reqBody;
+    const reqFormData = await request.formData();
+    const productName = reqFormData.get("productName");
+    const file = reqFormData.get("file");
 
     await setDoc(productDoc, {
       productName,

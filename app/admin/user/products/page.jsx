@@ -26,7 +26,7 @@ const productspage = () => {
     },
   ];
   return (
-    <div className="flex flex-col gap-4 w-full p-2 relative">
+    <div className="flex flex-col gap-4 w-full p-2">
       <h1>Products</h1>
       <div className="flex gap-2 h-10">
         <form action="" className="flex gap-2 w-full sm:w-fit">
