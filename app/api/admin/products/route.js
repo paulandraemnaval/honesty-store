@@ -15,7 +15,17 @@ export async function GET() {
   let products = [];
   try {
     const productsQuery = await getDocs(collection(db, "products"));
+
     products = productsQuery.docs.map((doc) => doc.data());
+    if (products.length === 0) {
+      return NextResponse.json(
+        {
+          message: "There are no products in the database",
+          data: {},
+        },
+        { status: 200 }
+      );
+    }
     return NextResponse.json(
       {
         message: "All products",
@@ -35,13 +45,25 @@ export async function POST(request) {
   const productRef = collection(db, "products");
   const productDoc = doc(productRef);
   try {
-    const reqBody = await request.json();
-    const { productName, file } = reqBody;
+    const reqFormData = await request.formData();
+    const productName = reqFormData.get("productName");
+    const file = reqFormData.get("file");
+    const productDescription = reqFormData.get("productDescription");
+
+    const imageURL = await getImageURL(file, productDoc.id);
+    if (!imageURL) {
+      console.error("Failed to generate image URL:", error);
+      return NextResponse.json(
+        { error: "Failed to generate image URL" },
+        { status: 400 }
+      );
+    }
 
     await setDoc(productDoc, {
       productName,
       productId: productDoc.id,
-      imageURL: "",
+      imageURL,
+      productDescription,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });
@@ -56,18 +78,6 @@ export async function POST(request) {
       );
     }
 
-    const imageURL = await getImageURL(file, productDoc.id);
-    if (!imageURL) {
-      console.error("Failed to generate image URL:", error);
-      return NextResponse.json(
-        { error: "Failed to generate image URL" },
-        { status: 400 }
-      );
-    }
-
-    await updateDoc(doc(db, "products", product.id), {
-      imageURL,
-    });
     return NextResponse.json(
       {
         message: "Product created successfully",
