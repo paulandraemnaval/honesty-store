@@ -38,10 +38,19 @@ export async function POST(request) {
     const productName = reqFormData.get("productName");
     const file = reqFormData.get("file");
 
+    const imageURL = await getImageURL(file, productDoc.id);
+    if (!imageURL) {
+      console.error("Failed to generate image URL:", error);
+      return NextResponse.json(
+        { error: "Failed to generate image URL" },
+        { status: 400 }
+      );
+    }
+
     await setDoc(productDoc, {
       productName,
       productId: productDoc.id,
-      imageURL: "",
+      imageURL,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });
@@ -56,18 +65,6 @@ export async function POST(request) {
       );
     }
 
-    const imageURL = await getImageURL(file, productDoc.id);
-    if (!imageURL) {
-      console.error("Failed to generate image URL:", error);
-      return NextResponse.json(
-        { error: "Failed to generate image URL" },
-        { status: 400 }
-      );
-    }
-
-    await updateDoc(doc(db, "products", product.id), {
-      imageURL,
-    });
     return NextResponse.json(
       {
         message: "Product created successfully",

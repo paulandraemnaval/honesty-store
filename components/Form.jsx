@@ -27,7 +27,7 @@ const Form = () => {
       method: "POST",
       body: formData,
     });
-    const data = (await res) ? res.json() : null;
+    const data = await res.json();
     console.log(data);
   };
   return (
