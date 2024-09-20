@@ -10,6 +10,7 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
+
 export async function GET() {
   let products = [];
   try {
