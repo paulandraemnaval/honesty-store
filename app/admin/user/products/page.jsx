@@ -5,26 +5,16 @@ import ProductList from "@components/ProductList";
 import { useRouter } from "next/navigation";
 const productspage = () => {
   const router = useRouter();
-  const products = [
-    {
-      name: "Product 1",
-      price: 100,
-      description: "This is product 1",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Product 2",
-      price: 200,
-      description: "This is product 2",
-      image: "https://via.placeholder.com/150",
-    },
-    {
-      name: "Product 3",
-      price: 300,
-      description: "This is product 3",
-      image: "https://via.placeholder.com/150",
-    },
-  ];
+  const [products, setProducts] = React.useState([]);
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      const res = await fetch("/api/admin/products");
+      const data = await res.json();
+      setProducts(data.data);
+    };
+    fetchProducts();
+  }, []);
+  console.log(products);
   return (
     <div className="flex flex-col gap-4 w-full p-2">
       <h1>Products</h1>
@@ -43,7 +33,7 @@ const productspage = () => {
           </button>
         </form>
         <button
-          onClick={router.push("/admin/user/products/addProduct")}
+          onClick={() => router.push("/admin/user/products/addProduct")}
           className="bg-green-400 px-4 text-white rounded-lg self-center h-10 w-fit items-center"
         >
           Add...
