@@ -32,10 +32,9 @@ export async function POST(request) {
   const accountDoc = doc(accountRef);
 
   try {
-    const { name, email, password, file, role } = Object.fromEntries(
+    const { name, email, password, file, role, salt } = Object.fromEntries(
       await request.formData()
     );
-    console.log("Creating account for:", name, email, password, file, role);
 
     const user = await signUpUser(email, password);
 
@@ -43,8 +42,6 @@ export async function POST(request) {
       console.log("Error in user creation:", user);
       return NextResponse.json({ error: user }, { status: 400 });
     }
-
-    console.log("User created:", user);
 
     //get image url
     let imageURL = null;
@@ -59,18 +56,15 @@ export async function POST(request) {
       }
     }
 
-    console.log(imageURL);
-
     //hash password
-    const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
 
     //creating account
     const accountData = {
       account_id: accountDoc.id,
       account_name: name,
       account_email: email,
-      account_password: hashedPassword,
+      account_password: password,
+      account_salt: salt,
       account_profile_url: imageURL || null,
       account_role: role,
       account_timestamp: Timestamp.now().toDate(),

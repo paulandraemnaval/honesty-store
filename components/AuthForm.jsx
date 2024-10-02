@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import bcryptjs from "bcryptjs";
 const AuthForm = () => {
   const router = useRouter();
 
@@ -23,7 +24,14 @@ const AuthForm = () => {
     const form = e.target;
     const formData = new FormData(form);
 
-    //TODO: MAKE THE PASSWORD HASHING
+    const password = formData.get("password");
+    formData.delete("password");
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+
+    formData.append("password", hashedPassword);
+    formData.append("salt", salt);
 
     try {
       const request = await fetch("/api/admin/signup", {
