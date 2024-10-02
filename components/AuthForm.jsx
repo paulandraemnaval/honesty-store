@@ -19,9 +19,9 @@ const AuthForm = () => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-
+    formData.append("file", file.file);
     try {
-      const request = await fetch("/api/auth/signup", {
+      const request = await fetch("/api/admin/signup", {
         method: "POST",
         body: formData,
       });

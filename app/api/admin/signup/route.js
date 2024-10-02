@@ -35,15 +35,19 @@ export async function POST(request) {
     const { name, email, password, file, role } = Object.fromEntries(
       await request.formData()
     );
+    console.log("Creating account for:", name, email, password, file, role);
 
     const user = await signUpUser(email, password);
     if (user instanceof Error) {
       return NextResponse.json({ error: user }, { status: 400 });
     }
 
+    console.log("User created:", user);
+
+    const imageURL = await getImageURL(file, accountDoc.id);
+
     //get image url
     if (!file) {
-      const imageURL = await getImageURL(file, accountDoc.id);
       if (!imageURL) {
         console.log("Failed to generate image URL");
         return NextResponse.json(
