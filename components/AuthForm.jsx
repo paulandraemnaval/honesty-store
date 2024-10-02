@@ -19,7 +19,6 @@ const AuthForm = () => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-    formData.append("file", file.file);
     try {
       const request = await fetch("/api/admin/signup", {
         method: "POST",
@@ -111,7 +110,7 @@ const AuthForm = () => {
             <input
               type="file"
               className="hidden"
-              name="profilePicture"
+              name="file"
               id="picture"
               onChange={(e) => handleSelectPicture(e)}
             />
