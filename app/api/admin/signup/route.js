@@ -47,7 +47,7 @@ export async function POST(request) {
     //get image url
     let imageURL = null;
     if (file) {
-      imageURL = await getImageURL(file, accountDoc.id);
+      imageURL = await getImageURL(file, accountDoc.id, "profile");
       if (!imageURL) {
         console.log("Failed to generate image URL");
         return NextResponse.json(
@@ -70,7 +70,7 @@ export async function POST(request) {
       account_profile_url: imageURL || null,
       account_role: role,
       account_timestamp: Timestamp.now().toDate(),
-      account_last_updated: account_timestamp,
+      account_last_updated: Timestamp.now().toDate(),
       account_soft_deleted: false,
     };
 
@@ -78,7 +78,7 @@ export async function POST(request) {
     await setDoc(accountDoc, accountData);
 
     return NextResponse.json(
-      { message: "Account created successfully", account },
+      { message: "Account created successfully", accountData },
       { status: 200 }
     );
   } catch (error) {
