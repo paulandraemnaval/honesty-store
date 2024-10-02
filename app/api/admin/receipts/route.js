@@ -37,4 +37,8 @@ export async function GET() {
 export async function POST(request) {
   const receiptRef = collection(db, "receipts");
   const productReceiptRef = collection(db, "productReceipts");
+
+  try {
+    const reqBody = await request.json();
+  } catch (error) {}
 }
