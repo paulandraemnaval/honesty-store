@@ -16,17 +16,23 @@ const signInUser = async (email, password) => {
   }
 };
 
-export async function GET(request) {
+export async function POST(request) {
   try {
     const reqFormData = await request.formData();
     const { email, password } = Object.fromEntries(reqFormData);
+
+    console.log("Signing in user:", email, password);
+
     const accountData = await signInUser(email, password);
     if (accountData instanceof Error) {
       console.log("Error in user sign-up:", accountData);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
     return NextResponse.json(
-      { message: "Account signed-up successfully", accountData },
+      {
+        message: "Account signed-up successfully",
+        accountData,
+      },
       { status: 200 }
     );
   } catch (error) {

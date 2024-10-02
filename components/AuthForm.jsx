@@ -2,7 +2,10 @@
 
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 const AuthForm = () => {
+  const router = useRouter();
+
   const [file, setFile] = React.useState({
     file: null,
     url: "",
@@ -19,6 +22,9 @@ const AuthForm = () => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
+
+    //TODO: MAKE THE PASSWORD HASHING
+
     try {
       const request = await fetch("/api/admin/signup", {
         method: "POST",
@@ -35,19 +41,17 @@ const AuthForm = () => {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-    const email = formData.get("email");
-    const password = formData.get("password");
+
+    let request = null;
 
     try {
-      const request = await fetch("/api/auth/signin", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+      request = await fetch("/api/admin/signin", {
+        method: "POST",
         body: formData,
       });
-      const response = await request.json();
-      console.log(response);
+      if (request.ok) {
+        router.push("/admin/user");
+      }
     } catch (err) {
       console.log(err);
     }
@@ -55,7 +59,11 @@ const AuthForm = () => {
 
   return (
     <div className="flex gap-4">
-      <form action="signin" className="bg-white p-4 rounded-sm h-full">
+      <form
+        action="signin"
+        className="bg-white p-4 rounded-sm h-full"
+        onSubmit={(e) => handleSignIn(e)}
+      >
         <div className="mb-4">
           <label
             htmlFor="email"
