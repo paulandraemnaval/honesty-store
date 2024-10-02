@@ -10,11 +10,22 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
+
 export async function GET() {
   let products = [];
   try {
     const productsQuery = await getDocs(collection(db, "products"));
+
     products = productsQuery.docs.map((doc) => doc.data());
+    if (products.length === 0) {
+      return NextResponse.json(
+        {
+          message: "There are no products in the database",
+          data: {},
+        },
+        { status: 200 }
+      );
+    }
     return NextResponse.json(
       {
         message: "All products",
@@ -37,6 +48,7 @@ export async function POST(request) {
     const reqFormData = await request.formData();
     const productName = reqFormData.get("productName");
     const file = reqFormData.get("file");
+    const productDescription = reqFormData.get("productDescription");
 
     const imageURL = await getImageURL(file, productDoc.id);
     if (!imageURL) {
@@ -51,6 +63,7 @@ export async function POST(request) {
       productName,
       productId: productDoc.id,
       imageURL,
+      productDescription,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });
