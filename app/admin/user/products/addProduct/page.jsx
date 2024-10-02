@@ -1,10 +1,10 @@
 import React from "react";
-import Form from "@components/Form";
+import ProductForm from "@components/ProductForm";
 const page = () => {
   return (
     <div className="flex flex-col gap-4 w-full p-2 relative">
       <h1>Add Product</h1>
-      <Form />
+      <ProductForm />
     </div>
   );
 };

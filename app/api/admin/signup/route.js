@@ -42,8 +42,9 @@ export async function POST(request) {
     }
 
     //get image url
-    if (!file) {
-      const imageURL = await getImageURL(file, accountDoc.id);
+    let imageURL = null;
+    if (file) {
+      imageURL = await getImageURL(file, accountDoc.id);
       if (!imageURL) {
         console.log("Failed to generate image URL");
         return NextResponse.json(
