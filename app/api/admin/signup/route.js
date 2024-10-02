@@ -44,10 +44,10 @@ export async function POST(request) {
 
     console.log("User created:", user);
 
-    const imageURL = await getImageURL(file, accountDoc.id);
-
     //get image url
-    if (!file) {
+    let imageURL = null;
+    if (file) {
+      imageURL = await getImageURL(file, accountDoc.id);
       if (!imageURL) {
         console.log("Failed to generate image URL");
         return NextResponse.json(
