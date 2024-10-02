@@ -27,12 +27,14 @@ const signInUser = async (email, password) => {
 
 export async function POST(request) {
   try {
-    const reqFormData = await request.formData();
-    const { email, password } = Object.fromEntries(reqFormData);
+    const { email, password } = Object.fromEntries(await request.formData());
+
+    console.log("Signing in user:", email, password);
+
     const accountData = await signInUser(email, password);
 
     if (accountData instanceof Error) {
-      console.log("Error in user sign-up:", accountData);
+      console.log("Error in user sign-up:", accountData.message);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
 
@@ -41,20 +43,20 @@ export async function POST(request) {
 
     const sessionData = {
       session_id: sessionDoc.id,
-      account_id: accountData.account_id,
+      account_id: accountData.uid,
       session_timestamp: Timestamp.now().toDate(),
     };
 
     await setDoc(sessionDoc, sessionData);
 
     return NextResponse.json(
-      { message: "Account signed-up successfully", accountData, sessionData },
+      { message: "Account signed in successfully", accountData, sessionData },
       { status: 200 }
     );
   } catch (error) {
     return NextResponse.json(
       {
-        message: "An error occurred during sign-up ",
+        message: "An error occurred during sign-in ",
         error: error.message,
       },
       { status: 500 }
