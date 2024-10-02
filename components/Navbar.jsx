@@ -1,5 +1,4 @@
 import React from "react";
-import Image from "next/image";
 
 const Navbar = () => {
   return (
@@ -24,6 +23,7 @@ const Navbar = () => {
       </div>
 
       {/*mobile nav*/}
+
       <div className="sm:hidden fixed bottom-0 flex bg-green-400 w-full py-2 px-2 justify-between">
         <div className="p-4">home</div>
         <div className="p-4">sales</div>

@@ -2,9 +2,9 @@
 
 import React from "react";
 import ProductList from "@components/ProductList";
-import { useRouter } from "next/navigation";
+import Form from "@components/ProductForm";
 const productspage = () => {
-  const router = useRouter();
+  const [showAddProduct, setShowAddProduct] = React.useState(false);
   const [products, setProducts] = React.useState([]);
   React.useEffect(() => {
     const fetchProducts = async () => {
@@ -16,7 +16,7 @@ const productspage = () => {
   }, []);
   console.log(products);
   return (
-    <div className="flex flex-col gap-4 w-full p-2">
+    <div className="flex flex-col gap-4 w-full p-2 relative">
       <h1>Products</h1>
       <div className="flex gap-2 h-10">
         <form action="" className="flex gap-2 w-full sm:w-fit">
@@ -33,7 +33,7 @@ const productspage = () => {
           </button>
         </form>
         <button
-          onClick={() => router.push("/admin/user/products/addProduct")}
+          onClick={() => setShowAddProduct((prev) => !prev)}
           className="bg-green-400 px-4 text-white rounded-lg self-center h-10 w-fit items-center"
         >
           Add...
@@ -42,6 +42,11 @@ const productspage = () => {
       <ul className="flex gap-2 flex-wrap align-middle">
         <ProductList products={products} />
       </ul>
+      {showAddProduct && (
+        <div className="absolute top-24 left-[5px] sm:left-2  w-[380px]">
+          <Form />
+        </div>
+      )}
     </div>
   );
 };
