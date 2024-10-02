@@ -13,7 +13,7 @@ import bcryptjs from "bcryptjs";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
-export const signInUser = async (email, password) => {
+const signUpUser = async (email, password) => {
   try {
     const userCredentials = await createUserWithEmailAndPassword(
       auth,
@@ -36,7 +36,7 @@ export async function POST(request) {
       await request.formData()
     );
 
-    const user = await signInUser(email, password);
+    const user = await signUpUser(email, password);
     if (user instanceof Error) {
       return NextResponse.json({ error: user }, { status: 400 });
     }
