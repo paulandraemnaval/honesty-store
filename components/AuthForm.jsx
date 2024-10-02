@@ -21,6 +21,7 @@ const AuthForm = () => {
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+
     const form = e.target;
     const formData = new FormData(form);
 
@@ -50,10 +51,8 @@ const AuthForm = () => {
     const form = e.target;
     const formData = new FormData(form);
 
-    let request = null;
-
     try {
-      request = await fetch("/api/admin/signin", {
+      const request = await fetch("/api/admin/signin", {
         method: "POST",
         body: formData,
       });
