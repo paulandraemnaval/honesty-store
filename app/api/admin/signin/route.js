@@ -9,7 +9,10 @@ import {
   updateDoc,
   doc,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
+import bcryptjs from "bcryptjs";
 import { cookies } from "next/headers";
 import { encrypt } from "@utils/session";
 
@@ -58,10 +61,21 @@ const signInUser = async (email, password) => {
 export async function POST(request) {
   try {
     const { email, password } = Object.fromEntries(await request.formData());
+    const query_string = query(
+      collection(db, "Account"),
+      where("account_email", "==", email)
+    );
+    const user_email = await getDocs(query_string);
 
-    console.log("Signing in user:", email, password);
+    if (user_email.empty) {
+      console.log("User not found");
+      return NextResponse.json({ error: "User not found" }, { status: 400 });
+    }
 
-    const accountData = await signInUser(email, password);
+    const email_salt = user_email.docs[0].data().account_salt;
+    const password_hash = await bcryptjs.hash(password, email_salt);
+
+    const accountData = await signInUser(email, password_hash);
 
     if (accountData instanceof Error) {
       console.log("Error in user sign-up:", accountData.message);
@@ -75,6 +89,7 @@ export async function POST(request) {
       { status: 200 }
     );
   } catch (error) {
+    console.log("Error in sign-in:", error.message);
     return NextResponse.json(
       {
         message: "An error occurred during sign-in ",
