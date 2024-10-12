@@ -9,6 +9,7 @@ import {
   updateDoc,
   doc,
   setDoc,
+  getDoc,
   query,
   where,
 } from "firebase/firestore";
@@ -23,7 +24,7 @@ async function createSession(userId) {
 
   const sessionData = {
     session_id: sessionDoc.id,
-    account_id: userId,
+    account_auth_id: userId,
     session_access_type: "authenticated",
     session_accessed_url: "/",
     session_timestamp: Timestamp.now().toDate(),
@@ -82,7 +83,7 @@ export async function POST(request) {
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
 
-    await createSession(accountData.account_id);
+    await createSession(accountData.uid);
 
     return NextResponse.json(
       { message: "Account signed in successfully", accountData, sessionData },

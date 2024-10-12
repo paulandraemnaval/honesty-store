@@ -60,6 +60,7 @@ export async function POST(request) {
     //creating account
     const accountData = {
       account_id: accountDoc.id,
+      account_auth_id: user.uid,
       account_name: name,
       account_email: email,
       account_salt: salt,
