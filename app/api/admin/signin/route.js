@@ -31,6 +31,10 @@ async function createSession(userId) {
   };
   await setDoc(sessionDoc, sessionData);
 
+  console.log("Session data:", sessionData, "Session doc:", sessionDoc);
+
+  await setDoc(sessionDoc, sessionData);
+
   const sessionId = sessionDoc.id;
   const encryptedSession = await encrypt({ sessionId, expiresAt });
 
@@ -38,7 +42,6 @@ async function createSession(userId) {
     httpOnly: true,
     secure: true,
     expires: expiresAt,
-    sameSite: lax,
     path: "/",
   });
 
@@ -78,6 +81,10 @@ export async function POST(request) {
 
     const accountData = await signInUser(email, password_hash);
 
+    console.log("_________________________");
+    console.log("Account Data:", accountData);
+    console.log("_________________________");
+
     if (accountData instanceof Error) {
       console.log("Error in user sign-up:", accountData.message);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
@@ -86,7 +93,10 @@ export async function POST(request) {
     await createSession(accountData.uid);
 
     return NextResponse.json(
-      { message: "Account signed in successfully", accountData, sessionData },
+      {
+        message: "Account signed in successfully",
+        accountData /*, sessionData*/,
+      },
       { status: 200 }
     );
   } catch (error) {
