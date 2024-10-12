@@ -45,19 +45,19 @@ export async function POST(request) {
   const supplierDoc = doc(supplierRef);
   try {
     const reqFormData = await request.formData();
-    const supplierName = reqFormData.get("supplierName");
-    const supplierContactPerson = reqFormData.get("supplierContactPerson");
-    const supplierContactNumber = reqFormData.get("supplierContactNumber");
-    const supplierEmailAddress = reqFormData.get("supplierEmailAddress");
-    const supplierNotes = reqFormData.get("supplierNotes");
+    const supplier_name = reqFormData.get("supplier_name");
+    const supplier_contact_person = reqFormData.get("supplier_contact_person");
+    const supplier_contact_number = reqFormData.get("supplier_contact_number");
+    const supplier_email_address = reqFormData.get("supplier_email_address");
+    const supplier_notes = reqFormData.get("supplier_notes");
 
     await setDoc(supplierDoc, {
-      supplierId: supplierDoc.id,
-      supplierName,
-      supplierContactPerson,
-      supplierContactNumber,
-      supplierEmailAddress,
-      supplierNotes,
+      supplier_id: supplierDoc.id,
+      supplier_name,
+      supplier_contact_person,
+      supplier_contact_number,
+      supplier_email_address,
+      supplier_notes,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });

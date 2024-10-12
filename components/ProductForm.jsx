@@ -61,11 +61,11 @@ const ProductForm = () => {
           <div className="flex flex-col gap-2 w-full">
             <input
               type="text"
-              name="productName"
-              placeholder="ProductName"
+              name="product_name"
+              placeholder="Product_name"
               className="border border-gray-300 h-fit p-2 rounded-lg"
             />
-            <select className="border rounded-lg p-2" name="productCategory">
+            <select className="border rounded-lg p-2" name="product_category">
               {categories.map((category) => (
                 <option
                   className="p-2 gap-2"
@@ -98,37 +98,47 @@ const ProductForm = () => {
               type="text"
               placeholder="product description"
               className="rounded-lg p-2 border"
-              name="productDescription"
+              name="product_description"
             />
+            <label htmlFor="product_sku">Product SKU</label>
             <input
               type="text"
               placeholder="product SKU"
               className="rounded-lg p-2 border"
-              name="productSKU"
+              name="product_sku"
+              id="product_sku"
             />
+            <label htmlFor="product_uom">Product UOM</label>
             <input
               type="text"
               placeholder="product UOM"
               className="rounded-lg p-2 border"
-              name="productUOM"
+              name="product_uom"
+              id="product_uom"
             />
+            <label htmlFor="product_reorder_point">Product Reorder Point</label>
             <input
               type="number"
               placeholder="product reorder point"
               className="rounded-lg p-2 border"
-              name="productReorderPoint"
+              name="product_reorder_point"
+              id="product_reorder_point"
             />
+            <label htmlFor="product_weight">Product Weight</label>
             <input
               type="number"
               placeholder="product weight"
               className="rounded-lg p-2 border"
-              name="productWeight"
+              name="product_weight"
+              id="product_weight"
             />
+            <label htmlFor="product_dimension">Product Dimensions</label>
             <input
               type="text"
               placeholder="product dimensions"
               className="rounded-lg p-2 border"
-              name="productDimensions"
+              name="product_dimension"
+              id="product_dimension"
             />
           </div>
         </div>

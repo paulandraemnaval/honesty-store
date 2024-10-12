@@ -46,25 +46,27 @@ export async function POST(request) {
   try {
     const reqFormData = await request.formData();
 
-    const wholeSalePrice = reqFormData.get("wholeSalePrice");
-    const inventoryProduct = reqFormData.get("inventoryProduct");
-    const inventorySupplier = reqFormData.get("inventorySupplier");
-    const totalUnits = reqFormData.get("totalUnits");
-    const retailPrice = reqFormData.get("retailPrice");
-    const inventoryDescription = reqFormData.get("inventoryDescription");
-    const inventoryProfitMargin = reqFormData.get("inventoryProfitMargin");
-    const inventoryExpirationDate = reqFormData.get("inventoryExpirationDate");
+    const wholesale_price = reqFormData.get("wholesale_price");
+    const inventory_product = reqFormData.get("inventory_product");
+    const inventory_supplier = reqFormData.get("inventory_supplier");
+    const total_units = reqFormData.get("total_units");
+    const retail_price = reqFormData.get("retail_price");
+    const inventory_description = reqFormData.get("inventory_description");
+    const inventory_profit_margin = reqFormData.get("inventory_profit_margin");
+    const inventory_expiration_date = reqFormData.get(
+      "inventory_expiration_date"
+    );
 
     await setDoc(inventoryDoc, {
       inventoryId: inventoryDoc.id,
-      wholeSalePrice,
-      inventoryProduct,
-      inventorySupplier,
-      totalUnits,
-      retailPrice,
-      inventoryDescription,
-      inventoryProfitMargin,
-      inventoryExpirationDate,
+      wholesale_price,
+      inventory_product,
+      inventory_supplier,
+      total_units,
+      retail_price,
+      inventory_description,
+      inventory_profit_margin,
+      inventory_expiration_date,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });

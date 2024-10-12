@@ -54,76 +54,76 @@ const CreateInventory = () => {
       <input
         type="number"
         placeholder="wholesale price"
-        id="wholesalePrice"
-        name="wholesalePrice"
+        id="wholesale_price"
+        name="wholesale_price"
         className="border"
       />
-      <label htmlFor="inventoryProduct">Product</label>
+      <label htmlFor="inventory_product">Product</label>
       <select
         className="border p-2"
-        name="inventoryProduct"
-        id="inventoryProduct"
+        name="inventory_product"
+        id="inventory_product"
       >
         {products.map((product) => (
-          <option key={product.productId} value={product.productId}>
-            {product.productName}
+          <option key={product.product_id} value={product.product_id}>
+            {product.product_name}
           </option>
         ))}
       </select>
 
-      <label htmlFor="inventorySupplier">Supplier</label>
+      <label htmlFor="inventory_supplier">Supplier</label>
       <select
         className="border p-2"
-        name="inventorySupplier"
-        id="inventorySupplier"
+        name="inventory_supplier"
+        id="inventory_supplier"
       >
         {suppliers.map((supplier) => (
-          <option key={supplier.supplierId} value={supplier.supplierId}>
-            {supplier.supplierName}
+          <option key={supplier.supplier_id} value={supplier.supplier_id}>
+            {supplier.supplier_name}
           </option>
         ))}
       </select>
 
-      <label htmlFor="totalUnits">Total Units</label>
+      <label htmlFor="total_units">Total Units</label>
       <input
         type="number"
         placeholder="total units"
-        id="totalUnits"
-        name="totalUnits"
+        id="total_units"
+        name="total_units"
         className="border"
       />
 
-      <label htmlFor="retailPrice">Retail Price</label>
+      <label htmlFor="retail_price">Retail Price</label>
       <input
         type="number"
         placeholder="retail price"
-        id="retailPrice"
-        name="retailPrice"
+        id="retail_price"
+        name="retail_price"
         className="border"
       />
 
-      <label htmlFor="inventoryDescription">Inventory Description</label>
+      <label htmlFor="inventory_description">Inventory Description</label>
       <textarea
-        id="inventoryDescription"
+        id="inventory_description"
         placeholder="inventory description"
-        name="inventoryDescription"
+        name="inventory_description"
         className="border"
       />
 
-      <label htmlFor="inventoryProfitMargin">Profit Margin</label>
+      <label htmlFor="inventory_profit_margin">Profit Margin</label>
       <input
         type="number"
         placeholder="profit margin"
-        id="inventoryProfitMargin"
-        name="inventoryProfitMargin"
+        id="inventory_profit_margin"
+        name="inventory_profit_margin"
         className="border"
       />
 
-      <label htmlFor="inventoryExpirationDate">Expiration Date</label>
+      <label htmlFor="inventory_expiration_date">Expiration Date</label>
       <input
         type="date"
-        id="inventoryExpirationDate"
-        name="inventoryExpirationDate"
+        id="inventory_expiration_date"
+        name="inventory_expiration_date"
         className="border"
       />
 

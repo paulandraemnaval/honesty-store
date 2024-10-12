@@ -46,9 +46,9 @@ export async function POST(request) {
   const categoryDoc = doc(categoryRef);
   try {
     const reqFormData = await request.formData();
-    const categoryName = reqFormData.get("categoryName");
+    const category_name = reqFormData.get("category_name");
     const file = reqFormData.get("file");
-    const categoryDescription = reqFormData.get("categoryDescription");
+    const category_description = reqFormData.get("category_description");
 
     const imageURL = await getImageURL(file, categoryDoc.id, "category");
     if (!imageURL) {
@@ -60,10 +60,10 @@ export async function POST(request) {
     }
 
     await setDoc(categoryDoc, {
-      categoryName,
-      categoryId: categoryDoc.id,
-      categoryImageURL: imageURL,
-      categoryDescription,
+      category_name,
+      category_id: categoryDoc.id,
+      category_image_url: imageURL,
+      category_description,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });

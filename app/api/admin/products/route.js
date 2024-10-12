@@ -46,15 +46,15 @@ export async function POST(request) {
   const productDoc = doc(productRef);
   try {
     const reqFormData = await request.formData();
-    const productName = reqFormData.get("productName");
+    const product_name = reqFormData.get("product_name");
     const file = reqFormData.get("file");
-    const productDescription = reqFormData.get("productDescription");
-    const productCategory = reqFormData.get("productCategory");
-    const productSKU = reqFormData.get("productSKU");
-    const productUOM = reqFormData.get("productUOM");
-    const productReorderPoint = reqFormData.get("productReorderPoint");
-    const productWeight = reqFormData.get("productWeight");
-    const productDimensions = reqFormData.get("productDimensions");
+    const product_description = reqFormData.get("product_description");
+    const product_category = reqFormData.get("product_category");
+    const product_sku = reqFormData.get("product_sku");
+    const product_uom = reqFormData.get("product_uom");
+    const product_reorder_point = reqFormData.get("product_reorder_point");
+    const product_weight = reqFormData.get("product_weight");
+    const product_dimensions = reqFormData.get("product_dimensions");
 
     const imageURL = await getImageURL(file, productDoc.id, "products");
     if (!imageURL) {
@@ -66,16 +66,16 @@ export async function POST(request) {
     }
 
     await setDoc(productDoc, {
-      productId: productDoc.id,
-      productName,
-      productDescription,
-      productCategory,
-      productSKU,
-      productUOM,
-      productReorderPoint,
-      imageURL,
-      productWeight,
-      productDimensions,
+      product_id: productDoc.id,
+      product_name,
+      product_description,
+      product_category,
+      product_sku,
+      product_uom,
+      product_reorder_point,
+      product_image_url: imageURL,
+      product_weight,
+      product_dimensions,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });

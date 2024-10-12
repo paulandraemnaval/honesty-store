@@ -41,14 +41,14 @@ const CreateCategory = () => {
       <label htmlFor="category_name">Category Name</label>
       <input
         type="text"
-        id="categoryName"
-        name="categoryName"
+        id="category_name"
+        name="category_name"
         className="border"
       />
       <label htmlFor="category_description">Category Description</label>
       <textarea
-        id="categoryDescription"
-        name="categoryDescription"
+        id="category_description"
+        name="category_description"
         className="border"
       />
       <label
