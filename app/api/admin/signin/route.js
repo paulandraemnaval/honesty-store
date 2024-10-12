@@ -95,7 +95,8 @@ export async function POST(request) {
     return NextResponse.json(
       {
         message: "Account signed in successfully",
-        accountData /*, sessionData*/,
+        accountData,
+        sessionData,
       },
       { status: 200 }
     );
