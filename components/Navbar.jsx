@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 const Navbar = () => {
@@ -6,16 +7,13 @@ const Navbar = () => {
       {/*desktop nav*/}
       <div className="sm:flex hidden h-full flex-col bg-green-400 gap-6 py-8 px-2 max-w-16">
         <div className=" border-gray-300 justify-center align-center flex mb-auto text-center">
-          logo goes here
+          <Link href="/admin/user">dashboard</Link>
         </div>
         <div className=" border-gray-300 justify-center align-center flex text-center">
-          home
+          <Link href="/admin/user/products">products</Link>
         </div>
         <div className=" border-gray-300 justify-center align-center flex">
-          sales
-        </div>
-        <div className=" border-gray-300 justify-center align-center flex ">
-          products
+          <Link href="/admin/user/manage">Manage</Link>
         </div>
         <div className=" border-gray-300 justify-center align-center flex mt-auto">
           me

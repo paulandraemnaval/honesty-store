@@ -49,8 +49,14 @@ export async function POST(request) {
     const productName = reqFormData.get("productName");
     const file = reqFormData.get("file");
     const productDescription = reqFormData.get("productDescription");
+    const productCategory = reqFormData.get("productCategory");
+    const productSKU = reqFormData.get("productSKU");
+    const productUOM = reqFormData.get("productUOM");
+    const productReorderPoint = reqFormData.get("productReorderPoint");
+    const productWeight = reqFormData.get("productWeight");
+    const productDimensions = reqFormData.get("productDimensions");
 
-    const imageURL = await getImageURL(file, productDoc.id);
+    const imageURL = await getImageURL(file, productDoc.id, "products");
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
@@ -60,10 +66,16 @@ export async function POST(request) {
     }
 
     await setDoc(productDoc, {
-      productName,
       productId: productDoc.id,
-      imageURL,
+      productName,
       productDescription,
+      productCategory,
+      productSKU,
+      productUOM,
+      productReorderPoint,
+      imageURL,
+      productWeight,
+      productDimensions,
       createdAt: Timestamp.now().toDate(),
       updatedAt: Timestamp.now().toDate(),
     });

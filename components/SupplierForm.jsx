@@ -4,9 +4,16 @@ const SupplierForm = () => {
   const handleCreateSupplier = async (e) => {
     e.preventDefault();
     const formdata = new FormData(e.target);
-
-    console.log("Creating Supplier");
-    console.log(Object.fromEntries(formdata));
+    try {
+      const response = await fetch("/api/admin/supplier", {
+        method: "POST",
+        body: formdata,
+      });
+      const data = await response.json();
+      console.log(data);
+    } catch (err) {
+      console.log(err.message);
+    }
   };
   return (
     <form
@@ -14,36 +21,36 @@ const SupplierForm = () => {
       onSubmit={handleCreateSupplier}
       className="flex flex-col gap-4"
     >
-      <label htmlFor="supplier_name">Supplier Name</label>
+      <label htmlFor="supplierName">Supplier Name</label>
       <input
         type="text"
-        id="supplier_name"
-        name="supplier_name"
+        id="supplierName"
+        name="supplierName"
         className="border"
       />
-      <label htmlFor="supplier_contact_person">Contact Person</label>
+      <label htmlFor="supplierContactPerson">Contact Person</label>
       <input
         type="text"
-        id="supplier_contact_person"
-        name="supplier_contact_person"
+        id="supplierContactPerson"
+        name="supplierContactPerson"
         className="border"
       />
-      <label htmlFor="supplier_contact">Contact</label>
+      <label htmlFor="supplierContactNumber">Contact</label>
       <input
         type="text"
-        id="supplier_contact"
-        name="supplier_contact"
+        id="supplierContactNumber"
+        name="supplierContactNumber"
         className="border"
       />
-      <label htmlFor="supplier_email_address">Email Address</label>
+      <label htmlFor="supplierEmailAddress">Email Address</label>
       <input
         type="email"
-        id="supplier_email_address"
-        name="supplier_email_address"
+        id="supplierEmailAddress"
+        name="supplierEmailAddress"
         className="border"
       />
-      <label htmlFor="supplier_notes">Supplier Notes</label>
-      <textarea id="supplier_notes" name="supplier_notes" className="border" />
+      <label htmlFor="supplierNotes">Supplier Notes</label>
+      <textarea id="supplierNotes" name="supplierNotes" className="border" />
       <button
         type="submit"
         className="self-start bg-green-400 text-white p-4 rounded-md"

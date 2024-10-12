@@ -3,6 +3,8 @@ import React from "react";
 import PageRibbon from "./PageRibbon";
 import ProductForm from "./ProductForm";
 import SupplierForm from "./SupplierForm";
+import CreateCategory from "./CreateCategory";
+import CreateInventory from "./CreateInventory";
 const ManageProduct = () => {
   const [action, setAction] = React.useState("");
 
@@ -10,8 +12,8 @@ const ManageProduct = () => {
     <div className="flex flex-col">
       <PageRibbon actionSetter={setAction} variation={"manageProduct"} />
       {action === "addSupplier" && <SupplierForm />}
-      {action === "createCategory" && <div>Create Category</div>}
-      {action === "createInventory" && <div>Create Inventory</div>}
+      {action === "createCategory" && <CreateCategory />}
+      {action === "createInventory" && <CreateInventory />}
       {action === "addProduct" && <ProductForm />}
     </div>
   );
