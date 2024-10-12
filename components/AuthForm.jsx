@@ -64,6 +64,8 @@ const AuthForm = () => {
     }
   };
 
+  const role = session.user.role;
+
   return (
     <div className="flex gap-4">
       <form
