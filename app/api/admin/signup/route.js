@@ -9,7 +9,6 @@ import {
   doc,
   setDoc,
 } from "firebase/firestore";
-import bcryptjs from "bcryptjs";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
@@ -63,7 +62,6 @@ export async function POST(request) {
       account_id: accountDoc.id,
       account_name: name,
       account_email: email,
-      account_password: password,
       account_salt: salt,
       account_profile_url: imageURL || null,
       account_role: role,
