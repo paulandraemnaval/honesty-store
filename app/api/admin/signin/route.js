@@ -16,33 +16,35 @@ import bcryptjs from "bcryptjs";
 import { cookies } from "next/headers";
 import { encrypt } from "@utils/session";
 
-async function createSession(userId) {
-  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 1000);
-  const sessionRef = collection(db, "Session");
-  const sessionDoc = doc(sessionRef);
+// async function createSession(userId) {
+//   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 1000);
+//   const sessionRef = collection(db, "Session");
+//   const sessionDoc = doc(sessionRef);
 
-  const sessionData = {
-    session_id: sessionDoc.id,
-    account_id: userId,
-    session_access_type: "authenticated",
-    session_accessed_url: "/",
-    session_timestamp: Timestamp.now().toDate(),
-  };
-  await setDoc(sessionDoc, sessionData);
+//   const sessionData = {
+//     session_id: sessionDoc.id,
+//     account_id: userId,
+//     session_access_type: "authenticated",
+//     session_accessed_url: "/",
+//     session_timestamp: Timestamp.now().toDate(),
+//   };
 
-  const sessionId = sessionDoc.id;
-  const encryptedSession = await encrypt({ sessionId, expiresAt });
+//   console.log("Session data:", sessionData, "Session doc:", sessionDoc);
 
-  cookies().set("session", encryptedSession, {
-    httpOnly: true,
-    secure: true,
-    expires: expiresAt,
-    sameSite: lax,
-    path: "/",
-  });
+//   await setDoc(sessionDoc, sessionData);
 
-  return sessionId;
-}
+//   const sessionId = sessionDoc.id;
+//   const encryptedSession = await encrypt({ sessionId, expiresAt });
+
+//   cookies().set("session", encryptedSession, {
+//     httpOnly: true,
+//     secure: true,
+//     expires: expiresAt,
+//     path: "/",
+//   });
+
+//   return sessionId;
+// }
 
 const signInUser = async (email, password) => {
   try {
@@ -77,15 +79,22 @@ export async function POST(request) {
 
     const accountData = await signInUser(email, password_hash);
 
+    console.log("_________________________");
+    console.log("Account Data:", accountData);
+    console.log("_________________________");
+
     if (accountData instanceof Error) {
       console.log("Error in user sign-up:", accountData.message);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
 
-    await createSession(accountData.account_id);
+    // await createSession(accountData.account_id);
 
     return NextResponse.json(
-      { message: "Account signed in successfully", accountData, sessionData },
+      {
+        message: "Account signed in successfully",
+        accountData /*, sessionData*/,
+      },
       { status: 200 }
     );
   } catch (error) {
