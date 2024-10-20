@@ -29,6 +29,8 @@ const CreateInventory = () => {
     getSuppliers();
   }, []);
 
+  console.log(suppliers);
+
   const postInventory = async (e) => {
     e.preventDefault();
     try {
@@ -64,11 +66,15 @@ const CreateInventory = () => {
         name="inventory_product"
         id="inventory_product"
       >
-        {products.map((product) => (
-          <option key={product.product_id} value={product.product_id}>
-            {product.product_name}
-          </option>
-        ))}
+        {products.length === 0 ? (
+          <option>No products available</option>
+        ) : (
+          products.map((product) => (
+            <option key={product.product_id} value={product.product_id}>
+              {product.product_name}
+            </option>
+          ))
+        )}
       </select>
 
       <label htmlFor="inventory_supplier">Supplier</label>

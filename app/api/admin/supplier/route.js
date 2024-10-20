@@ -58,8 +58,8 @@ export async function POST(request) {
       supplier_contact_number,
       supplier_email_address,
       supplier_notes,
-      createdAt: Timestamp.now().toDate(),
-      updatedAt: Timestamp.now().toDate(),
+      created_at: Timestamp.now().toDate(),
+      updated_at: Timestamp.now().toDate(),
     });
 
     return NextResponse.json(

@@ -43,6 +43,12 @@ const ProductForm = () => {
     });
     const data = await res.json();
     console.log(data);
+
+    if (res.ok) {
+      alert("Product added successfully");
+      e.target.reset();
+      setImage({ file: null, url: "" });
+    }
   };
   return (
     <div className="flex gap-2 border w-full shadow-lg bg-white p-2 rounded-lg">
@@ -66,15 +72,19 @@ const ProductForm = () => {
               className="border border-gray-300 h-fit p-2 rounded-lg"
             />
             <select className="border rounded-lg p-2" name="product_category">
-              {categories.map((category) => (
-                <option
-                  className="p-2 gap-2"
-                  key={category.categoryId}
-                  value={category.categoryId}
-                >
-                  {category.categoryName}
-                </option>
-              ))}
+              {categories.length === 0 ? (
+                <option>no categories avaliable</option>
+              ) : (
+                categories.map((category) => (
+                  <option
+                    className="p-2 gap-2"
+                    key={category.category_id}
+                    value={category.category_id}
+                  >
+                    {category.category_name}
+                  </option>
+                ))
+              )}
             </select>
             <input
               id="file"

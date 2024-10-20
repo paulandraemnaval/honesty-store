@@ -13,7 +13,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   let inventories = [];
   try {
-    const categoryQuery = await getDocs(collection(db, "inventory"));
+    const categoryQuery = await getDocs(collection(db, "inventories"));
 
     inventories = categoryQuery.docs.map((doc) => doc.data());
     if (inventories.length === 0) {
@@ -58,7 +58,7 @@ export async function POST(request) {
     );
 
     await setDoc(inventoryDoc, {
-      inventoryId: inventoryDoc.id,
+      inventory_id: inventoryDoc.id,
       wholesale_price,
       inventory_product,
       inventory_supplier,
@@ -67,13 +67,13 @@ export async function POST(request) {
       inventory_description,
       inventory_profit_margin,
       inventory_expiration_date,
-      createdAt: Timestamp.now().toDate(),
-      updatedAt: Timestamp.now().toDate(),
+      created_at: Timestamp.now().toDate(),
+      updated_at: Timestamp.now().toDate(),
     });
 
     return NextResponse.json(
       {
-        message: "category created successfully",
+        message: "inventory created successfully",
         data: {
           inventoryID: inventoryDoc.id,
         },

@@ -76,8 +76,8 @@ export async function POST(request) {
       product_image_url: imageURL,
       product_weight,
       product_dimensions,
-      createdAt: Timestamp.now().toDate(),
-      updatedAt: Timestamp.now().toDate(),
+      created_at: Timestamp.now().toDate(),
+      updated_at: Timestamp.now().toDate(),
     });
 
     if (!file || file === "") {

@@ -64,8 +64,8 @@ export async function POST(request) {
       category_id: categoryDoc.id,
       category_image_url: imageURL,
       category_description,
-      createdAt: Timestamp.now().toDate(),
-      updatedAt: Timestamp.now().toDate(),
+      created_at: Timestamp.now().toDate(),
+      updated_at: Timestamp.now().toDate(),
     });
 
     if (!file || file === "") {

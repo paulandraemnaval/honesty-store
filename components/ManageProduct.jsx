@@ -9,7 +9,7 @@ const ManageProduct = () => {
   const [action, setAction] = React.useState("");
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-2">
       <PageRibbon actionSetter={setAction} variation={"manageProduct"} />
       {action === "addSupplier" && <SupplierForm />}
       {action === "createCategory" && <CreateCategory />}

@@ -39,9 +39,8 @@ const productspage = () => {
           Add...
         </button>
       </div>
-      <ul className="flex gap-2 flex-wrap align-middle">
-        <ProductList products={products} />
-      </ul>
+      <ProductList products={products} />
+
       {showAddProduct && (
         <div className="absolute top-24 left-[5px] sm:left-2  w-[380px]">
           <Form />
