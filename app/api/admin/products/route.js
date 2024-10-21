@@ -5,6 +5,8 @@ import {
   Timestamp,
   doc,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
@@ -25,10 +27,27 @@ export async function GET() {
       );
     }
 
+    const updatedProducts = await Promise.all(
+      products.map(async (prod) => {
+        const categoryQuery = query(
+          collection(db, "category"),
+          where("category_id", "==", prod.product_category)
+        );
+
+        const categorySnapshot = await getDocs(categoryQuery);
+        const category = categorySnapshot.docs.map((doc) => doc.data())[0]; // one category match
+
+        return {
+          ...prod,
+          product_category: category || null,
+        };
+      })
+    );
+
     return NextResponse.json(
       {
         message: "All products",
-        data: products,
+        data: updatedProducts,
       },
       { status: 200 }
     );
