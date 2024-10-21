@@ -1,4 +1,4 @@
-import { auth, db } from "@utils/firebase";
+import { auth, db, createLog } from "@utils/firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { NextResponse } from "next/server";
 import {
@@ -88,17 +88,12 @@ export async function POST(request) {
     }
     await createSession(accountData.uid);
 
-    const logRef = collection(db, "Log");
-    const logDoc = doc(logRef);
-    //creating log
-    const logData = {
-      log_id: logDoc.id,
-      account_id: user.docs[0].data().account_id,
-      log_table_name: "Account",
-      log_table_item_id: "N/A",
-      log_table_action: "Sign-In",
-      log_timestamp: Timestamp.now().toDate(),
-    };
+    await createLog(
+      user.docs[0].data().account_id,
+      "Account",
+      "N/A",
+      "Sign-In"
+    );
 
     return NextResponse.json(
       {

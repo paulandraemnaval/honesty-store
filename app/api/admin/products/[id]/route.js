@@ -11,6 +11,7 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+//-------------------------------------------DELETE----------------------------------
 export async function DELETE(request, { params }) {
   const { id } = params;
   try {
@@ -27,4 +28,9 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+}
+
+//-----------------------------------------PATCH------------------------------------
+export async function PATCH(request, { params }) {
+  const { id } = params;
 }
