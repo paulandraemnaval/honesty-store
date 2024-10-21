@@ -16,10 +16,7 @@ const page = () => {
   const itemsPerPage = 5;
 
   const handleSelectCategory = (category) => {
-    setSelectedCategory({
-      category_name: category.category_name,
-      category_id: category.category_id,
-    });
+    setSelectedCategory(category.category_name);
     setCurrentPage(1);
   };
 
@@ -27,7 +24,6 @@ const page = () => {
     try {
       const response = await fetch("/api/admin/products");
       const data = await response.json();
-
       setProducts(data.data);
     } catch (error) {
       console.error("Failed to fetch products: ", error);
@@ -43,10 +39,7 @@ const page = () => {
     } catch (error) {
       console.error("Failed to fetch categories: ", error);
     }
-    setSelectedCategory({
-      category_name: data.data[0].category_name,
-      category_id: data.data[0].category_id,
-    });
+    setSelectedCategory(data.data[0].category_name);
   };
 
   React.useEffect(() => {
@@ -55,8 +48,10 @@ const page = () => {
   }, []);
 
   const categorizedProducts = products.filter((product) => {
-    return product.product_category === selectedCategory.category_id;
+    return product.product_category.category_name === selectedCategory;
   });
+
+  console.log(categorizedProducts, "categorized products");
 
   const paginatedProducts = categorizedProducts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -85,7 +80,7 @@ const page = () => {
                 key={category.category_id}
                 onClick={() => handleSelectCategory(category)}
                 className={`${
-                  selectedCategory.category_id === category.category_id
+                  selectedCategory === category.category_name
                     ? "bg-customerRibbonGreen text-white"
                     : "white text-[#146939]"
                 } w-fit py-2 px-3 rounded-md rounded-bl-none rounded-br-none cursor-pointer`}

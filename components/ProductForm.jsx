@@ -96,7 +96,7 @@ const ProductForm = () => {
             <div className="flex">
               <label
                 htmlFor="file"
-                className="bg-green-300 p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+                className="bg-customerRibbonGreen text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
               >
                 Upload Image
               </label>
@@ -154,7 +154,7 @@ const ProductForm = () => {
         </div>
         <button
           type="submit"
-          className="bg-green-300 rounded-lg p-2 h-fit self-end w-fit mt-auto"
+          className="bg-customerRibbonGreen text-white rounded-lg p-2 h-fit self-end w-fit mt-auto"
         >
           Submit
         </button>

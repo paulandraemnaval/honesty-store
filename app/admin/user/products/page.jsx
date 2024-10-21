@@ -27,14 +27,14 @@ const productspage = () => {
           />
           <button
             type="submit"
-            className="bg-green-400 text-white p-4 rounded-lg items-center flex"
+            className="bg-customerRibbonGreen text-white p-4 rounded-lg items-center flex"
           >
             Search
           </button>
         </form>
         <button
           onClick={() => setShowAddProduct((prev) => !prev)}
-          className="bg-green-400 px-4 text-white rounded-lg self-center h-10 w-fit items-center"
+          className="bg-customerRibbonGreen px-4 text-white rounded-lg self-center h-10 w-fit items-center"
         >
           Add...
         </button>

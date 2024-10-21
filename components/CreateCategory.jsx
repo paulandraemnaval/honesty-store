@@ -53,7 +53,7 @@ const CreateCategory = () => {
       />
       <label
         htmlFor="categoryImage"
-        className="cursor-pointer p-2 rounded-md bg-green-400 text-white"
+        className="cursor-pointer p-2 rounded-md bg-customerRibbonGreen text-white"
       >
         Select Image for Category
       </label>
@@ -69,7 +69,10 @@ const CreateCategory = () => {
         alt="categoryImage"
         className="object-cover h-24 w-24 rounded-md"
       />
-      <button type="submit" className="bg-green-400 text-white p-2 rounded-md">
+      <button
+        type="submit"
+        className="bg-customerRibbonGreen text-white p-2 rounded-md"
+      >
         Add Category
       </button>
     </form>

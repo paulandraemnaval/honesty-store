@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 const ProductList = ({ products = [], selectedCategory }) => {
   const [inventories, setInventories] = React.useState([]);
@@ -50,6 +51,8 @@ const ProductList = ({ products = [], selectedCategory }) => {
     return availableInventories.length === 0;
   };
 
+  console.log(products, "products passed to productlist");
+
   return (
     <ul className="flex-1 flex flex-wrap gap-4">
       {products.length === 0 ? (
@@ -60,7 +63,12 @@ const ProductList = ({ products = [], selectedCategory }) => {
             className="relative max-w-[220px] max-h-[300px] flex flex-col gap-2 border border-gray-400 p-4 rounded-lg -z-10"
             key={index}
           >
-            <img height={200} width={200} src={product.product_image_url} />
+            <Image
+              height={200}
+              width={200}
+              src={null || product.product_image_url}
+              className="object-cover flex-1"
+            />
             <div>
               <h3>{product.product_name}</h3>
               <p className="font-medium">Price: {getPrice(product)}</p>
