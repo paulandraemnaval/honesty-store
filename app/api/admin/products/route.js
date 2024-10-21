@@ -44,11 +44,17 @@ export async function POST(request) {
   const productDoc = doc(productRef);
   try {
     const reqFormData = await request.formData();
-    const productName = reqFormData.get("productName");
+    const product_name = reqFormData.get("product_name");
     const file = reqFormData.get("file");
-    const productDescription = reqFormData.get("productDescription");
+    const product_description = reqFormData.get("product_description");
+    const product_category = reqFormData.get("product_category");
+    const product_sku = reqFormData.get("product_sku");
+    const product_uom = reqFormData.get("product_uom");
+    const product_reorder_point = reqFormData.get("product_reorder_point");
+    const product_weight = reqFormData.get("product_weight");
+    const product_dimensions = reqFormData.get("product_dimensions");
 
-    const imageURL = await getImageURL(file, productDoc.id);
+    const imageURL = await getImageURL(file, productDoc.id, "products");
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
@@ -58,12 +64,18 @@ export async function POST(request) {
     }
 
     await setDoc(productDoc, {
-      productName,
-      productId: productDoc.id,
-      imageURL,
-      productDescription,
-      createdAt: Timestamp.now().toDate(),
-      updatedAt: Timestamp.now().toDate(),
+      product_id: productDoc.id,
+      product_name,
+      product_description,
+      product_category,
+      product_sku,
+      product_uom,
+      product_reorder_point,
+      product_image_url: imageURL,
+      product_weight,
+      product_dimensions,
+      created_at: Timestamp.now().toDate(),
+      updated_at: Timestamp.now().toDate(),
     });
 
     if (!file || file === "") {

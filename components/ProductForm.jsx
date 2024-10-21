@@ -1,7 +1,25 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-const Form = () => {
+const ProductForm = () => {
+  const [categories, setCategories] = React.useState([]);
+
+  React.useEffect(() => {
+    const fetchCategories = async () => {
+      const res = await fetch("/api/admin/category", {
+        method: "GET",
+      });
+      const data = await res.json();
+      console.log(data);
+      if (data.error) {
+        console.error(data.error);
+        return;
+      }
+      setCategories(data.data);
+    };
+    fetchCategories();
+  }, []);
+
   const [image, setImage] = React.useState({
     file: null,
     url: "",
@@ -19,16 +37,18 @@ const Form = () => {
     const formData = new FormData(e.target);
     formData.append("file", image.file);
 
-    const productName = formData.get("productName");
-    const file = formData.get("file");
-
-    console.log("uploding product", file, productName);
     const res = await fetch(`/api/admin/products`, {
       method: "POST",
       body: formData,
     });
     const data = await res.json();
     console.log(data);
+
+    if (res.ok) {
+      alert("Product added successfully");
+      e.target.reset();
+      setImage({ file: null, url: "" });
+    }
   };
   return (
     <div className="flex gap-2 border w-full shadow-lg bg-white p-2 rounded-lg">
@@ -41,20 +61,36 @@ const Form = () => {
             src={image.url || "https://picsum.photos/200"}
             width={200}
             height={200}
-            className="object-cover rounded-lg h-24 w-24"
+            className="object-cover rounded-lg h-24 w-24 self-start"
             alt="product image"
           />
           <div className="flex flex-col gap-2 w-full">
             <input
               type="text"
-              name="productName"
-              placeholder="ProductName"
+              name="product_name"
+              placeholder="Product_name"
               className="border border-gray-300 h-fit p-2 rounded-lg"
             />
+            <select className="border rounded-lg p-2" name="product_category">
+              {categories.length === 0 ? (
+                <option>no categories avaliable</option>
+              ) : (
+                categories.map((category) => (
+                  <option
+                    className="p-2 gap-2"
+                    key={category.category_id}
+                    value={category.category_id}
+                  >
+                    {category.category_name}
+                  </option>
+                ))
+              )}
+            </select>
             <input
               id="file"
               type="file"
               className="hidden"
+              name="file"
               onChange={handleImage}
             />
             <div className="flex">
@@ -68,6 +104,52 @@ const Form = () => {
                 {image.file ? image.file.name : "No file selected"}
               </p>
             </div>
+            <textarea
+              type="text"
+              placeholder="product description"
+              className="rounded-lg p-2 border"
+              name="product_description"
+            />
+            <label htmlFor="product_sku">Product SKU</label>
+            <input
+              type="text"
+              placeholder="product SKU"
+              className="rounded-lg p-2 border"
+              name="product_sku"
+              id="product_sku"
+            />
+            <label htmlFor="product_uom">Product UOM</label>
+            <input
+              type="text"
+              placeholder="product UOM"
+              className="rounded-lg p-2 border"
+              name="product_uom"
+              id="product_uom"
+            />
+            <label htmlFor="product_reorder_point">Product Reorder Point</label>
+            <input
+              type="number"
+              placeholder="product reorder point"
+              className="rounded-lg p-2 border"
+              name="product_reorder_point"
+              id="product_reorder_point"
+            />
+            <label htmlFor="product_weight">Product Weight</label>
+            <input
+              type="number"
+              placeholder="product weight"
+              className="rounded-lg p-2 border"
+              name="product_weight"
+              id="product_weight"
+            />
+            <label htmlFor="product_dimension">Product Dimensions</label>
+            <input
+              type="text"
+              placeholder="product dimensions"
+              className="rounded-lg p-2 border"
+              name="product_dimension"
+              id="product_dimension"
+            />
           </div>
         </div>
         <button
@@ -81,4 +163,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default ProductForm;

@@ -10,6 +10,10 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        gradientStart: "#0E572E",
+        gradientMiddle: "#0C6435",
+        gradientEnd: "#114B27",
+        customerRibbonGreen: "#146939",
       },
     },
   },
