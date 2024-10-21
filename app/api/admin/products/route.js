@@ -7,11 +7,11 @@ import {
   setDoc,
   query,
   where,
-  updateDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
+//-------------------------------GET------------------------------------------------------
 export async function GET() {
   let products = [];
   try {
@@ -60,6 +60,7 @@ export async function GET() {
   }
 }
 
+//-------------------------------------------POST-----------------------------------------------
 export async function POST(request) {
   const productRef = collection(db, "products");
   const productDoc = doc(productRef);

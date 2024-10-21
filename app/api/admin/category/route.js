@@ -11,6 +11,7 @@ import {
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
+//----------------------------------------GET--------------------------------------
 export async function GET() {
   let categories = [];
   try {
@@ -41,6 +42,7 @@ export async function GET() {
   }
 }
 
+//--------------------------------POST---------------------------------------------------
 export async function POST(request) {
   const categoryRef = collection(db, "category");
   const categoryDoc = doc(categoryRef);
@@ -64,8 +66,9 @@ export async function POST(request) {
       category_id: categoryDoc.id,
       category_image_url: imageURL,
       category_description,
-      created_at: Timestamp.now().toDate(),
-      updated_at: Timestamp.now().toDate(),
+      category_timestamp: Timestamp.now().toDate(),
+      category_last_updated: Timestamp.now().toDate(),
+      category_soft_deleted: false,
     });
 
     if (!file || file === "") {
