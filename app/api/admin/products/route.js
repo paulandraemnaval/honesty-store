@@ -7,6 +7,7 @@ import {
   setDoc,
   query,
   where,
+  updateDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
@@ -35,7 +36,7 @@ export async function GET() {
         );
 
         const categorySnapshot = await getDocs(categoryQuery);
-        const category = categorySnapshot.docs.map((doc) => doc.data())[0]; // one category match
+        const category = categorySnapshot.docs.map((doc) => doc.data())[0];
 
         return {
           ...prod,
@@ -94,8 +95,9 @@ export async function POST(request) {
       product_image_url: imageURL,
       product_weight,
       product_dimensions,
-      created_at: Timestamp.now().toDate(),
-      updated_at: Timestamp.now().toDate(),
+      product_timestamp: Timestamp.now().toDate(),
+      product_last_updated: Timestamp.now().toDate(),
+      product_soft_deleted: false,
     });
 
     if (!file || file === "") {
