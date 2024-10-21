@@ -135,7 +135,7 @@ const CreateInventory = () => {
 
       <button
         type="submit"
-        className="bg-green-400 text-white p-4 rounded-md self-start"
+        className="bg-customerRibbonGreen text-white p-4 rounded-md self-start"
       >
         Add Inventory
       </button>

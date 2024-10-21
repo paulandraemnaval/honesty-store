@@ -45,7 +45,7 @@ const Navbar = () => {
 
       {/*mobile nav*/}
 
-      <div className="sm:hidden fixed bottom-0 flex bg-green-400 w-full py-2 px-2 justify-between">
+      <div className="sm:hidden fixed bottom-0 flex bg-customerRibbonGreen w-full py-2 px-2 justify-between">
         <div className="p-4">home</div>
         <div className="p-4">sales</div>
         <div className="p-4">product</div>
