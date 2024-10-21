@@ -1,7 +1,136 @@
+"use client";
 import React from "react";
 import "../stlyes/globals.css";
+import react from "react";
+import ProductList from "@components/ProductList";
+import Image from "next/image";
+import right_arrow from "@public/icons/right_arrow.png";
+import left_arrow from "@public/icons/left_arrow.png";
+import Pagination from "@components/Pagination";
+
 const page = () => {
-  return <div className="">user page</div>;
+  const [products, setProducts] = React.useState([]);
+  const [categories, setCategories] = React.useState([]);
+  const [selectedCategory, setSelectedCategory] = React.useState([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 5;
+
+  const handleSelectCategory = (category) => {
+    setSelectedCategory({
+      category_name: category.category_name,
+      category_id: category.category_id,
+    });
+    setCurrentPage(1);
+  };
+
+  const getProducts = async () => {
+    try {
+      const response = await fetch("/api/admin/products");
+      const data = await response.json();
+
+      setProducts(data.data);
+    } catch (error) {
+      console.error("Failed to fetch products: ", error);
+    }
+  };
+
+  const getCategories = async () => {
+    let data;
+    try {
+      const response = await fetch("/api/admin/category");
+      data = await response.json();
+      setCategories(data.data);
+    } catch (error) {
+      console.error("Failed to fetch categories: ", error);
+    }
+    setSelectedCategory({
+      category_name: data.data[0].category_name,
+      category_id: data.data[0].category_id,
+    });
+  };
+
+  React.useEffect(() => {
+    getProducts();
+    getCategories();
+  }, []);
+
+  const categorizedProducts = products.filter((product) => {
+    return product.product_category === selectedCategory.category_id;
+  });
+
+  const paginatedProducts = categorizedProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const totalPages = Math.ceil(categorizedProducts.length / itemsPerPage);
+
+  return (
+    <>
+      <header className="flex justify-center items-center p-4 bg-gradient-to-r from-gradientStart via-gradientMiddle to-gradientEnd">
+        <p className="text-2xl text-white font-medium">
+          HONESTY STORE | PRODUCTS
+        </p>
+      </header>
+
+      <main className="flex flex-col px-14 py-4 gap-4 ">
+        <section className="py-1">
+          <ul className="border-b border-gray-300 flex">
+            {categories.map((category) => (
+              <li
+                key={category.category_id}
+                onClick={() => handleSelectCategory(category)}
+                className={`${
+                  selectedCategory.category_id === category.category_id
+                    ? "bg-customerRibbonGreen text-white"
+                    : "white text-[#146939]"
+                } w-fit py-2 px-3 rounded-md rounded-bl-none rounded-br-none cursor-pointer`}
+              >
+                {category.category_name}
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section className="flex">
+          <div className="flex gap-4 w-full h-full">
+            <button
+              className="h-fit w-fit mt-auto mb-auto"
+              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+            >
+              <Image src={left_arrow} width={30} height={30} />
+            </button>
+            <div className="flex flex-col flex-1">
+              <ProductList
+                products={paginatedProducts}
+                selectedCategory={selectedCategory}
+              />
+              <div className="mr-auto ml-auto">
+                <Pagination
+                  itemsCount={categorizedProducts.length}
+                  itemsPerPage={itemsPerPage}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            </div>
+            <button
+              className="h-fit w-fit mt-auto mb-auto"
+              onClick={() =>
+                handlePageChange(Math.min(currentPage + 1, totalPages))
+              }
+            >
+              <Image src={right_arrow} width={30} height={30} />
+            </button>
+          </div>
+        </section>
+      </main>
+    </>
+  );
 };
 
 export default page;
