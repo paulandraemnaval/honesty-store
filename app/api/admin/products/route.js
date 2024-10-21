@@ -26,6 +26,7 @@ export async function GET() {
         { status: 200 }
       );
     }
+
     return NextResponse.json(
       {
         message: "All products",
