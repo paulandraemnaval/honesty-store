@@ -5,6 +5,9 @@ import {
   Timestamp,
   doc,
   setDoc,
+  query,
+  where,
+  updateDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
@@ -25,10 +28,27 @@ export async function GET() {
       );
     }
 
+    const updatedProducts = await Promise.all(
+      products.map(async (prod) => {
+        const categoryQuery = query(
+          collection(db, "category"),
+          where("category_id", "==", prod.product_category)
+        );
+
+        const categorySnapshot = await getDocs(categoryQuery);
+        const category = categorySnapshot.docs.map((doc) => doc.data())[0];
+
+        return {
+          ...prod,
+          product_category: category || null,
+        };
+      })
+    );
+
     return NextResponse.json(
       {
         message: "All products",
-        data: products,
+        data: updatedProducts,
       },
       { status: 200 }
     );
@@ -75,8 +95,9 @@ export async function POST(request) {
       product_image_url: imageURL,
       product_weight,
       product_dimensions,
-      created_at: Timestamp.now().toDate(),
-      updated_at: Timestamp.now().toDate(),
+      product_timestamp: Timestamp.now().toDate(),
+      product_last_updated: Timestamp.now().toDate(),
+      product_soft_deleted: false,
     });
 
     if (!file || file === "") {
