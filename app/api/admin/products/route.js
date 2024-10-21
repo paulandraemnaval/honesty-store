@@ -2,9 +2,7 @@ import { db } from "@utils/firebase";
 import {
   collection,
   getDocs,
-  addDoc,
   Timestamp,
-  updateDoc,
   doc,
   setDoc,
 } from "firebase/firestore";
