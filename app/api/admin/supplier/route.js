@@ -1,3 +1,10 @@
+<<<<<<< HEAD
+import { auth, db } from "@utils/firebase";
+import {
+  collection,
+  getDocs,
+  Timestamp,
+=======
 import { db } from "@utils/firebase";
 import {
   collection,
@@ -5,14 +12,38 @@ import {
   addDoc,
   Timestamp,
   updateDoc,
+>>>>>>> 11dbad404deb68d953e71643cce58e48667c81cc
   doc,
   setDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+<<<<<<< HEAD
+import { createLog } from "@utils/firebase";
+=======
+>>>>>>> 11dbad404deb68d953e71643cce58e48667c81cc
 
 export async function GET() {
   let suppliers = [];
   try {
+<<<<<<< HEAD
+    query = await getDocs(collection(db, "Supplier"));
+    suppliers = query.docs.map((supplier) => supplier.data());
+    if (suppliers.length === 0) {
+      return NextResponse.json(
+        { message: "There are no suppliers in the database", data: {} },
+        { status: 200 }
+      );
+    }
+
+    return NextResponse.json(
+      { message: "All suppliers", data: suppliers },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error.message);
+    return NextResponse.json(
+      { message: "Failed to fetch suppliers" + error.message },
+=======
     const suppliersQuery = await getDocs(collection(db, "suppliers"));
 
     suppliers = suppliersQuery.docs.map((doc) => doc.data());
@@ -76,6 +107,7 @@ export async function POST(request) {
 
     return NextResponse.json(
       { error: "Failed to create Supplier" },
+>>>>>>> 11dbad404deb68d953e71643cce58e48667c81cc
       { status: 400 }
     );
   }

@@ -1,14 +1,6 @@
 import { auth, db } from "@utils/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  Timestamp,
-  updateDoc,
-  doc,
-  setDoc,
-} from "firebase/firestore";
+import { collection, Timestamp, doc, setDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
@@ -26,6 +18,7 @@ const signUpUser = async (email, password) => {
   }
 };
 
+//----------------------------------------------------------------------------
 export async function POST(request) {
   const accountRef = collection(db, "Account");
   const accountDoc = doc(accountRef);
@@ -54,9 +47,6 @@ export async function POST(request) {
         );
       }
     }
-
-    //hash password
-
     //creating account
     const accountData = {
       account_id: accountDoc.id,
@@ -74,8 +64,22 @@ export async function POST(request) {
     //storing account
     await setDoc(accountDoc, accountData);
 
+    const logRef = collection(db, "Log");
+    const logDoc = doc(logRef);
+    //creating log
+    const logData = {
+      log_id: logDoc.id,
+      account_id: accountDoc.id,
+      log_table_name: "Account",
+      log_table_item_id: "N/A",
+      log_table_action: "Sign-Up",
+      log_timestamp: Timestamp.now().toDate(),
+    };
+    //storing log to database
+    await setDoc(logDoc, logData);
+
     return NextResponse.json(
-      { message: "Account created successfully", accountData },
+      { message: "Account created successfully", accountData, logData },
       { status: 200 }
     );
   } catch (error) {
