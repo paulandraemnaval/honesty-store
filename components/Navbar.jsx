@@ -1,19 +1,42 @@
 import Link from "next/link";
 import React from "react";
+import Image from "next/image";
+import homeIcon from "@public/icons/home_icon.png";
+import salesIcon from "@public/icons/sales_icon.png";
+import accountManagementIcon from "@public/icons/account_management_icon.png";
+import inventoryIcon from "@public/icons/inventory_icon.png";
 
 const Navbar = () => {
   return (
     <nav className="flex">
       {/*desktop nav*/}
-      <div className="sm:flex hidden h-full items-center justify-center flex-col bg-green-400 gap-6 py-8 px-2 max-w-20">
-        <div className=" border-gray-300 justify-center align-center text-center">
+      <div className="sm:flex hidden h-full items-center justify-center flex-col bg-customerRibbonGreen gap-6 py-8 px-2 max-w-20">
+        <div className=" border-gray-300 justify-center align-center text-center flex">
+          <Image src={homeIcon} alt="home_icon" height={30} width={30} />
           <Link href="/admin/user">Dash</Link>
         </div>
         <div className=" border-gray-300 justify-center align-center text-center">
-          <Link href="/admin/user/products">products</Link>
+          <Image
+            src={accountManagementIcon}
+            alt="accountManagementIcon_icon"
+            height={30}
+            width={30}
+          />
+          <Link href="/admin/user/manage">Manage</Link>
         </div>
         <div className=" border-gray-300 justify-center align-center text-center">
-          <Link href="/admin/user/manage">Manage</Link>
+          <Image src={salesIcon} alt="sales_icon" height={30} width={30} />
+          <Link href="/admin/user/products">products</Link>
+        </div>
+
+        <div className=" border-gray-300 justify-center align-center text-center">
+          <Image
+            src={inventoryIcon}
+            alt="inventory_icon"
+            height={30}
+            width={30}
+          />
+          <Link href="/admin/user/inventory">Inventory</Link>
         </div>
         <div className=" border-gray-300 justify-center align-center flex mt-auto">
           me
