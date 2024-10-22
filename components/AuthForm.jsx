@@ -34,7 +34,7 @@ const AuthForm = () => {
     formData.delete("password");
 
     const salt = await bcryptjs.genSalt(10);
-    const hashedPassword = await bcryptjs.hash(password, salt);
+    const hashedPassword = bcryptjs.hash(password, salt);
 
     formData.append("password", hashedPassword);
     formData.append("salt", salt);

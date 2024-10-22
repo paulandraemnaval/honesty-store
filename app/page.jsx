@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import "../stlyes/globals.css";
-import react from "react";
 import ProductList from "@components/ProductList";
 import Image from "next/image";
 import right_arrow from "@public/icons/right_arrow.png";
