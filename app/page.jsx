@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { Suspense } from "react";
 import "../stlyes/globals.css";
 import ProductList from "@components/ProductList";
 import Image from "next/image";
@@ -8,6 +8,8 @@ import left_arrow from "@public/icons/left_arrow.png";
 import Pagination from "@components/Pagination";
 
 const page = () => {
+  const [isOnline, setIsOnline] = React.useState(navigator.onLine);
+
   const [products, setProducts] = React.useState([]);
   const [categories, setCategories] = React.useState([]);
   const [selectedCategory, setSelectedCategory] = React.useState([]);
@@ -41,16 +43,24 @@ const page = () => {
     setSelectedCategory(data.data[0].category_name);
   };
 
+  const handleOnline = () => setIsOnline(true);
+  const handleOffline = () => setIsOnline(false);
   React.useEffect(() => {
     getProducts();
     getCategories();
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
   }, []);
 
   const categorizedProducts = products.filter((product) => {
     return product.product_category.category_name === selectedCategory;
   });
-
-  console.log(categorizedProducts, "categorized products");
 
   const paginatedProducts = categorizedProducts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -72,56 +82,59 @@ const page = () => {
       </header>
 
       <main className="flex flex-col px-14 py-4 gap-4 ">
-        <section className="py-1">
-          <ul className="border-b border-gray-300 flex">
-            {categories.map((category) => (
-              <li
-                key={category.category_id}
-                onClick={() => handleSelectCategory(category)}
-                className={`${
-                  selectedCategory === category.category_name
-                    ? "bg-customerRibbonGreen text-white"
-                    : "white text-[#146939]"
-                } w-fit py-2 px-3 rounded-md rounded-bl-none rounded-br-none cursor-pointer`}
-              >
-                {category.category_name}
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section className="flex">
-          <div className="flex gap-4 w-full h-full">
-            <button
-              className="h-fit w-fit mt-auto mb-auto"
-              onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-            >
-              <Image src={left_arrow} width={30} height={30} />
-            </button>
-            <div className="flex flex-col flex-1">
-              <ProductList
-                products={paginatedProducts}
-                selectedCategory={selectedCategory}
-              />
-              <div className="mr-auto ml-auto">
-                <Pagination
-                  itemsCount={categorizedProducts.length}
-                  itemsPerPage={itemsPerPage}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={handlePageChange}
-                />
+        {isOnline ? (
+          <>
+            <section className="py-1">
+              <ul className="border-b border-gray-300 flex">
+                {categories.map((category) => (
+                  <li
+                    key={category.category_id}
+                    onClick={() => handleSelectCategory(category)}
+                    className={`${
+                      selectedCategory === category.category_name
+                        ? "bg-customerRibbonGreen text-white"
+                        : "white text-[#146939]"
+                    } w-fit py-2 px-3 rounded-md rounded-bl-none rounded-br-none cursor-pointer`}
+                  >
+                    {category.category_name}
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <section className="flex">
+              <div className="flex gap-4 w-full h-full">
+                <button
+                  className="h-fit w-fit mt-auto mb-auto"
+                  onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
+                >
+                  <Image src={left_arrow} width={30} height={30} />
+                </button>
+                <div className="flex flex-col flex-1">
+                  <ProductList products={paginatedProducts} />
+                  <div className="mr-auto ml-auto">
+                    <Pagination
+                      itemsCount={categorizedProducts.length}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                    />
+                  </div>
+                </div>
+                <button
+                  className="h-fit w-fit mt-auto mb-auto"
+                  onClick={() =>
+                    handlePageChange(Math.min(currentPage + 1, totalPages))
+                  }
+                >
+                  <Image src={right_arrow} width={30} height={30} />
+                </button>
               </div>
-            </div>
-            <button
-              className="h-fit w-fit mt-auto mb-auto"
-              onClick={() =>
-                handlePageChange(Math.min(currentPage + 1, totalPages))
-              }
-            >
-              <Image src={right_arrow} width={30} height={30} />
-            </button>
-          </div>
-        </section>
+            </section>
+          </>
+        ) : (
+          <p>You are offline!</p>
+        )}
       </main>
     </>
   );

@@ -76,17 +76,9 @@ export async function POST(request) {
 
     const email_salt = user.docs[0].data().account_salt;
 
-    console.log("_________________________");
-    console.log("Email Salt:", email_salt);
-    console.log("_________________________");
-
     const password_hash = await bcryptjs.hash(password, email_salt);
 
     const accountData = await signInUser(email, password_hash);
-
-    console.log("_________________________");
-    console.log("Account Data SIGNIN:", accountData);
-    console.log("_________________________");
 
     if (accountData instanceof Error) {
       console.log("Error in user sign-up:", accountData.message);

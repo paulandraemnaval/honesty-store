@@ -2,7 +2,7 @@
 
 import React from "react";
 import ProductList from "@components/ProductList";
-import Form from "@components/ProductForm";
+import ProductForm from "@components/ProductForm";
 const productspage = () => {
   const [showAddProduct, setShowAddProduct] = React.useState(false);
   const [products, setProducts] = React.useState([]);
@@ -14,7 +14,6 @@ const productspage = () => {
     };
     fetchProducts();
   }, []);
-  console.log(products);
   return (
     <div className="flex flex-col gap-4 w-full p-2 relative">
       <h1>Products</h1>
@@ -39,13 +38,8 @@ const productspage = () => {
           Add...
         </button>
       </div>
-      <ProductList products={products} />
 
-      {showAddProduct && (
-        <div className="absolute top-24 left-[5px] sm:left-2  w-[380px]">
-          <Form />
-        </div>
-      )}
+      <ProductList products={products} />
     </div>
   );
 };
