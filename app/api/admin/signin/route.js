@@ -66,6 +66,7 @@ export async function POST(request) {
       collection(db, "Account"),
       where("account_email", "==", email)
     );
+
     const user = await getDocs(query_string);
 
     if (user.empty) {
@@ -74,12 +75,17 @@ export async function POST(request) {
     }
 
     const email_salt = user.docs[0].data().account_salt;
+
+    console.log("_________________________");
+    console.log("Email Salt:", email_salt);
+    console.log("_________________________");
+
     const password_hash = await bcryptjs.hash(password, email_salt);
 
     const accountData = await signInUser(email, password_hash);
 
     console.log("_________________________");
-    console.log("Account Data:", accountData);
+    console.log("Account Data SIGNIN:", accountData);
     console.log("_________________________");
 
     if (accountData instanceof Error) {
