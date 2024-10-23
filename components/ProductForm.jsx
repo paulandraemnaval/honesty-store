@@ -17,7 +17,7 @@ const ProductForm = ({ productData = {} }) => {
     product_uom: productData.product_uom || "",
     product_reorder_point: productData.product_reorder_point || "",
     product_weight: productData.product_weight || "",
-    product_dimension: productData.product_dimensions || "",
+    product_dimensions: productData.product_dimensions || "",
   });
 
   React.useEffect(() => {
@@ -177,7 +177,7 @@ const ProductForm = ({ productData = {} }) => {
           <label htmlFor="product_dimension">Product Dimensions</label>
           <input
             type="text"
-            name="product_dimension"
+            name="product_dimensions"
             value={formValues.product_dimension}
             onChange={handleInputChange}
             placeholder="Product Dimensions"

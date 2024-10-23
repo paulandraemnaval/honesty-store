@@ -74,7 +74,7 @@ export async function POST(request) {
     const product_uom = reqFormData.get("product_uom");
     const product_reorder_point = reqFormData.get("product_reorder_point");
     const product_weight = reqFormData.get("product_weight");
-    const product_dimensions = reqFormData.get("product_dimension");
+    const product_dimensions = reqFormData.get("product_dimensions");
 
     const imageURL = await getImageURL(file, productDoc.id, "products");
     if (!imageURL) {
@@ -95,7 +95,7 @@ export async function POST(request) {
       product_reorder_point,
       product_image_url: imageURL,
       product_weight,
-      product_dimensions: product_dimensions,
+      product_dimensions,
       product_timestamp: Timestamp.now().toDate(),
       product_last_updated: Timestamp.now().toDate(),
       product_soft_deleted: false,

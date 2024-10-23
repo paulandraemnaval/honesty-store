@@ -51,7 +51,8 @@ const ProductList = ({ products = [] }) => {
     return availableInventories.length === 0;
   };
 
-  if (products.length === 0) return <h1>No products available</h1>;
+  if (!Array.isArray(products) || products.length === 0)
+    return <h1>No products available</h1>;
 
   return (
     <>
