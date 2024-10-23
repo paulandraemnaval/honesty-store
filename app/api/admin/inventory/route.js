@@ -1,4 +1,4 @@
-import { db } from "@utils/firebase";
+import { db, createLog, getLoggedInUser } from "@utils/firebase";
 import {
   collection,
   getDocs,
@@ -67,15 +67,25 @@ export async function POST(request) {
       inventory_description,
       inventory_profit_margin,
       inventory_expiration_date,
-      created_at: Timestamp.now().toDate(),
-      updated_at: Timestamp.now().toDate(),
+      inventory_timestamp: Timestamp.now().toDate(),
+      inventory_last_updated: Timestamp.now().toDate(),
+      inventory_soft_deleted: false,
     });
+
+    const user = await getLoggedInUser();
+    const logData = await createLog(
+      user.account_id,
+      "Inventory",
+      inventoryDoc.id,
+      "Added a new inventory"
+    );
 
     return NextResponse.json(
       {
         message: "inventory created successfully",
         data: {
           inventoryID: inventoryDoc.id,
+          logData,
         },
       },
       { status: 200 }

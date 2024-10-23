@@ -1,10 +1,8 @@
-import { db } from "@utils/firebase";
+import { db, createLog, getLoggedInUser } from "@utils/firebase";
 import {
   collection,
   getDocs,
-  addDoc,
   Timestamp,
-  updateDoc,
   doc,
   setDoc,
 } from "firebase/firestore";
@@ -81,12 +79,22 @@ export async function POST(request) {
       );
     }
 
+    const user = await getLoggedInUser();
+
+    const logData = await createLog(
+      user.account_id,
+      "Category",
+      categoryDoc.id,
+      "Added a new category"
+    );
+
     return NextResponse.json(
       {
         message: "category created successfully",
         data: {
           categoryID: categoryDoc.id,
           imageURL,
+          logData,
         },
       },
       { status: 200 }

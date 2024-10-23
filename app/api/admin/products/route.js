@@ -115,7 +115,7 @@ export async function POST(request) {
     const logData = await createLog(
       user.account_id,
       "Products",
-      "N/A",
+      productDoc.id,
       "Added a new product"
     );
 

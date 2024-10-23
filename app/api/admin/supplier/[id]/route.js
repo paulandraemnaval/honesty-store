@@ -1,4 +1,4 @@
-import { db } from "@utils/firebase";
+import { db, createLog, getLoggedInUser } from "@utils/firebase";
 import {
   collection,
   getDocs,
@@ -22,8 +22,19 @@ export async function DELETE(request, { params }) {
       supplier_soft_deleted: true,
     });
 
+    const user = await getLoggedInUser();
+    const logData = await createLog(
+      user.account_id,
+      "Supplier",
+      id,
+      `Soft-deleted supplier with ID: ${id}`
+    );
+
     return NextResponse.json(
-      { message: `Supplier with ID ${id} soft-deleted successfully.` },
+      {
+        message: `Supplier with ID ${id} soft-deleted successfully.`,
+        data: logData,
+      },
       { status: 200 }
     );
   } catch (error) {

@@ -71,12 +71,11 @@ export const getLoggedInUser = async () => {
       return null;
     }
 
-    // Assuming you have a field in the session document to reference the user account
-    const accountAuthId = sessionDoc.data().account_auth_id; // Adjust the field name accordingly
+    const accountAuthId = sessionDoc.data().account_auth_id;
 
     const accountQuery = query(
       collection(db, "Account"),
-      where("account_auth_id", "==", accountAuthId) // Use a query to find the account by account_auth_id
+      where("account_auth_id", "==", accountAuthId)
     );
 
     const accountSnapshot = await getDocs(accountQuery);
@@ -85,9 +84,8 @@ export const getLoggedInUser = async () => {
       console.log("No account found with the given account_auth_id.");
       return null;
     }
-    // Assuming there is only one account document, return the first result
+
     const accountData = accountSnapshot.docs[0].data();
-    console.log("Account Data: ", accountData);
 
     return accountData;
   } catch (error) {
