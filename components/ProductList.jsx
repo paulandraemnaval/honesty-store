@@ -2,9 +2,11 @@
 
 import React from "react";
 import Image from "next/image";
-
-const ProductList = ({ products = [], selectedCategory }) => {
+import ProductForm from "./ProductForm";
+const ProductList = ({ products = [] }) => {
   const [inventories, setInventories] = React.useState([]);
+  const [showEdit, setShowEdit] = React.useState(false);
+  const [productData, setProductData] = React.useState({});
 
   React.useEffect(() => {
     const getInventories = async () => {
@@ -25,8 +27,6 @@ const ProductList = ({ products = [], selectedCategory }) => {
     };
     getInventories();
   }, []);
-
-  console.log(inventories);
 
   const getPrice = (product) => {
     const availableInventories = inventories
@@ -51,29 +51,34 @@ const ProductList = ({ products = [], selectedCategory }) => {
     return availableInventories.length === 0;
   };
 
-  console.log(products, "products passed to productlist");
+  if (products.length === 0) return <h1>No products available</h1>;
 
   return (
-    <ul className="flex-1 flex flex-wrap gap-4">
-      {products.length === 0 ? (
-        <p className="text-center">No Products Available</p>
-      ) : (
-        products.map((product, index) => (
+    <>
+      <ul className="relative flex-1 flex flex-wrap gap-4 items-center justify-center mx-auto overflow-hidden max-w-full">
+        {products.map((product, index) => (
           <li
-            className="relative max-w-[220px] max-h-[300px] flex flex-col gap-2 border border-gray-400 p-4 rounded-lg -z-10"
+            className="relative w-[200px] h-[300px] flex flex-col gap-2 border border-gray-400 p-4 rounded-lg pointer-events-auto" // Fix width and height
             key={index}
+            onClick={(e) => {
+              e.stopPropagation();
+              setProductData(product);
+              setShowEdit((prev) => !prev);
+            }}
           >
-            <Image
-              height={200}
-              width={200}
-              src={null || product.product_image_url}
-              className="object-cover flex-1"
-            />
-            <div>
-              <h3>{product.product_name}</h3>
-              <p className="font-medium">Price: {getPrice(product)}</p>
-
-              <p>{product.product_description}</p>
+            <div className="w-full h-[180px] bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
+              <Image
+                height={180}
+                width={180}
+                src={product.product_image_url || null}
+                className="object-cover w-full h-full" // Ensures the image covers the area without stretching
+                alt={product.product_name}
+              />
+            </div>
+            <div className="flex-1 overflow-hidden">
+              <h3 className="truncate">{product.product_name}</h3>
+              <p className="font-medium truncate">Price: {getPrice(product)}</p>
+              <p className="text-sm truncate">{product.product_description}</p>
             </div>
 
             {isOutofStock(product) && (
@@ -82,9 +87,16 @@ const ProductList = ({ products = [], selectedCategory }) => {
               </p>
             )}
           </li>
-        ))
+        ))}
+      </ul>
+
+      {/* Centered and Sticky ProductForm */}
+      {showEdit && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-[90vw] max-w-[600px] bg-white shadow-lg border p-4 rounded-lg">
+          <ProductForm productData={productData} />
+        </div>
       )}
-    </ul>
+    </>
   );
 };
 

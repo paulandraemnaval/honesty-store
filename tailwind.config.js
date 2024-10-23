@@ -14,6 +14,7 @@ module.exports = {
         gradientMiddle: "#0C6435",
         gradientEnd: "#114B27",
         customerRibbonGreen: "#146939",
+        navbarGreen: "#17321A",
         yellow: "#fdc530",
       },
     },
