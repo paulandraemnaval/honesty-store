@@ -9,6 +9,12 @@ module.exports = {
       },
       {
         protocol: "https",
+        hostname: "cdn.dummyjson.com",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "firebasestorage.googleapis.com",
         port: "",
         pathname: "/**",
