@@ -9,12 +9,11 @@ import Pagination from "@components/Pagination";
 
 const page = () => {
   const [isOnline, setIsOnline] = React.useState(navigator.onLine);
-
   const [products, setProducts] = React.useState([]);
   const [categories, setCategories] = React.useState([]);
-  const [selectedCategory, setSelectedCategory] = React.useState([]);
+  const [selectedCategory, setSelectedCategory] = React.useState("All");
   const [currentPage, setCurrentPage] = React.useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   const handleSelectCategory = (category) => {
     setSelectedCategory(category.category_name);
@@ -40,7 +39,6 @@ const page = () => {
     } catch (error) {
       console.error("Failed to fetch categories: ", error);
     }
-    setSelectedCategory(data.data[0].category_name);
   };
 
   const handleOnline = () => setIsOnline(true);
@@ -59,7 +57,9 @@ const page = () => {
   }, []);
 
   const categorizedProducts = products.filter((product) => {
-    return product.product_category.category_name === selectedCategory;
+    return selectedCategory === "All"
+      ? true
+      : product.product_category.category_name === selectedCategory;
   });
 
   const paginatedProducts = categorizedProducts.slice(
@@ -86,6 +86,16 @@ const page = () => {
           <>
             <section className="py-1">
               <ul className="border-b border-gray-300 flex">
+                <li
+                  onClick={() => handleSelectCategory({ category_name: "All" })}
+                  className={`${
+                    selectedCategory === "All"
+                      ? "bg-customerRibbonGreen text-white"
+                      : "white text-[#146939]"
+                  } w-fit py-2 px-3 rounded-md rounded-bl-none rounded-br-none cursor-pointer`}
+                >
+                  All
+                </li>
                 {categories.map((category) => (
                   <li
                     key={category.category_id}

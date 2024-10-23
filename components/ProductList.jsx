@@ -3,8 +3,10 @@
 import React from "react";
 import Image from "next/image";
 import ProductForm from "./ProductForm";
+
 const ProductList = ({ products = [] }) => {
   const [inventories, setInventories] = React.useState([]);
+  const [loading, setLoading] = React.useState(true); // Loading state
   const [showEdit, setShowEdit] = React.useState(false);
   const [productData, setProductData] = React.useState({});
 
@@ -23,6 +25,8 @@ const ProductList = ({ products = [] }) => {
         );
       } catch (error) {
         console.error("Failed to fetch inventories: ", error);
+      } finally {
+        setLoading(false); // Stop loading once data is fetched
       }
     };
     getInventories();
@@ -51,14 +55,20 @@ const ProductList = ({ products = [] }) => {
     return availableInventories.length === 0;
   };
 
-  if (products.length === 0) return <h1>No products available</h1>;
+  if (loading) {
+    return <h1>Loading...</h1>;
+  }
+
+  if (!Array.isArray(products) || products.length === 0) {
+    return <h1>No products available</h1>;
+  }
 
   return (
     <>
       <ul className="relative flex-1 flex flex-wrap gap-4 items-center justify-center mx-auto overflow-hidden max-w-full">
         {products.map((product, index) => (
           <li
-            className="relative w-[200px] h-[300px] flex flex-col gap-2 border border-gray-400 p-4 rounded-lg pointer-events-auto" // Fix width and height
+            className="relative w-[200px] h-[300px] flex flex-col gap-2 border border-gray-400 p-4 rounded-lg pointer-events-auto"
             key={index}
             onClick={(e) => {
               e.stopPropagation();
@@ -71,7 +81,7 @@ const ProductList = ({ products = [] }) => {
                 height={180}
                 width={180}
                 src={product.product_image_url || null}
-                className="object-cover w-full h-full" // Ensures the image covers the area without stretching
+                className="object-cover w-full h-full"
                 alt={product.product_name}
               />
             </div>
@@ -90,10 +100,13 @@ const ProductList = ({ products = [] }) => {
         ))}
       </ul>
 
-      {/* Centered and Sticky ProductForm */}
       {showEdit && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-[90vw] max-w-[600px] bg-white shadow-lg border p-4 rounded-lg">
-          <ProductForm productData={productData} />
+        <div className="fixed top-[2rem] left-[14rem] z-50 w-[80vw] overflow-auto bg-white rounded-md p-4 border shadow-lg max-h-[40rem]">
+          <ProductForm
+            productData={productData}
+            setShowEdit={setShowEdit}
+            method={"patch"}
+          />
         </div>
       )}
     </>

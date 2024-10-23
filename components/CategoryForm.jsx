@@ -1,7 +1,8 @@
 "use client";
 import React from "react";
-
-const CreateCategory = () => {
+import image_placeholder from "@public/defaultImages/placeholder_image.png";
+import Image from "next/image";
+const CategoryForm = () => {
   const [image, setImage] = React.useState({
     file: null,
     url: "",
@@ -38,6 +39,24 @@ const CreateCategory = () => {
       onSubmit={(e) => postCategory(e)}
       className="flex flex-col gap-2"
     >
+      <Image
+        src={image.url || image_placeholder}
+        alt="categoryImage"
+        className="object-cover h-24 w-24 rounded-md"
+        height={100}
+        width={100}
+      />
+      <div className="flex">
+        <label
+          htmlFor="file"
+          className="bg-customerRibbonGreen text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+        >
+          Upload Image
+        </label>
+        <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate">
+          {image.file?.name || "No image selected"}
+        </p>
+      </div>
       <label htmlFor="category_name">Category Name</label>
       <input
         type="text"
@@ -51,32 +70,21 @@ const CreateCategory = () => {
         name="category_description"
         className="border"
       />
-      <label
-        htmlFor="categoryImage"
-        className="cursor-pointer p-2 rounded-md bg-customerRibbonGreen text-white"
-      >
-        Select Image for Category
-      </label>
       <input
         type="file"
-        id="categoryImage"
+        id="file"
         name="file"
         onChange={handleImageSelect}
         className="hidden"
       />
-      <img
-        src={image.url || ""}
-        alt="categoryImage"
-        className="object-cover h-24 w-24 rounded-md"
-      />
       <button
         type="submit"
-        className="bg-customerRibbonGreen text-white p-2 rounded-md"
+        className="bg-customerRibbonGreen text-white rounded-lg p-2 w-fit"
       >
-        Add Category
+        Create Category
       </button>
     </form>
   );
 };
 
-export default CreateCategory;
+export default CategoryForm;
