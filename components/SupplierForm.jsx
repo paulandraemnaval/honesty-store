@@ -53,9 +53,9 @@ const SupplierForm = () => {
       <textarea id="supplier_notes" name="supplier_notes" className="border" />
       <button
         type="submit"
-        className="self-start bg-customerRibbonGreen text-white p-4 rounded-md"
+        className="bg-customerRibbonGreen text-white rounded-lg p-2 w-fit"
       >
-        Add Supplier
+        Create Supplier
       </button>
     </form>
   );

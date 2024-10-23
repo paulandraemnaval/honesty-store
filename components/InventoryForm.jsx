@@ -4,6 +4,8 @@ import React from "react";
 const CreateInventory = () => {
   const [products, setProducts] = React.useState([]);
   const [suppliers, setSuppliers] = React.useState([]);
+  const [selectedProduct, setSelectedProduct] = React.useState(""); // Default to empty string
+  const [selectedSupplier, setSelectedSupplier] = React.useState(""); // Default to empty string
 
   React.useEffect(() => {
     const getProducts = async () => {
@@ -28,8 +30,6 @@ const CreateInventory = () => {
     };
     getSuppliers();
   }, []);
-
-  console.log(suppliers);
 
   const postInventory = async (e) => {
     e.preventDefault();
@@ -60,12 +60,19 @@ const CreateInventory = () => {
         name="wholesale_price"
         className="border"
       />
+
       <label htmlFor="inventory_product">Product</label>
       <select
         className="border p-2"
         name="inventory_product"
         id="inventory_product"
+        value={selectedProduct}
+        onChange={(e) => setSelectedProduct(e.target.value)}
+        required
       >
+        <option value="" disabled>
+          Select Product
+        </option>{" "}
         {products.length === 0 ? (
           <option>No products available</option>
         ) : (
@@ -82,12 +89,22 @@ const CreateInventory = () => {
         className="border p-2"
         name="inventory_supplier"
         id="inventory_supplier"
+        value={selectedSupplier}
+        onChange={(e) => setSelectedSupplier(e.target.value)}
+        required
       >
-        {suppliers.map((supplier) => (
-          <option key={supplier.supplier_id} value={supplier.supplier_id}>
-            {supplier.supplier_name}
-          </option>
-        ))}
+        <option value="" disabled>
+          Select Supplier
+        </option>
+        {suppliers.length === 0 ? (
+          <option>No suppliers available</option>
+        ) : (
+          suppliers.map((supplier) => (
+            <option key={supplier.supplier_id} value={supplier.supplier_id}>
+              {supplier.supplier_name}
+            </option>
+          ))
+        )}
       </select>
 
       <label htmlFor="total_units">Total Units</label>
@@ -135,9 +152,9 @@ const CreateInventory = () => {
 
       <button
         type="submit"
-        className="bg-customerRibbonGreen text-white p-4 rounded-md self-start"
+        className="bg-customerRibbonGreen text-white rounded-lg p-2 w-fit"
       >
-        Add Inventory
+        Create Inventory
       </button>
     </form>
   );

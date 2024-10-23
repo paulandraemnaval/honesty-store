@@ -15,12 +15,19 @@ const Navbar = () => {
   return (
     <nav>
       {/*desktop nav*/}
-      <div className="sm:flex hidden h-full items-center justify-center flex-col bg-navbarGreen gap-8 py-8 w-[12rem]">
+
+      <div className="p-2 sm:flex hidden h-full items-center justify-center flex-col bg-navbarGreen gap-8 py-8 w-[12rem]">
+        <p className="font-bold text-white text-2xl text-center">
+          HONESTY STORE
+        </p>
         <div
-          className={`flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "dash" ? "bg-yellow" : ""
+          className={`text-white flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
+            currentPage === "dash" ? "bg-yellow text-black" : ""
           }`}
-          onClick={() => setCurrentPage("dash")}
+          onClick={(e) => {
+            e.stopPropagation;
+            setCurrentPage("dash");
+          }}
         >
           <Image
             src={homeIcon}
@@ -37,10 +44,13 @@ const Navbar = () => {
           </Link>
         </div>
         <div
-          className={`w-full flex bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "manage" ? "bg-yellow" : ""
+          className={`text-white w-full flex bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
+            currentPage === "manage" ? "bg-yellow text-black" : ""
           }`}
-          onClick={() => setCurrentPage("manage")}
+          onClick={(e) => {
+            e.stopPropagation;
+            setCurrentPage("manage");
+          }}
         >
           <Image
             src={accountManagementIcon}
@@ -56,10 +66,13 @@ const Navbar = () => {
           </Link>
         </div>
         <div
-          className={`flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "products" ? "bg-yellow" : ""
+          className={` text-white flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
+            currentPage === "products" ? "bg-yellow text-black" : ""
           }`}
-          onClick={() => setCurrentPage("products")}
+          onClick={(e) => {
+            e.stopPropagation;
+            setCurrentPage("products");
+          }}
         >
           <Image src={salesIcon} alt="sales_icon" height={30} width={30} />
           <Link
@@ -70,11 +83,14 @@ const Navbar = () => {
           </Link>
         </div>
 
-        <div
-          className={`flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "inventory" ? "bg-yellow" : ""
+        {/* <div
+          className={`text-white flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
+            currentPage === "inventory" ? "bg-yellow text-black" : ""
           }`}
-          onClick={() => setCurrentPage("inventory")}
+          onClick={(e) => {
+            e.stopPropagation;
+            setCurrentPage("inventory");
+          }}
         >
           <Image
             src={inventoryIcon}
@@ -88,8 +104,8 @@ const Navbar = () => {
           >
             Inventory
           </Link>
-        </div>
-        <div className=" justify-center align-center flex mt-auto">me</div>
+        </div>*/}
+        <div className=" justify-center align-center flex mt-auto"></div>
       </div>
 
       {/*mobile nav*/}
