@@ -92,7 +92,7 @@ export async function POST(request) {
       console.log("Error in user sign-up:", accountData.message);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
-    const sessionData = await createSession(accountData.account_id);
+    const sessionData = await createSession(accountData.uid);
 
     const logData = await createLog(
       user.docs[0].data().account_id,

@@ -111,11 +111,12 @@ export async function POST(request) {
       );
     }
 
+    const user = await getLoggedInUser();
     const logData = await createLog(
-      getLoggedInUser().account_id,
+      user.account_id,
       "Products",
       "N/A",
-      "Create a product"
+      "Added a new product"
     );
 
     return NextResponse.json(

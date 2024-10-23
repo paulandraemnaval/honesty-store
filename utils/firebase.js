@@ -8,6 +8,9 @@ import {
   setDoc,
   Timestamp,
   getDoc,
+  query,
+  where,
+  getDocs,
 } from "firebase/firestore";
 import { decrypt } from "@utils/session";
 import { cookies } from "next/headers";
@@ -69,19 +72,24 @@ export const getLoggedInUser = async () => {
     }
 
     // Assuming you have a field in the session document to reference the user account
-    const accountId = sessionDoc.data().account_auth_id; // Adjust the field name accordingly
+    const accountAuthId = sessionDoc.data().account_auth_id; // Adjust the field name accordingly
 
-    // Now fetch the account document using the accountId
-    const accountRef = doc(db, "Account", accountId);
-    const accountDoc = await getDoc(accountRef);
+    const accountQuery = query(
+      collection(db, "Account"),
+      where("account_auth_id", "==", accountAuthId) // Use a query to find the account by account_auth_id
+    );
 
-    if (!accountDoc.exists()) {
-      console.log("No account found with the given accountId.");
+    const accountSnapshot = await getDocs(accountQuery);
+
+    if (accountSnapshot.empty) {
+      console.log("No account found with the given account_auth_id.");
       return null;
     }
+    // Assuming there is only one account document, return the first result
+    const accountData = accountSnapshot.docs[0].data();
+    console.log("Account Data: ", accountData);
 
-    // Return the account data
-    return accountDoc.data();
+    return accountData;
   } catch (error) {
     console.error("Error fetching user information:", error);
     return null;
