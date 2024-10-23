@@ -1,11 +1,16 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
-  getAuth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from "firebase/auth";
-import { getFirestore, collection, doc, setDoc } from "firebase/firestore";
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  Timestamp,
+  getDoc,
+} from "firebase/firestore";
+import { decrypt } from "@utils/session";
+import { cookies } from "next/headers";
 
 const firebaseConfig = {
   apiKey: process.env.API_KEY,
@@ -43,5 +48,42 @@ export const createLog = async (
   };
   //storing log to database
   await setDoc(logDoc, logData);
-  return logDoc;
+  return logData;
+};
+
+export const getLoggedInUser = async () => {
+  const encryptedSession = cookies().get("session")?.value; // Get the session cookie
+  if (!encryptedSession) {
+    console.log("No session cookie found.");
+    return null;
+  }
+
+  const sessionData = await decrypt(encryptedSession); // Decrypt the session
+  const sessionRef = doc(db, "Session", sessionData.sessionId); // Reference to the session document
+
+  try {
+    const sessionDoc = await getDoc(sessionRef); // Get the session document
+    if (!sessionDoc.exists()) {
+      console.log("No session found with the given sessionId.");
+      return null;
+    }
+
+    // Assuming you have a field in the session document to reference the user account
+    const accountId = sessionDoc.data().account_auth_id; // Adjust the field name accordingly
+
+    // Now fetch the account document using the accountId
+    const accountRef = doc(db, "Account", accountId);
+    const accountDoc = await getDoc(accountRef);
+
+    if (!accountDoc.exists()) {
+      console.log("No account found with the given accountId.");
+      return null;
+    }
+
+    // Return the account data
+    return accountDoc.data();
+  } catch (error) {
+    console.error("Error fetching user information:", error);
+    return null;
+  }
 };

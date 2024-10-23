@@ -1,4 +1,4 @@
-import { db } from "@utils/firebase";
+import { db, createLog, getLoggedInUser } from "@utils/firebase";
 import {
   collection,
   getDocs,
@@ -111,12 +111,20 @@ export async function POST(request) {
       );
     }
 
+    const logData = await createLog(
+      getLoggedInUser().account_id,
+      "Products",
+      "N/A",
+      "Create a product"
+    );
+
     return NextResponse.json(
       {
         message: "Product created successfully",
         data: {
           productId: productDoc.id,
           imageURL,
+          logData,
         },
       },
       { status: 200 }

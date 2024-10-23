@@ -1,4 +1,4 @@
-import { auth, db, createLog } from "@utils/firebase";
+import { auth, db } from "@utils/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, Timestamp, doc, setDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
@@ -64,10 +64,7 @@ export async function POST(request) {
     //storing account
     await setDoc(accountDoc, accountData);
 
-    createLog(accountDoc.id, "Account", "N/A", "Sign-Up");
-
-    //storing log to database
-    await setDoc(logDoc, logData);
+    const logData = await createLog(accountDoc.id, "Account", "N/A", "Sign-Up");
 
     return NextResponse.json(
       { message: "Account created successfully", accountData, logData },

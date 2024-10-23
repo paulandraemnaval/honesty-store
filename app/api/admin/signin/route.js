@@ -14,14 +14,12 @@ import bcryptjs from "bcryptjs";
 import { cookies } from "next/headers";
 import { encrypt } from "@utils/session";
 
-let sessionData;
-
 async function createSession(userId) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 1000);
   const sessionRef = collection(db, "Session");
   const sessionDoc = doc(sessionRef);
 
-  sessionData = {
+  const sessionData = {
     session_id: sessionDoc.id,
     account_auth_id: userId,
     session_access_type: "authenticated",
@@ -40,7 +38,7 @@ async function createSession(userId) {
     path: "/",
   });
 
-  return sessionId;
+  return sessionData;
 }
 
 //--------------------------------------------------------
@@ -52,6 +50,8 @@ const signInUser = async (email, password) => {
       password
     );
     const user = userCredentials.user;
+    console.log(user);
+
     return user;
   } catch (error) {
     return new Error(error.message);
@@ -86,9 +86,9 @@ export async function POST(request) {
       console.log("Error in user sign-up:", accountData.message);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
-    await createSession(accountData.uid);
+    const sessionData = await createSession(accountData.account_id);
 
-    await createLog(
+    const logData = await createLog(
       user.docs[0].data().account_id,
       "Account",
       "N/A",
@@ -100,6 +100,7 @@ export async function POST(request) {
         message: "Account signed in successfully",
         accountData,
         sessionData,
+        logData,
       },
       { status: 200 }
     );
