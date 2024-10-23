@@ -108,3 +108,7 @@ export async function POST(request) {
     );
   }
 }
+
+export async function PATCH(request, { params }) {
+  const { id } = params;
+}

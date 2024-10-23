@@ -59,11 +59,11 @@ export async function POST(request) {
 
     await setDoc(inventoryDoc, {
       inventory_id: inventoryDoc.id,
-      wholesale_price,
-      inventory_product,
-      inventory_supplier,
-      total_units,
-      retail_price,
+      product_id: inventory_product,
+      supplier_id: inventory_supplier,
+      inventory_wholesale_price: wholesale_price,
+      inventory_total_units: total_units,
+      inventory_retail_price: retail_price,
       inventory_description,
       inventory_profit_margin,
       inventory_expiration_date,
