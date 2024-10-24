@@ -117,7 +117,12 @@ const page = () => {
                   className="h-fit w-fit mt-auto mb-auto"
                   onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
                 >
-                  <Image src={left_arrow} width={30} height={30} />
+                  <Image
+                    src={left_arrow}
+                    width={30}
+                    height={30}
+                    alt="left_arrow"
+                  />
                 </button>
                 <div className="flex flex-col flex-1">
                   <ProductList products={paginatedProducts} />
@@ -137,7 +142,12 @@ const page = () => {
                     handlePageChange(Math.min(currentPage + 1, totalPages))
                   }
                 >
-                  <Image src={right_arrow} width={30} height={30} />
+                  <Image
+                    src={right_arrow}
+                    width={30}
+                    height={30}
+                    alt="right_arrow"
+                  />
                 </button>
               </div>
             </section>

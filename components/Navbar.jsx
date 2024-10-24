@@ -3,6 +3,7 @@
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 import homeIcon from "@public/icons/home_icon.png";
 import salesIcon from "@public/icons/sales_icon.png";
@@ -10,8 +11,7 @@ import accountManagementIcon from "@public/icons/account_management_icon.png";
 import inventoryIcon from "@public/icons/inventory_icon.png";
 
 const Navbar = () => {
-  const [currentPage, setCurrentPage] = React.useState("dash");
-
+  const pathName = usePathname();
   return (
     <nav>
       {/*desktop nav*/}
@@ -22,12 +22,8 @@ const Navbar = () => {
         </p>
         <div
           className={`text-white flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "dash" ? "bg-yellow text-black" : ""
+            pathName === "/admin/user" ? "bg-yellow text-black" : ""
           }`}
-          onClick={(e) => {
-            e.stopPropagation;
-            setCurrentPage("dash");
-          }}
         >
           <Image
             src={homeIcon}
@@ -45,12 +41,8 @@ const Navbar = () => {
         </div>
         <div
           className={`text-white w-full flex bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "manage" ? "bg-yellow text-black" : ""
+            pathName === "/admin/user/manage" ? "bg-yellow text-black" : ""
           }`}
-          onClick={(e) => {
-            e.stopPropagation;
-            setCurrentPage("manage");
-          }}
         >
           <Image
             src={accountManagementIcon}
@@ -67,12 +59,8 @@ const Navbar = () => {
         </div>
         <div
           className={` text-white flex w-full bg-[rgba(0,0,0,0.25)] p-2 rounded-md ${
-            currentPage === "products" ? "bg-yellow text-black" : ""
+            pathName === "/admin/user/products" ? "bg-yellow text-black" : ""
           }`}
-          onClick={(e) => {
-            e.stopPropagation;
-            setCurrentPage("products");
-          }}
         >
           <Image src={salesIcon} alt="sales_icon" height={30} width={30} />
           <Link

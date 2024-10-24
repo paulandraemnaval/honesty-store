@@ -3,13 +3,14 @@
 import React from "react";
 import Image from "next/image";
 import ProductForm from "./ProductForm";
+import { usePathname } from "next/navigation";
 
 const ProductList = ({ products = [] }) => {
   const [inventories, setInventories] = React.useState([]);
   const [loading, setLoading] = React.useState(true); // Loading state
   const [showEdit, setShowEdit] = React.useState(false);
   const [productData, setProductData] = React.useState({});
-
+  const pathName = usePathname();
   React.useEffect(() => {
     const getInventories = async () => {
       try {
@@ -70,11 +71,15 @@ const ProductList = ({ products = [] }) => {
           <li
             className="relative w-[200px] h-[300px] flex flex-col gap-2 border border-gray-400 p-4 rounded-lg pointer-events-auto"
             key={index}
-            onClick={(e) => {
-              e.stopPropagation();
-              setProductData(product);
-              setShowEdit((prev) => !prev);
-            }}
+            onClick={
+              pathName === "/admin/user/products"
+                ? (e) => {
+                    e.stopPropagation();
+                    setProductData(product);
+                    setShowEdit((prev) => !prev);
+                  }
+                : null
+            }
           >
             <div className="w-full h-[180px] bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
               <Image
