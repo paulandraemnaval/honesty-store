@@ -55,10 +55,6 @@ const ProductList = ({ products = [] }) => {
     return availableInventories.length === 0;
   };
 
-<<<<<<< HEAD
-  if (!Array.isArray(products) || products.length === 0)
-    return <h1>No products available</h1>;
-=======
   if (loading) {
     return <h1>Loading...</h1>;
   }
@@ -66,7 +62,6 @@ const ProductList = ({ products = [] }) => {
   if (!Array.isArray(products) || products.length === 0) {
     return <h1>No products available</h1>;
   }
->>>>>>> c2ff4231886df00cb7503e0a35999f51bb26f803
 
   return (
     <>
