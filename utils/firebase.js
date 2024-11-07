@@ -93,3 +93,9 @@ export const getLoggedInUser = async () => {
     return null;
   }
 };
+
+export const checkCollectionExists = async (collectionName) => {
+  const colRef = collection(db, collectionName);
+  const snapshot = await getDocs(colRef);
+  return !snapshot.empty;
+};

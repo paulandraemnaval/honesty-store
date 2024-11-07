@@ -14,7 +14,7 @@ import bcryptjs from "bcryptjs";
 import { cookies } from "next/headers";
 import { encrypt } from "@utils/session";
 
-async function createSession(userId) {
+async function createSession(userId, path) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 1000);
   const sessionRef = collection(db, "Session");
   const sessionDoc = doc(sessionRef);
@@ -23,7 +23,7 @@ async function createSession(userId) {
     session_id: sessionDoc.id,
     account_auth_id: userId,
     session_access_type: "authenticated",
-    session_accessed_url: "/",
+    session_accessed_url: path,
     session_timestamp: Timestamp.now().toDate(),
   };
 
@@ -84,7 +84,10 @@ export async function POST(request) {
       console.log("Error in user sign-up:", accountData.message);
       return NextResponse.json({ error: accountData.message }, { status: 400 });
     }
-    const sessionData = await createSession(accountData.uid);
+    const sessionData = await createSession(
+      accountData.uid,
+      request.nextUrl.pathname
+    );
 
     const logData = await createLog(
       user.docs[0].data().account_id,
