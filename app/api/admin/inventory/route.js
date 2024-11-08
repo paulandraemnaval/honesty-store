@@ -51,8 +51,8 @@ export async function GET() {
 
     const q = query(
       inventoryRef,
-      where("inventory_timestamp", ">=", lastReport),
-      where("inventory_timestamp", "<=", currentDate)
+      where("inventory_last_updated", ">=", lastReport),
+      where("inventory_last_updated", "<=", currentDate)
     );
     snapshot = await getDocs(q);
 

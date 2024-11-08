@@ -18,14 +18,17 @@ import getImageURL from "@utils/imageURL";
 export async function GET() {
   let products = [];
   try {
-    const productsQuery = await getDocs(collection(db, "products"));
+    const q = query(
+      collection(db, "products"),
+      where("product_soft_deleted", "==", "false")
+    );
+    const productsQuery = await getDocs(q);
 
     products = productsQuery.docs.map((doc) => doc.data());
     if (products.length === 0) {
       return NextResponse.json(
         {
           message: "There are no products in the database",
-          data: {},
         },
         { status: 200 }
       );
@@ -57,8 +60,11 @@ export async function GET() {
     );
   } catch (error) {
     return NextResponse.json(
-      { error: "Failed to fetch products " + error.message },
-      { status: 400 }
+      {
+        message: "An error occurred while fetching products",
+        error: error.message,
+      },
+      { status: 500 }
     );
   }
 }
