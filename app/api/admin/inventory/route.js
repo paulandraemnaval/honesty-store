@@ -16,7 +16,6 @@ import {
   query,
   where,
 } from "firebase/firestore";
-import { get } from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET() {

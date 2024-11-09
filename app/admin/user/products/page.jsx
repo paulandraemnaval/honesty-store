@@ -59,17 +59,6 @@ const productspage = () => {
       : product.product_category.category_name === selectedCategory
   );
 
-  const paginatedProducts = categorizedProducts.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
-  };
-
-  const totalPages = Math.ceil(categorizedProducts.length / itemsPerPage);
-
   return (
     <div className="flex flex-col gap-4 w-full p-2 relative">
       <h1>Products</h1>

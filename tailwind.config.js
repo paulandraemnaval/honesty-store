@@ -16,6 +16,7 @@ module.exports = {
         customerRibbonGreen: "#146939",
         navbarGreen: "#17321A",
         yellow: "#fdc530",
+        test: "black",
       },
     },
   },

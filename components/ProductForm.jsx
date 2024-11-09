@@ -23,16 +23,30 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
 
   React.useEffect(() => {
     const fetchCategories = async () => {
-      const res = await fetch("/api/admin/category", {
-        method: "GET",
-      });
-      const data = await res.json();
-      if (data.error) {
-        console.error(data.error);
-        return;
+      try {
+        const res = await fetch("/api/admin/category", {
+          method: "GET",
+        });
+
+        // Ensure the response is OK
+        if (!res.ok) {
+          throw new Error("Network response was not ok");
+        }
+
+        const data = await res.json();
+
+        if (Array.isArray(data.data)) {
+          setCategories(data.data);
+        } else {
+          console.error("Expected an array but got:", data.data);
+          setCategories([]);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setCategories([]);
       }
-      setCategories(data.data);
     };
+
     fetchCategories();
   }, []);
 
@@ -59,7 +73,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
       method: "POST",
       body: formData,
     });
-    const data = await res.json();
 
     if (res.ok) {
       alert("Product added successfully");
@@ -77,7 +90,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           ? (e) => postProduct(e)
           : null
       }
-      className="flex h-full max-w-full flex-col rounded-lg gap-2 w-full  overflow-auto "
+      className="flex h-fit max-w-full flex-col rounded-lg gap-2 w-full"
     >
       <div className="flex flex-col gap-2 w-full">
         <Image
@@ -196,7 +209,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         />
       </div>
 
-      <div className="gap-2 w-full border items-start flex">
+      <div className="gap-2 w-full items-start flex">
         {method === "patch" && (
           <button
             className="bg-red-600 text-white rounded-lg p-2"
