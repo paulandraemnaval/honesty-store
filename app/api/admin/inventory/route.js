@@ -16,6 +16,10 @@ import {
   orderBy,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+import {
+  calculateProfitMargin,
+  isProfitMarginAboveThreshold,
+} from "@utils/calculations";
 
 export async function GET() {
   let inventories = [];
@@ -109,9 +113,23 @@ export async function POST(request) {
     const inventory_profit_margin = parseFloat(
       reqFormData.get("inventory_profit_margin")
     );
-    const inventory_expiration_date = reqFormData.get(
+    let inventory_expiration_date = reqFormData.get(
       "inventory_expiration_date"
     );
+
+    if (inventory_profit_margin == null) {
+      inventory_profit_margin = calculateProfitMargin(
+        retail_price,
+        wholesale_price
+      );
+    }
+
+    if (!isProfitMarginAboveThreshold(retail_price, wholesale_price)) {
+      return NextResponse.json(
+        { message: "Profit margin is below the threshold of 10%" },
+        { status: 400 }
+      );
+    }
 
     await setDoc(inventoryDoc, {
       inventory_id: inventoryDoc.id,
@@ -151,7 +169,7 @@ export async function POST(request) {
 
     return NextResponse.json(
       { error: "Failed to create inventory" },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }
