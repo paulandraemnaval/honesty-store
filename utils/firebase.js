@@ -11,6 +11,7 @@ import {
   query,
   where,
   getDocs,
+  orderBy,
 } from "firebase/firestore";
 import { decrypt } from "@utils/session";
 import { cookies } from "next/headers";
@@ -98,4 +99,11 @@ export const checkCollectionExists = async (collectionName) => {
   const colRef = collection(db, collectionName);
   const snapshot = await getDocs(colRef);
   return !snapshot.empty;
+};
+
+export const getLastReportEndDate = async () => {
+  const reportRef = collection(db, "Report");
+  const q = query(reportRef, orderBy("report_end_date", "desc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs[0].data().report_end_date;
 };
