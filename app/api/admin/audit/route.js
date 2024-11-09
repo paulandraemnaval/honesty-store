@@ -41,12 +41,14 @@ export async function POST(request) {
 
       const inventoryDoc = inventorySnapshot.data();
 
-      const income =
+      const income = roundToTwoDecimals(
         (inventoryDoc.inventory_total_units - remainingUnits) *
-        inventoryDoc.inventory_retail_price;
-      const expense =
+          inventoryDoc.inventory_retail_price
+      );
+      const expense = roundToTwoDecimals(
         inventoryDoc.inventory_total_units *
-        inventoryDoc.inventory_wholesale_price;
+          inventoryDoc.inventory_wholesale_price
+      );
 
       audit_gross_income += income;
       audit_total_expense += expense;
