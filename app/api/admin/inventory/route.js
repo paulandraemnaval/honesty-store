@@ -117,7 +117,7 @@ export async function POST(request) {
       "inventory_expiration_date"
     );
 
-    if (inventory_profit_margin == null) {
+    if (isNaN(inventory_profit_margin) || inventory_profit_margin === "") {
       inventory_profit_margin = calculateProfitMargin(
         retail_price,
         wholesale_price
