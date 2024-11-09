@@ -25,8 +25,14 @@ export async function GET() {
     let snapshot;
 
     if (!reportExist) {
-      snapshot = await getDocs(inventoryRef);
+      const q = query(
+        inventoryRef,
+        where("inventory_total_units", ">", 0),
+        orderBy("inventory_timestamp")
+      );
+      snapshot = await getDocs(q);
       inventories = snapshot.docs.map((doc) => doc.data());
+
       if (inventories.length === 0) {
         return NextResponse.json(
           {
@@ -35,55 +41,55 @@ export async function GET() {
           { status: 200 }
         );
       }
-      return NextResponse.json(
-        {
-          message: "All inventories",
-          data: inventories,
-        },
-        { status: 200 }
-      );
-    }
-
-    const lastReport = await getLastReportEndDate();
-    const currentDate = new Date();
-
-    const q = query(
-      inventoryRef,
-      where("inventory_last_updated", ">=", lastReport),
-      where("inventory_last_updated", "<=", currentDate),
-      where("inventory_total_units", ">", 0),
-      orderBy("inventory_timestamp")
-    );
-    snapshot = await getDocs(q);
-
-    if (snapshot.empty) {
-      return NextResponse.json(
-        { message: "No inventories found since the last report." },
-        { status: 404 }
-      );
     } else {
-      inventories = snapshot.docs.map((doc) => doc.data());
-      const oldInventories = inventories.reduce((acc, inventory) => {
-        const productId = inventory.product_id;
-        if (!acc[productId]) {
-          acc[productId] = inventory;
-        }
-        return acc;
-      }, {});
+      const lastReport = await getLastReportEndDate();
+      const currentDate = new Date();
 
-      const result = Object.values(oldInventories);
-      return NextResponse.json(
-        {
-          message: "Inventories found since the last report",
-          inventories: result,
-        },
-        { status: 200 }
+      const q = query(
+        inventoryRef,
+        where("inventory_last_updated", ">=", lastReport),
+        where("inventory_last_updated", "<=", currentDate),
+        where("inventory_total_units", ">", 0),
+        orderBy("inventory_timestamp")
       );
+      snapshot = await getDocs(q);
+
+      if (snapshot.empty) {
+        return NextResponse.json(
+          { message: "No inventories found since the last report." },
+          { status: 404 }
+        );
+      } else {
+        inventories = snapshot.docs.map((doc) => doc.data());
+      }
     }
-  } catch (error) {
+
+    const oldInventories = inventories.reduce((acc, inventory) => {
+      const productId = inventory.product_id;
+      if (
+        !acc[productId] ||
+        acc[productId].inventory_timestamp > inventory.inventory_timestamp
+      ) {
+        acc[productId] = inventory;
+      }
+      return acc;
+    }, {});
+
+    const result = Object.values(oldInventories);
     return NextResponse.json(
-      { error: "Failed to fetch categories: " + error.message },
-      { status: 400 }
+      {
+        message: reportExist
+          ? "Inventories found since the last report"
+          : "All inventories",
+        inventories: result,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error fetching inventories:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch inventories: " + error.message },
+      { status: 500 }
     );
   }
 }
@@ -94,13 +100,15 @@ export async function POST(request) {
   try {
     const reqFormData = await request.formData();
 
-    const wholesale_price = reqFormData.get("wholesale_price");
+    const wholesale_price = parseFloat(reqFormData.get("wholesale_price"));
     const inventory_product = reqFormData.get("inventory_product");
     const inventory_supplier = reqFormData.get("inventory_supplier");
-    const total_units = reqFormData.get("total_units");
-    const retail_price = reqFormData.get("retail_price");
+    const total_units = parseInt(reqFormData.get("total_units"), 10);
+    const retail_price = parseFloat(reqFormData.get("retail_price"));
     const inventory_description = reqFormData.get("inventory_description");
-    const inventory_profit_margin = reqFormData.get("inventory_profit_margin");
+    const inventory_profit_margin = parseFloat(
+      reqFormData.get("inventory_profit_margin")
+    );
     const inventory_expiration_date = reqFormData.get(
       "inventory_expiration_date"
     );
