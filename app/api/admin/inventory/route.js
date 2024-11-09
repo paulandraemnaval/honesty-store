@@ -8,15 +8,13 @@ import {
 import {
   collection,
   getDocs,
-  addDoc,
   Timestamp,
-  updateDoc,
   doc,
   setDoc,
   query,
   where,
+  orderBy,
 } from "firebase/firestore";
-import { get } from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -52,21 +50,32 @@ export async function GET() {
     const q = query(
       inventoryRef,
       where("inventory_last_updated", ">=", lastReport),
-      where("inventory_last_updated", "<=", currentDate)
+      where("inventory_last_updated", "<=", currentDate),
+      where("inventory_total_units", ">", 0),
+      orderBy("inventory_timestamp")
     );
     snapshot = await getDocs(q);
 
     if (snapshot.empty) {
       return NextResponse.json(
         { message: "No inventories found since the last report." },
-        { status: 400 }
+        { status: 404 }
       );
     } else {
       inventories = snapshot.docs.map((doc) => doc.data());
+      const oldInventories = inventories.reduce((acc, inventory) => {
+        const productId = inventory.product_id;
+        if (!acc[productId]) {
+          acc[productId] = inventory;
+        }
+        return acc;
+      }, {});
+
+      const result = Object.values(oldInventories);
       return NextResponse.json(
         {
           message: "Inventories found since the last report",
-          inventories,
+          inventories: result,
         },
         { status: 200 }
       );
