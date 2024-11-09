@@ -18,7 +18,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
     product_uom: productData.product_uom || "",
     product_reorder_point: productData.product_reorder_point || "",
     product_weight: productData.product_weight || "",
-    product_dimension: productData.product_dimensions || "",
+    product_dimensions: productData.product_dimensions || "",
   });
 
   React.useEffect(() => {

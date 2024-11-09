@@ -1,4 +1,10 @@
-import { db, createLog, getLoggedInUser } from "@utils/firebase";
+import {
+  db,
+  createLog,
+  getLoggedInUser,
+  checkCollectionExists,
+  getLastReportEndDate,
+} from "@utils/firebase";
 import {
   collection,
   getDocs,
@@ -7,31 +13,64 @@ import {
   updateDoc,
   doc,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
+import { get } from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   let inventories = [];
   try {
-    const categoryQuery = await getDocs(collection(db, "inventories"));
+    const reportExist = await checkCollectionExists("Report");
+    const inventoryRef = collection(db, "inventories");
+    let snapshot;
 
-    inventories = categoryQuery.docs.map((doc) => doc.data());
-    if (inventories.length === 0) {
+    if (!reportExist) {
+      snapshot = await getDocs(inventoryRef);
+      inventories = snapshot.docs.map((doc) => doc.data());
+      if (inventories.length === 0) {
+        return NextResponse.json(
+          {
+            message: "There are no inventories in the database",
+          },
+          { status: 200 }
+        );
+      }
       return NextResponse.json(
         {
-          message: "There are no inventories in the database",
-          data: {},
+          message: "All inventories",
+          data: inventories,
         },
         { status: 200 }
       );
     }
-    return NextResponse.json(
-      {
-        message: "All inventories",
-        data: inventories,
-      },
-      { status: 200 }
+
+    const lastReport = await getLastReportEndDate();
+    const currentDate = new Date();
+
+    const q = query(
+      inventoryRef,
+      where("inventory_timestamp", ">=", lastReport),
+      where("inventory_timestamp", "<=", currentDate)
     );
+    snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      return NextResponse.json(
+        { message: "No inventories found since the last report." },
+        { status: 400 }
+      );
+    } else {
+      inventories = snapshot.docs.map((doc) => doc.data());
+      return NextResponse.json(
+        {
+          message: "Inventories found since the last report",
+          inventories,
+        },
+        { status: 200 }
+      );
+    }
   } catch (error) {
     return NextResponse.json(
       { error: "Failed to fetch categories: " + error.message },
