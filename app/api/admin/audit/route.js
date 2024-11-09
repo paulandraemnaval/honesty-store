@@ -13,6 +13,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+import { roundToTwoDecimals } from "@utils/calculations";
 
 export async function POST(request) {
   const auditRef = collection(db, "Audit");
@@ -80,6 +81,9 @@ export async function POST(request) {
       auditDoc.id,
       "Add new audit"
     );
+
+    audit_gross_income = roundToTwoDecimals(audit_gross_income);
+    audit_total_expense = roundToTwoDecimals(audit_total_expense);
 
     await setDoc(auditDoc, {
       audit_id: auditDoc.id,
