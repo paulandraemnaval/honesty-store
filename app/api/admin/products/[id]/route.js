@@ -35,9 +35,13 @@ export async function PATCH(request, { params }) {
     const product_category = reqFormData.get("product_category");
     const product_sku = reqFormData.get("product_sku");
     const product_uom = reqFormData.get("product_uom");
-    const product_reorder_point = reqFormData.get("product_reorder_point");
-    const product_weight = reqFormData.get("product_weight");
-    const product_dimensions = reqFormData.get("product_dimensions");
+    const product_reorder_point = parseInt(
+      reqFormData.get("product_reorder_point")
+    );
+    const product_weight = parseFloat(reqFormData.get("product_weight"));
+    const product_dimensions = parseFloat(
+      reqFormData.get("product_dimensions")
+    );
 
     const imageURL = await getImageURL(file, productDoc.id, "products");
     if (!imageURL) {

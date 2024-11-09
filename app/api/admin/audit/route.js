@@ -4,7 +4,6 @@ import {
   getLoggedInUser,
   checkCollectionExists,
 } from "@utils/firebase";
-import { parse } from "dotenv";
 import {
   collection,
   getDoc,

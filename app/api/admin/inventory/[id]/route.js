@@ -36,13 +36,17 @@ export async function PATCH(request, { params }) {
   const inventoryDoc = doc(db, "inventories", id);
   try {
     const reqFormData = await request.formData();
-    const inventory_wholesale_price = reqFormData.get("wholesale_price");
+    const inventory_wholesale_price = parseFloat(
+      reqFormData.get("wholesale_price")
+    );
     const product_id = reqFormData.get("inventory_product");
     const supplier_id = reqFormData.get("inventory_supplier");
-    const inventory_total_units = reqFormData.get("total_units");
-    const inventory_retail_price = reqFormData.get("retail_price");
+    const inventory_total_units = parseInt(reqFormData.get("total_units"));
+    const inventory_retail_price = parseFloat(reqFormData.get("retail_price"));
     const inventory_description = reqFormData.get("inventory_description");
-    const inventory_profit_margin = reqFormData.get("inventory_profit_margin");
+    const inventory_profit_margin = parseFloat(
+      reqFormData.get("inventory_profit_margin")
+    );
     const inventory_expiration_date = reqFormData.get(
       "inventory_expiration_date"
     );
