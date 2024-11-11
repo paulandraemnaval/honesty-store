@@ -16,6 +16,7 @@ import {
   getDocs,
   query,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
@@ -120,12 +121,31 @@ export async function POST(request) {
       report_soft_deleted: false,
     });
 
+    const inventoryRef = collection(db, "inventories");
+    const inventoryQuery = query(
+      inventoryRef,
+      where("inventory_total_units", ">", 0),
+      where("inventory_soft_deleted", "==", false),
+      where("inventory_expiration_date", ">", new Date())
+    );
+
+    const snapshot = await getDocs(inventoryQuery);
+
+    const updatePromises = snapshot.docs.map(async (item) => {
+      const inventoryDoc = doc(db, "inventories", item.id);
+      const inventory_last_updated = new Date();
+
+      await updateDoc(inventoryDoc, { inventory_last_updated });
+    });
+
+    await Promise.all(updatePromises);
+
     return NextResponse.json(
       { message: "Report successfully created", logData },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error.message);
+    console.log(error);
     return NextResponse.json(
       { message: "An error occurred", error: error.message },
       { status: 500 }
