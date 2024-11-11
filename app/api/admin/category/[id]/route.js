@@ -1,13 +1,5 @@
 import { db, getLoggedInUser, createLog } from "@utils/firebase";
-import {
-  collection,
-  getDocs,
-  addDoc,
-  Timestamp,
-  updateDoc,
-  doc,
-  setDoc,
-} from "firebase/firestore";
+import { Timestamp, updateDoc, doc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
