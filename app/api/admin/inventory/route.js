@@ -110,7 +110,7 @@ export async function POST(request) {
     const total_units = parseInt(reqFormData.get("total_units"), 10);
     const retail_price = parseFloat(reqFormData.get("retail_price"));
     const inventory_description = reqFormData.get("inventory_description");
-    const inventory_profit_margin = parseFloat(
+    let inventory_profit_margin = parseFloat(
       reqFormData.get("inventory_profit_margin")
     );
     let inventory_expiration_date = reqFormData.get(
