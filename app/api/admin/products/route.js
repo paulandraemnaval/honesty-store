@@ -14,6 +14,9 @@ import {
   query,
   where,
   updateDoc,
+  startAfter,
+  limit,
+  getDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
@@ -67,6 +70,38 @@ export async function GET() {
         message: "An error occurred while fetching products",
         error: error.message,
       },
+      { status: 500 }
+    );
+  }
+}
+
+//-------------------------------------PATCH----------------------------------------------------
+export async function PATCH(request) {
+  const { lastVisible } = await request.json();
+  try {
+    const productsRef = collection(db, "products");
+    let productsQuery;
+    if (lastVisible) {
+      const lastDocSnapshot = await getDoc(doc(db, "products", lastVisible));
+      if (!lastDocSnapshot.exists()) {
+        return NextResponse.json(
+          { message: "Invalid lastVisible document ID." },
+          { status: 400 }
+        );
+      }
+      productsQuery = query(productsRef, startAfter(lastDocSnapshot), limit(5));
+    } else {
+      productsQuery = query(productsRef, limit(5));
+    }
+    const snapshot = await getDocs(productsQuery);
+    const products = snapshot.docs.map((doc) => doc.data());
+    return NextResponse.json(
+      { message: "Successfully fetched products", products },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Failed to fetch products: " + error.message },
       { status: 500 }
     );
   }
