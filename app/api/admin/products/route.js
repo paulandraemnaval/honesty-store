@@ -26,11 +26,12 @@ export async function GET() {
   try {
     const q = query(
       collection(db, "products"),
-      where("product_soft_deleted", "==", "false")
+      where("product_soft_deleted", "==", false)
     );
     const productsQuery = await getDocs(q);
 
     products = productsQuery.docs.map((doc) => doc.data());
+
     if (products.length === 0) {
       return NextResponse.json(
         {

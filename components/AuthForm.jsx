@@ -77,7 +77,7 @@ const AuthForm = () => {
   return (
     <div className="flex flex-col gap-4 bg-white p-2 min-w-[30dvw] custom_shadow rounded-md">
       <h1 className="text-center font-bold text-[2rem]">HONESTY STORE</h1>
-      {/* <ul className="flex">
+      <ul className="flex">
         <li
           className={`text-center cursor-pointer rounded-sm py-1 ${
             authMethod === "signin" ? "bg-customerRibbonGreen text-white" : ""
@@ -94,17 +94,19 @@ const AuthForm = () => {
         >
           Sign Up
         </li>
-      </ul> */}
-      <SignInForm handleSignIn={handleSignIn} isProcessing={isProcessing} />
+      </ul>
+      {authMethod === "signin" && (
+        <SignInForm handleSignIn={handleSignIn} isProcessing={isProcessing} />
+      )}
 
-      {/* {authMethod === "signup" && (
+      {authMethod === "signup" && (
         <SignUpForm
           handleSignUp={handleSignUp}
           handleSelectPicture={handleSelectPicture}
           file={file}
           isProcessing={isProcessing}
         />
-      )} */}
+      )}
       <p className=" underline text-center mb-1 cursor-pointer">
         Forgot Password?
       </p>
