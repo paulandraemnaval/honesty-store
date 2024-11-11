@@ -4,7 +4,6 @@ import {
   getLoggedInUser,
   checkCollectionExists,
 } from "@utils/firebase";
-import { parse } from "dotenv";
 import {
   collection,
   getDoc,
@@ -14,6 +13,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+import { roundToTwoDecimals } from "@utils/calculations";
 
 export async function POST(request) {
   const auditRef = collection(db, "Audit");
@@ -41,12 +41,14 @@ export async function POST(request) {
 
       const inventoryDoc = inventorySnapshot.data();
 
-      const income =
+      const income = roundToTwoDecimals(
         (inventoryDoc.inventory_total_units - remainingUnits) *
-        inventoryDoc.inventory_retail_price;
-      const expense =
+          inventoryDoc.inventory_retail_price
+      );
+      const expense = roundToTwoDecimals(
         inventoryDoc.inventory_total_units *
-        inventoryDoc.inventory_wholesale_price;
+          inventoryDoc.inventory_wholesale_price
+      );
 
       audit_gross_income += income;
       audit_total_expense += expense;
@@ -81,6 +83,9 @@ export async function POST(request) {
       auditDoc.id,
       "Add new audit"
     );
+
+    audit_gross_income = roundToTwoDecimals(audit_gross_income);
+    audit_total_expense = roundToTwoDecimals(audit_total_expense);
 
     await setDoc(auditDoc, {
       audit_id: auditDoc.id,

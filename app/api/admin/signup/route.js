@@ -56,6 +56,7 @@ export async function POST(request) {
       account_salt: salt,
       account_profile_url: imageURL || null,
       account_role: role,
+      account_is_approved: false,
       account_timestamp: Timestamp.now().toDate(),
       account_last_updated: Timestamp.now().toDate(),
       account_soft_deleted: false,

@@ -14,6 +14,9 @@ import {
   query,
   where,
   updateDoc,
+  startAfter,
+  limit,
+  getDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
@@ -73,6 +76,38 @@ export async function GET() {
   }
 }
 
+//-------------------------------------PATCH----------------------------------------------------
+export async function PATCH(request) {
+  const { lastVisible } = await request.json();
+  try {
+    const productsRef = collection(db, "products");
+    let productsQuery;
+    if (lastVisible) {
+      const lastDocSnapshot = await getDoc(doc(db, "products", lastVisible));
+      if (!lastDocSnapshot.exists()) {
+        return NextResponse.json(
+          { message: "Invalid lastVisible document ID." },
+          { status: 400 }
+        );
+      }
+      productsQuery = query(productsRef, startAfter(lastDocSnapshot), limit(5));
+    } else {
+      productsQuery = query(productsRef, limit(5));
+    }
+    const snapshot = await getDocs(productsQuery);
+    const products = snapshot.docs.map((doc) => doc.data());
+    return NextResponse.json(
+      { message: "Successfully fetched products", products },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Failed to fetch products: " + error.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request) {
   const productRef = collection(db, "products");
   const productDoc = doc(productRef);
@@ -84,9 +119,14 @@ export async function POST(request) {
     const product_category = reqFormData.get("product_category");
     const product_sku = reqFormData.get("product_sku");
     const product_uom = reqFormData.get("product_uom");
-    const product_reorder_point = reqFormData.get("product_reorder_point");
-    const product_weight = reqFormData.get("product_weight");
-    const product_dimensions = reqFormData.get("product_dimensions");
+    const product_reorder_point = parseInt(
+      reqFormData.get("product_reorder_point"),
+      10
+    );
+    const product_weight = parseFloat(reqFormData.get("product_weight"));
+    const product_dimensions = parseFloat(
+      reqFormData.get("product_dimensions")
+    );
 
     const imageURL = await getImageURL(file, productDoc.id, "products");
     if (!imageURL) {

@@ -41,7 +41,7 @@ export const createLog = async (
 ) => {
   const logRef = collection(db, "Log");
   const logDoc = doc(logRef);
-  //creating log
+
   const logData = {
     log_id: logDoc.id,
     account_id,
@@ -50,7 +50,7 @@ export const createLog = async (
     log_table_action,
     log_timestamp: Timestamp.now().toDate(),
   };
-  //storing log to database
+
   await setDoc(logDoc, logData);
   return logData;
 };
