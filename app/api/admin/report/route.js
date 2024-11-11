@@ -15,8 +15,14 @@ import {
   limit,
   getDocs,
   query,
+  getDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+
+export async function GET() {
+  try {
+  } catch (error) {}
+}
 
 export async function POST(request) {
   try {
@@ -122,6 +128,37 @@ export async function POST(request) {
     console.log(error.message);
     return NextResponse.json(
       { message: "An error occurred", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request) {
+  const { lastVisible } = await request.json();
+  try {
+    const reportRef = collection(db, "Report");
+    let q;
+    if (lastVisible) {
+      const lastDocSnapshot = await getDoc(doc(db, "Report", lastVisible));
+      if (!lastDocSnapshot.exists()) {
+        return NextResponse.json(
+          { message: "Invalid lastVisible document ID." },
+          { status: 400 }
+        );
+      }
+      q = query(reportRef, startAfter(lastDocSnapshot), limit(10));
+    } else {
+      q = query(reportRef, limit(10));
+    }
+    const snapshot = await getDocs(q);
+    const reports = snapshot.docs.map((doc) => doc.data());
+    return NextResponse.json(
+      { message: "Successfully fetched reports", reports },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Failed to fetch reports: ", error: error.message },
       { status: 500 }
     );
   }
