@@ -102,8 +102,27 @@ export const checkCollectionExists = async (collectionName) => {
 };
 
 export const getLastReportEndDate = async () => {
-  const reportRef = collection(db, "Report");
-  const q = query(reportRef, orderBy("report_end_date", "desc"));
-  const snapshot = await getDocs(q);
-  return snapshot.docs[0].data().report_end_date;
+  try {
+    const reportRef = collection(db, "Report");
+    const q = query(reportRef, orderBy("report_end_date", "desc"));
+    const snapshot = await getDocs(q);
+
+    // Check if the snapshot is empty
+    if (snapshot.empty) {
+      console.warn("No reports found in the collection.");
+      return null; // or return a default date, depending on your use case
+    }
+
+    // Ensure the report_end_date field exists
+    const lastReport = snapshot.docs[0].data();
+    if (!lastReport.report_end_date) {
+      console.warn("The most recent report does not have an end date.");
+      return null; // or handle this case as needed
+    }
+
+    return lastReport.report_end_date;
+  } catch (error) {
+    console.error("Error fetching last report end date:", error);
+    throw new Error("Failed to fetch last report end date: " + error.message);
+  }
 };

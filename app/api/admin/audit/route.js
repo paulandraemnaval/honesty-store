@@ -46,7 +46,7 @@ export async function POST(request) {
           inventoryDoc.inventory_retail_price
       );
       const expense = roundToTwoDecimals(
-        inventoryDoc.inventory_total_units *
+        (inventoryDoc.inventory_total_units - remainingUnits) *
           inventoryDoc.inventory_wholesale_price
       );
 

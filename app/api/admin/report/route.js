@@ -35,6 +35,7 @@ export async function POST(request) {
     const reportRef = collection(db, "Report");
     const reportDoc = doc(reportRef);
     let report_start_date;
+
     if (await checkCollectionExists("Report")) {
       report_start_date = await getLastReportEndDate();
     } else {
@@ -42,7 +43,7 @@ export async function POST(request) {
       if (!(await checkCollectionExists("inventories"))) {
         return NextResponse.json(
           { message: "No inventories created." },
-          { status: 204 }
+          { status: 404 }
         );
       }
       const q = query(
@@ -59,18 +60,12 @@ export async function POST(request) {
     }
 
     const user = await getLoggedInUser();
-    const logData = await createLog(
-      user.account_id,
-      "Report",
-      reportDoc.id,
-      "Add new report"
-    );
 
     const auditExists = await checkCollectionExists("Audit");
     if (!auditExists) {
       return NextResponse.json(
         { message: "No audit exists in the database" },
-        { status: 204 }
+        { status: 404 }
       );
     }
 
@@ -90,7 +85,7 @@ export async function POST(request) {
             message:
               "No audit created from the report start date until the end date",
           },
-          { status: 204 }
+          { status: 404 }
         );
       }
       const audits = auditSnapshot.docs.map((doc) => doc.data());
@@ -107,43 +102,55 @@ export async function POST(request) {
         });
       });
       await Promise.all(promises);
+
+      await setDoc(reportDoc, {
+        report_id: reportDoc.id,
+        account_id: user.account_id,
+        report_start_date,
+        report_end_date: Timestamp.now(),
+        report_cash_outflow,
+        report_cash_inflow,
+        report_timestamp: Timestamp.now(),
+        report_last_updated: Timestamp.now(),
+        report_soft_deleted: false,
+      });
+
+      const inventoryRef = collection(db, "inventories");
+      const inventoryQuery = query(
+        inventoryRef,
+        where("inventory_total_units", ">", 0),
+        where("inventory_soft_deleted", "==", false),
+        where("inventory_expiration_date", ">", new Date())
+      );
+
+      const snapshot = await getDocs(inventoryQuery);
+
+      const updatePromises = snapshot.docs.map(async (item) => {
+        const inventoryDoc = doc(db, "inventories", item.id);
+        const inventory_last_updated = new Date();
+
+        await updateDoc(inventoryDoc, { inventory_last_updated });
+      });
+
+      await Promise.all(updatePromises);
+
+      const logData = await createLog(
+        user.account_id,
+        "Report",
+        reportDoc.id,
+        "Add new report"
+      );
+
+      return NextResponse.json(
+        { message: "Report successfully created", logData },
+        { status: 200 }
+      );
+    } else {
+      return NextResponse.json(
+        { message: "No valid report start date found." },
+        { status: 404 }
+      );
     }
-
-    await setDoc(reportDoc, {
-      report_id: reportDoc.id,
-      account_id: user.account_id,
-      report_start_date,
-      report_end_date: Timestamp.now(),
-      report_cash_outflow,
-      report_cash_inflow,
-      report_timestamp: Timestamp.now(),
-      report_last_updated: Timestamp.now(),
-      report_soft_deleted: false,
-    });
-
-    const inventoryRef = collection(db, "inventories");
-    const inventoryQuery = query(
-      inventoryRef,
-      where("inventory_total_units", ">", 0),
-      where("inventory_soft_deleted", "==", false),
-      where("inventory_expiration_date", ">", new Date())
-    );
-
-    const snapshot = await getDocs(inventoryQuery);
-
-    const updatePromises = snapshot.docs.map(async (item) => {
-      const inventoryDoc = doc(db, "inventories", item.id);
-      const inventory_last_updated = new Date();
-
-      await updateDoc(inventoryDoc, { inventory_last_updated });
-    });
-
-    await Promise.all(updatePromises);
-
-    return NextResponse.json(
-      { message: "Report successfully created", logData },
-      { status: 200 }
-    );
   } catch (error) {
     console.log(error);
     return NextResponse.json(
