@@ -17,6 +17,7 @@ module.exports = {
         navbarGreen: "#17321A",
         yellow: "#fdc530",
         test: "black",
+        backgroundColorMain: "#F0F4F9",
       },
     },
   },
