@@ -123,6 +123,27 @@ export const getLastReportEndDate = async () => {
     return lastReport.report_end_date;
   } catch (error) {
     console.error("Error fetching last report end date:", error);
-    throw new Error("Failed to fetch last report end date: " + error.message);
+  }
+};
+
+export const checkExpiredProducts = async () => {
+  try {
+    const inventoriesRef = collection(db, "inventories");
+    let expiredInventories;
+    const q = query(
+      inventoriesRef,
+      where("inventory_expiration_date", "<=", new Date()),
+      where("inventory_soft_deleted", "==", false),
+      where("inventory_total_units", ">", 0)
+    );
+    const inventorySnapshot = await getDocs(q);
+    if (inventorySnapshot.empty) {
+      console.log("No expired products found.");
+      return null;
+    }
+    expiredInventories = inventorySnapshot.docs.map((doc) => doc.data());
+    return expiredInventories;
+  } catch (error) {
+    console.error("Error fetching expired inventories", error);
   }
 };
