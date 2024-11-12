@@ -5,7 +5,7 @@ import ProductList from "@components/ProductList";
 import FilterBar from "@components/FilterBar";
 
 const Page = () => {
-  const [filter, setFilter] = useState("");
+  const [filter, setFilter] = useState("all");
   return (
     <>
       <header className="flex justify-center items-center p-4 bg-gradient-to-r from-gradientStart via-gradientMiddle to-gradientEnd">
