@@ -1,13 +1,15 @@
 import { db, getLoggedInUser, createLog } from "@utils/firebase";
-import { Timestamp, doc, updateDoc } from "firebase/firestore";
+import { Timestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
 //-------------------------------------------DELETE----------------------------------
-export async function DELETE({ params }) {
+export async function DELETE(request, { params }) {
+  console.log(params);
+
   const { id } = params;
   try {
-    const productRef = doc(db, "products", id);
+    const productRef = doc(db, "Product", id);
     await updateDoc(productRef, {
       product_last_updated: Timestamp.now().toDate(),
       product_soft_deleted: true,
@@ -18,14 +20,15 @@ export async function DELETE({ params }) {
       { status: 200 }
     );
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.log(error);
+    return NextResponse.json({ error: error }, { status: 500 });
   }
 }
 
 //-----------------------------------------PATCH------------------------------------
 export async function PATCH(request, { params }) {
   const { id } = params;
-  const productDoc = doc(db, "products", id);
+  const productDoc = doc(db, "Product", id);
 
   try {
     const reqFormData = await request.formData();
@@ -39,11 +42,9 @@ export async function PATCH(request, { params }) {
       reqFormData.get("product_reorder_point")
     );
     const product_weight = parseFloat(reqFormData.get("product_weight"));
-    const product_dimensions = parseFloat(
-      reqFormData.get("product_dimensions")
-    );
+    const product_dimension = parseFloat(reqFormData.get("product_dimensions"));
 
-    const imageURL = await getImageURL(file, productDoc.id, "products");
+    const imageURL = await getImageURL(file, productDoc.id, "Product");
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
@@ -61,7 +62,7 @@ export async function PATCH(request, { params }) {
       product_uom,
       product_reorder_point,
       product_weight,
-      product_dimensions,
+      product_dimension,
       product_last_updated: Timestamp.now().toDate(),
     });
 
@@ -78,6 +79,7 @@ export async function PATCH(request, { params }) {
       { status: 200 }
     );
   } catch (error) {
+    console.log(error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

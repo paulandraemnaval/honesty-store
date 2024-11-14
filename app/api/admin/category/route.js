@@ -13,7 +13,7 @@ import getImageURL from "@utils/imageURL";
 export async function GET() {
   let categories = [];
   try {
-    const categoryQuery = await getDocs(collection(db, "category"));
+    const categoryQuery = await getDocs(collection(db, "Category"));
 
     categories = categoryQuery.docs.map((doc) => doc.data());
     if (categories.length === 0) {
@@ -42,7 +42,7 @@ export async function GET() {
 
 //--------------------------------POST---------------------------------------------------
 export async function POST(request) {
-  const categoryRef = collection(db, "category");
+  const categoryRef = collection(db, "Category");
   const categoryDoc = doc(categoryRef);
   try {
     const reqFormData = await request.formData();
@@ -50,7 +50,7 @@ export async function POST(request) {
     const file = reqFormData.get("file");
     const category_description = reqFormData.get("category_description");
 
-    const imageURL = await getImageURL(file, categoryDoc.id, "category");
+    const imageURL = await getImageURL(file, categoryDoc.id, "Category");
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
@@ -64,8 +64,8 @@ export async function POST(request) {
       category_id: categoryDoc.id,
       category_image_url: imageURL,
       category_description,
-      category_timestamp: Timestamp.now().toDate(),
-      category_last_updated: Timestamp.now().toDate(),
+      category_timestamp: Timestamp.now(),
+      category_last_updated: Timestamp.now(),
       category_soft_deleted: false,
     });
 
@@ -107,8 +107,4 @@ export async function POST(request) {
       { status: 400 }
     );
   }
-}
-
-export async function PATCH(request, { params }) {
-  const { id } = params;
 }
