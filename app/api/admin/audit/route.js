@@ -30,7 +30,7 @@ export async function POST(request) {
 
       const cycleCountDoc = doc(cycleCountRef);
 
-      const inventoryRef = doc(db, "inventories", inventoryId);
+      const inventoryRef = doc(db, "Inventory", inventoryId);
       const inventorySnapshot = await getDoc(inventoryRef);
 
       if (!inventorySnapshot.exists()) {

@@ -7,10 +7,10 @@ export async function DELETE(request, { params }) {
   const { id } = params;
 
   try {
-    const categoryDoc = doc(db, "category", id);
+    const categoryDoc = doc(db, "Category", id);
     await updateDoc(categoryDoc, {
       category_soft_deleted: true,
-      category_last_updated: Timestamp.now().toDate(),
+      category_last_updated: Timestamp.now(),
     });
 
     const user = await getLoggedInUser();
@@ -36,7 +36,7 @@ export async function DELETE(request, { params }) {
 export async function PATCH(request, { params }) {
   const { id } = params;
 
-  const categoryDoc = doc(db, "category", id);
+  const categoryDoc = doc(db, "Category", id);
 
   try {
     const reqFormData = await request.formData();
@@ -44,7 +44,7 @@ export async function PATCH(request, { params }) {
     const file = reqFormData.get("file");
     const category_description = reqFormData.get("category_description");
 
-    const imageURL = await getImageURL(file, categoryDoc.id, "category");
+    const imageURL = await getImageURL(file, categoryDoc.id, "Category");
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
@@ -57,7 +57,7 @@ export async function PATCH(request, { params }) {
       category_name,
       category_image_url: imageURL,
       category_description,
-      category_last_updated: Timestamp.now().toDate(),
+      category_last_updated: Timestamp.now(),
     });
 
     const user = await getLoggedInUser();

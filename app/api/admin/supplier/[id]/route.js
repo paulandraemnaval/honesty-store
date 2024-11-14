@@ -2,14 +2,36 @@ import { db, createLog, getLoggedInUser } from "@utils/firebase";
 import { Timestamp, doc, updateDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+export async function GET({ params }) {
+  try {
+    const { id } = params;
+    const supplierDoc = doc(db, "Supplier", id);
+    const snapshot = await getDoc(supplierDoc);
+    if (snapshot.exists) {
+      return NextResponse.json(
+        { message: "No supplier found with the given ID" },
+        { status: 200 }
+      );
+    }
+    const supplier = snapshot.data();
+    return NextResponse.json(
+      { message: `Supplier found with the given ID: `, data: supplier },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ message: error }, { status: 500 });
+  }
+}
+
 //-------------------------------------DELETE-----------------------------
-export async function DELETE({ params }) {
+export async function DELETE(request, { params }) {
   const { id } = params;
 
   try {
-    const supplierRef = doc(db, "suppliers", id);
+    const supplierRef = doc(db, "Supplier", id);
     await updateDoc(supplierRef, {
-      supplier_last_updated: Timestamp.now().toDate(),
+      supplier_last_updated: Timestamp.now(),
       supplier_soft_deleted: true,
     });
 
@@ -18,7 +40,7 @@ export async function DELETE({ params }) {
       user.account_id,
       "Supplier",
       id,
-      `Soft-deleted supplier with ID: ${id}`
+      "SOFT-DELETE"
     );
 
     return NextResponse.json(
@@ -35,7 +57,7 @@ export async function DELETE({ params }) {
 
 export async function PATCH(request, { params }) {
   const { id } = params;
-  const supplierDoc = doc(db, "suppliers", id);
+  const supplierDoc = doc(db, "Supplier", id);
 
   try {
     const reqFormData = await request.formData();
@@ -51,16 +73,11 @@ export async function PATCH(request, { params }) {
       supplier_contact_number,
       supplier_email_address,
       supplier_notes,
-      supplier_last_updated: Timestamp.now().toDate(),
+      supplier_last_updated: Timestamp.now(),
     });
 
     const user = await getLoggedInUser();
-    const logData = await createLog(
-      user.account_id,
-      "Supplier",
-      id,
-      `Updated supplier with ID ${id}`
-    );
+    const logData = await createLog(user.account_id, "Supplier", id, "UPDATE");
 
     return NextResponse.json(
       {

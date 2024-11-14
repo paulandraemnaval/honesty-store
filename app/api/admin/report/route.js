@@ -39,8 +39,8 @@ export async function POST(request) {
     if (await checkCollectionExists("Report")) {
       report_start_date = await getLastReportEndDate();
     } else {
-      const inventoryRef = collection(db, "inventories");
-      if (!(await checkCollectionExists("inventories"))) {
+      const inventoryRef = collection(db, "Inventory");
+      if (!(await checkCollectionExists("Inventory"))) {
         return NextResponse.json(
           { message: "No inventories created." },
           { status: 404 }
@@ -115,7 +115,7 @@ export async function POST(request) {
         report_soft_deleted: false,
       });
 
-      const inventoryRef = collection(db, "inventories");
+      const inventoryRef = collection(db, "Inventory");
       const inventoryQuery = query(
         inventoryRef,
         where("inventory_total_units", ">", 0),
@@ -126,7 +126,7 @@ export async function POST(request) {
       const snapshot = await getDocs(inventoryQuery);
 
       const updatePromises = snapshot.docs.map(async (item) => {
-        const inventoryDoc = doc(db, "inventories", item.id);
+        const inventoryDoc = doc(db, "Inventory", item.id);
         const inventory_last_updated = new Date();
 
         await updateDoc(inventoryDoc, { inventory_last_updated });

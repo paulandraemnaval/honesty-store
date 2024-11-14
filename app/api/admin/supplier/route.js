@@ -5,15 +5,19 @@ import {
   Timestamp,
   doc,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   let suppliers = [];
   try {
-    const suppliersQuery = await getDocs(collection(db, "suppliers"));
+    const supplierRef = collection(db, "Supplier");
+    const q = query(supplierRef, where("supplier_soft_deleted", "==", false));
+    const supplierSnapshot = await getDocs(q);
 
-    suppliers = suppliersQuery.docs.map((doc) => doc.data());
+    suppliers = supplierSnapshot.docs.map((doc) => doc.data());
     if (suppliers.length === 0) {
       return NextResponse.json(
         {
@@ -39,7 +43,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const supplierRef = collection(db, "suppliers");
+  const supplierRef = collection(db, "Supplier");
   const supplierDoc = doc(supplierRef);
   try {
     const reqFormData = await request.formData();
@@ -56,8 +60,8 @@ export async function POST(request) {
       supplier_contact_number,
       supplier_email_address,
       supplier_notes,
-      supplier_timestamp: Timestamp.now().toDate(),
-      supplier_last_updated: Timestamp.now().toDate(),
+      supplier_timestamp: Timestamp.now(),
+      supplier_last_updated: Timestamp.now(),
       supplier_soft_deleted: false,
     });
 
@@ -67,7 +71,7 @@ export async function POST(request) {
       user.account_id,
       "Supplier",
       supplierDoc.id,
-      "Added a new supplier"
+      "CREATE"
     );
 
     return NextResponse.json(

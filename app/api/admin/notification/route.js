@@ -20,10 +20,10 @@ import { NextResponse } from "next/server";
 export async function PATCH(request) {
   const { lastVisible } = await request.json();
   try {
-    const productsRef = collection(db, "products");
+    const productsRef = collection(db, "Notification");
     let productsQuery;
     if (lastVisible) {
-      const lastDocSnapshot = await getDoc(doc(db, "products", lastVisible));
+      const lastDocSnapshot = await getDoc(doc(db, "Product", lastVisible));
       if (!lastDocSnapshot.exists()) {
         return NextResponse.json(
           { message: "Invalid lastVisible document ID." },

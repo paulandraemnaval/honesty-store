@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function DELETE({ params }) {
   const { id } = params;
   try {
-    const inventoryRef = doc(db, "inventories", id);
+    const inventoryRef = doc(db, "Inventory", id);
     await updateDoc(inventoryRef, {
       inventory_soft_deleted: true,
       inventory_last_updated: Timestamp.now().toDate(),
@@ -33,7 +33,7 @@ export async function DELETE({ params }) {
 
 export async function PATCH(request, { params }) {
   const { id } = params;
-  const inventoryDoc = doc(db, "inventories", id);
+  const inventoryDoc = doc(db, "Inventory", id);
   try {
     const reqFormData = await request.formData();
     const inventory_wholesale_price = parseFloat(

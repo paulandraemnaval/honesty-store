@@ -126,9 +126,9 @@ export const getLastReportEndDate = async () => {
   }
 };
 
-export const checkExpiredProducts = async () => {
+export const checkExpiredInventories = async () => {
   try {
-    const inventoriesRef = collection(db, "inventories");
+    const inventoriesRef = collection(db, "Inventory");
     let expiredInventories;
     const q = query(
       inventoriesRef,

@@ -25,7 +25,7 @@ export async function GET() {
   let products = [];
   try {
     const q = query(
-      collection(db, "products"),
+      collection(db, "Product"),
       where("product_soft_deleted", "==", false)
     );
     const productsQuery = await getDocs(q);
@@ -44,7 +44,7 @@ export async function GET() {
     const updatedProducts = await Promise.all(
       products.map(async (prod) => {
         const categoryQuery = query(
-          collection(db, "category"),
+          collection(db, "Category"),
           where("category_id", "==", prod.product_category)
         );
 
@@ -80,10 +80,10 @@ export async function GET() {
 export async function PATCH(request) {
   const { lastVisible } = await request.json();
   try {
-    const productsRef = collection(db, "products");
+    const productsRef = collection(db, "Product");
     let productsQuery;
     if (lastVisible) {
-      const lastDocSnapshot = await getDoc(doc(db, "products", lastVisible));
+      const lastDocSnapshot = await getDoc(doc(db, "Product", lastVisible));
       if (!lastDocSnapshot.exists()) {
         return NextResponse.json(
           { message: "Invalid lastVisible document ID." },
@@ -109,7 +109,7 @@ export async function PATCH(request) {
 }
 
 export async function POST(request) {
-  const productRef = collection(db, "products");
+  const productRef = collection(db, "Product");
   const productDoc = doc(productRef);
   try {
     const reqFormData = await request.formData();
@@ -124,11 +124,9 @@ export async function POST(request) {
       10
     );
     const product_weight = parseFloat(reqFormData.get("product_weight"));
-    const product_dimensions = parseFloat(
-      reqFormData.get("product_dimensions")
-    );
+    const product_dimension = parseFloat(reqFormData.get("product_dimensions"));
 
-    const imageURL = await getImageURL(file, productDoc.id, "products");
+    const imageURL = await getImageURL(file, productDoc.id, "Product");
     if (!imageURL) {
       console.error("Failed to generate image URL:", error);
       return NextResponse.json(
@@ -147,7 +145,8 @@ export async function POST(request) {
       product_reorder_point,
       product_image_url: imageURL,
       product_weight,
-      product_dimensions,
+      product_dimension,
+      product_is_approved: false,
       product_timestamp: Timestamp.now().toDate(),
       product_last_updated: Timestamp.now().toDate(),
       product_soft_deleted: false,

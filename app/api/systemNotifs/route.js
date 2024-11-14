@@ -2,8 +2,6 @@ import {
   db,
   createLog,
   getLoggedInUser,
-  checkCollectionExists,
-  getLastReportEndDate,
   checkExpiredInventories,
 } from "@utils/firebase";
 import {
@@ -18,22 +16,41 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
-export async function POST(request) {
-  // const expired = await checkExpiredInventories();
-
-  // if(!expired){
-  //     return NextResponse.json({message: "No notif"})
-  // }
+export async function POST() {
   try {
-    const notifRef = collection(db, "Sample");
+    const expired = await checkExpiredInventories();
+
+    if (!expired) {
+      return NextResponse.json(
+        { message: "No notification", expired: [] },
+        { status: 200 }
+      );
+    }
+    const user = await getLoggedInUser();
+    const notification_body = `${expired.length} expired products...`;
+
+    const notifRef = collection(db, "Notification");
     const notifDoc = doc(notifRef);
+
     await setDoc(notifDoc, {
-      sample_id: notifDoc.id,
-      sample_change: false,
+      notification_id: notifDoc.id,
+      account_id: user.account_id,
+      notification_title: "PRODUCT INVENTORY EXPIRED!!",
+      notification_body,
+      notification_type: 2,
+      notification_timestamp: Timestamp.now(),
+      notification_soft_deleted: false,
     });
 
-    return NextResponse.json({ message: "Successful" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Notifications for product expiration created" },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({ error: error });
+    console.log(error);
+    return NextResponse.json(
+      { message: "Failed to create notification document", error: error },
+      { status: 500 }
+    );
   }
 }
