@@ -11,14 +11,11 @@ import {
 import { NextResponse } from "next/server";
 
 function calculateSimilarity(supplierName, searchTerm) {
-  // Simple similarity calculation based on string distance
-  // You can implement a more sophisticated algorithm if needed
   const lowerSupplierName = supplierName.toLowerCase();
   const lowerSearchTerm = searchTerm.toLowerCase();
 
-  // Calculate the Levenshtein distance or use a simple indexOf for basic similarity
   const index = lowerSupplierName.indexOf(lowerSearchTerm);
-  return index === -1 ? Infinity : index; // Return Infinity if not found
+  return index === -1 ? Infinity : index;
 }
 
 export async function GET(request) {
