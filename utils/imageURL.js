@@ -1,15 +1,14 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { db } from "@utils/firebase";
 import { storage } from "@utils/firebase";
 
-export default async function getImageURL(file, prodId, folderName) {
+export default async function getImageURL(file, docId, folderName) {
   if (!file) {
     return;
   }
-  const productsImageFolderRef = ref(storage, `${folderName}/${prodId}`);
+  const imageFolderRef = ref(storage, `${folderName}/${docId}`);
   try {
-    await uploadBytes(productsImageFolderRef, file);
-    const downloadURL = await getDownloadURL(productsImageFolderRef); // fixed reference
+    await uploadBytes(imageFolderRef, file);
+    const downloadURL = await getDownloadURL(imageFolderRef); // fixed reference
     return downloadURL;
   } catch (error) {
     console.log("Error uploading file:", error);

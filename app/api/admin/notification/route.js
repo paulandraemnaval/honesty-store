@@ -20,24 +20,26 @@ import { NextResponse } from "next/server";
 export async function PATCH(request) {
   const { lastVisible } = await request.json();
   try {
-    const productsRef = collection(db, "Notification");
-    let productsQuery;
+    const notifRef = collection(db, "Notification");
+    let notifQuery;
     if (lastVisible) {
-      const lastDocSnapshot = await getDoc(doc(db, "Product", lastVisible));
+      const lastDocSnapshot = await getDoc(
+        doc(db, "Notification", lastVisible)
+      );
       if (!lastDocSnapshot.exists()) {
         return NextResponse.json(
           { message: "Invalid lastVisible document ID." },
           { status: 400 }
         );
       }
-      productsQuery = query(productsRef, startAfter(lastDocSnapshot), limit(5));
+      notifQuery = query(notifRef, startAfter(lastDocSnapshot), limit(5));
     } else {
-      productsQuery = query(productsRef, limit(5));
+      notifQuery = query(notifRef, limit(5));
     }
-    const snapshot = await getDocs(productsQuery);
-    const products = snapshot.docs.map((doc) => doc.data());
+    const snapshot = await getDocs(notifQuery);
+    const notifications = snapshot.docs.map((doc) => doc.data());
     return NextResponse.json(
-      { message: "Successfully fetched products", products },
+      { message: "Successfully fetched products", data: notifications },
       { status: 200 }
     );
   } catch (error) {
@@ -50,8 +52,7 @@ export async function PATCH(request) {
 
 export async function POST(request) {
   try {
-    const { notification_title, notification_body, notification_type } =
-      await request.json();
+    const { notification_title, notification_body } = await request.json();
 
     const notifRef = collection(db, "Notification");
     const notifDoc = await getDoc(notifRef);
@@ -63,7 +64,7 @@ export async function POST(request) {
       account_id: user.account_id,
       notification_title,
       notification_body,
-      notification_type,
+      notification_type: 1,
       notification_is_read: false,
       notification_timestamp: Timestamp.now(),
       notification_soft_deleted: false,
