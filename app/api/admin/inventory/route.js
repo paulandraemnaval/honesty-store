@@ -25,7 +25,7 @@ export async function GET() {
   let inventories = [];
   try {
     const reportExist = await checkCollectionExists("Report");
-    const inventoryRef = collection(db, "inventories");
+    const inventoryRef = collection(db, "Inventory");
     let snapshot;
 
     if (!reportExist) {
@@ -99,7 +99,7 @@ export async function GET() {
 }
 
 export async function POST(request) {
-  const inventoryRef = collection(db, "inventories");
+  const inventoryRef = collection(db, "Inventory");
   const inventoryDoc = doc(inventoryRef);
   try {
     const reqFormData = await request.formData();

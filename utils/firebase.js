@@ -126,24 +126,61 @@ export const getLastReportEndDate = async () => {
   }
 };
 
-export const checkExpiredInventories = async () => {
+export const expiredInventoriesToday = async () => {
   try {
-    const inventoriesRef = collection(db, "Inventory");
-    let expiredInventories;
+    const inventoriesRef = collection(db, "inventories");
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
     const q = query(
       inventoriesRef,
-      where("inventory_expiration_date", "<=", new Date()),
+      where("inventory_expiration_date", ">=", today), // Expiration date is today or later
+      where("inventory_expiration_date", "<", tomorrow), // Expiration date is before tomorrow
       where("inventory_soft_deleted", "==", false),
       where("inventory_total_units", ">", 0)
     );
     const inventorySnapshot = await getDocs(q);
     if (inventorySnapshot.empty) {
-      console.log("No expired products found.");
+      console.log("No expired products found for today.");
       return null;
     }
-    expiredInventories = inventorySnapshot.docs.map((doc) => doc.data());
+
+    const expiredInventories = inventorySnapshot.docs.map((doc) => doc.data());
     return expiredInventories;
   } catch (error) {
     console.error("Error fetching expired inventories", error);
   }
 };
+
+export async function twoWeeksBeforeExpiration() {
+  try {
+    const inventoryRef = collection(db, "inventories");
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const twoWeeksFromNow = new Date(today);
+    twoWeeksFromNow.setDate(today.getDate() + 14);
+
+    const q = query(
+      inventoryRef,
+      where("inventory_expiration_date", "==", twoWeeksFromNow),
+      where("inventory_soft_deleted", "==", false),
+      where("total_units", ">", 0)
+    );
+
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) {
+      console.log("No products expiring in two weeks.");
+      return [];
+    }
+
+    const expiredInventories = snapshot.data.map((doc) => doc.data());
+    return expiredInventories;
+  } catch (error) {
+    console.log("Error fetching products expiring in two weeks,", error);
+    return [];
+  }
+}
