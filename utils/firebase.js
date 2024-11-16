@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import { decrypt } from "@utils/session";
 import { cookies } from "next/headers";
+import next from "next";
 
 const firebaseConfig = {
   apiKey: process.env.API_KEY,
@@ -128,7 +129,7 @@ export const getLastReportEndDate = async () => {
 
 export const expiredInventoriesToday = async () => {
   try {
-    const inventoriesRef = collection(db, "inventories");
+    const inventoriesRef = collection(db, "Inventory");
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -158,17 +159,21 @@ export const expiredInventoriesToday = async () => {
 
 export async function twoWeeksBeforeExpiration() {
   try {
-    const inventoryRef = collection(db, "inventories");
+    const inventoryRef = collection(db, "Inventory");
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const twoWeeksFromNow = new Date(today);
     twoWeeksFromNow.setDate(today.getDate() + 14);
 
+    const nextDay = new Date(today);
+    nextDay.setDate(twoWeeksFromNow.getDate() + 1);
+
     const q = query(
       inventoryRef,
-      where("inventory_expiration_date", "==", twoWeeksFromNow),
+      where("inventory_expiration_date", ">=", twoWeeksFromNow),
+      where("inventory_expiration_date", "<", nextDay),
       where("inventory_soft_deleted", "==", false),
-      where("total_units", ">", 0)
+      where("inventory_total_units", ">", 0)
     );
 
     const snapshot = await getDocs(q);
@@ -177,7 +182,7 @@ export async function twoWeeksBeforeExpiration() {
       return [];
     }
 
-    const expiredInventories = snapshot.data.map((doc) => doc.data());
+    const expiredInventories = snapshot.docs.map((doc) => doc.data());
     return expiredInventories;
   } catch (error) {
     console.log("Error fetching products expiring in two weeks,", error);

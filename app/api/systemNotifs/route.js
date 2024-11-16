@@ -1,21 +1,55 @@
 import {
   db,
-  createLog,
   getLoggedInUser,
   expiredInventoriesToday,
   twoWeeksBeforeExpiration,
 } from "@utils/firebase";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-  doc,
-  setDoc,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
+import { collection, Timestamp, doc, setDoc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
+
+async function createNotificationForProducts(user, products, title, body) {
+  let expiredProducts = [];
+  const notifRef = collection(db, "Notification");
+  const notifDoc = doc(notifRef);
+
+  const promises = products.map(async (item) => {
+    const productDoc = doc(db, "Product", item.product_id);
+    const productSnapshot = await getDoc(productDoc);
+    let product;
+    if (productSnapshot.exists()) {
+      product = productSnapshot.data();
+      expiredProducts.push(product.product_name);
+
+      const invNotifRef = collection(db, "InventoryNotification");
+      const invNotifDoc = doc(invNotifRef);
+
+      await setDoc(invNotifDoc, {
+        inventory_notification_id: invNotifDoc.id,
+        inventory_id: item.inventory_id,
+        notification_id: notifDoc.id,
+      });
+    } else {
+      console.log(`Product with ID ${item.product_id} does not exist`);
+    }
+  });
+
+  await Promise.all(promises);
+
+  let notification_body = `${body} The following products have expired today: ${expiredProducts.join(
+    ", "
+  )}.`;
+
+  await setDoc(notifDoc, {
+    notification_id: notifDoc.id,
+    account_id: user.account_id,
+    notification_title: title,
+    notification_body,
+    notification_type: 2,
+    notification_is_read: false,
+    notification_timestamp: Timestamp.now(),
+    notification_soft_deleted: false,
+  });
+}
 
 export async function POST(request) {
   try {
@@ -34,41 +68,28 @@ export async function POST(request) {
 
     const user = await getLoggedInUser();
     if (expiredToday.length > 0) {
-      let expiredProducts = "";
-      const notifRef = collection(db, "Notification");
-      const notifDoc = doc(notifRef);
-
-      const promises = expiredToday.map(async (item) => {
-        const invNotifRef = collection(db, "InventoryNotification");
-        const invNotifDoc = doc(invNotifRef);
-        expiredProducts += item.productName + ", ";
-        await setDoc(invNotifDoc, {
-          inventory_notification_id: invNotifDoc.id,
-          inventory_id: item.inventoryId,
-          notification_id: notifDoc.id,
-        });
-      });
-
-      Promise.all(promises);
-
-      await setDoc(notifDoc, {
-        notification_id: notifDoc.id,
-        account_id: user.account_id,
-        notification_title: "Action Required: Products Expired Today!",
-        notification_body: `Important: ${expiredToday.length} product(s) have reached their expiration date today. Ensure to check your inventory and manage your stock accordingly.\n Products expired: ${expiredProducts}`,
-        notification_type: 2,
-        notification_is_read: false,
-        notification_timestamp: Timestamp.now(),
-        notification_soft_deleted: false,
-      });
+      await createNotificationForProducts(
+        user,
+        expiredToday,
+        "Action Required: Products Expired Today!",
+        `Important: ${expiredToday.length} product(s) have reached their expiration date today. Ensure to check your inventory and manage your stock accordingly.\n.`
+      );
     }
 
     if (expiredTwoWeeksBefore.length > 0) {
-      let expiredProducts;
+      await createNotificationForProducts(
+        user,
+        expiredTwoWeeksBefore,
+        "Heads Up: Products Expiring in 2 Weeks!",
+        `Notice: ${expiredTwoWeeksBefore.length} product(s) in your inventory are set to expire in exactly two weeks.`
+      );
     }
-
     return NextResponse.json(
-      { message: "Notifications for product expiration created" },
+      {
+        message: "Notifications for product expiration created",
+        expiredToday,
+        expiredTwoWeeksBefore,
+      },
       { status: 200 }
     );
   } catch (error) {
