@@ -81,7 +81,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           ? (e) => postProduct(e)
           : null
       }
-      className="flex flex-col w-full gap-2"
+      className="flex flex-col w-full gap-2 h-fit py-2 px-1"
     >
       <div className="flex flex-col gap-2 w-full">
         <Image
@@ -97,7 +97,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_name}
           onChange={handleInputChange}
           placeholder="Product name"
-          className="border h-fit p-2 rounded-lg"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           required
         />
         <label htmlFor="product_category">Product Category</label>
@@ -142,7 +142,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           >
             Upload Image
           </label>
-          <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate">
+          <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate bg-white">
             {image.file?.name || image.url || "No image selected"}
           </p>
         </div>
@@ -153,7 +153,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_description}
           onChange={handleInputChange}
           placeholder="Product description"
-          className="rounded-lg p-2 border"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           required
         />
         <label htmlFor="product_sku">Product SKU</label>
@@ -163,7 +163,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_sku}
           onChange={handleInputChange}
           placeholder="Product SKU"
-          className="rounded-lg p-2 border"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_sku"
           required
         />
@@ -174,7 +174,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_uom}
           onChange={handleInputChange}
           placeholder="Product UOM"
-          className="rounded-lg p-2 border"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_uom"
           required
         />
@@ -185,7 +185,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_reorder_point}
           onChange={handleInputChange}
           placeholder="Product Reorder Point"
-          className="rounded-lg p-2 border"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_reorder_point"
           required
         />
@@ -196,7 +196,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_weight}
           onChange={handleInputChange}
           placeholder="Product Weight"
-          className="rounded-lg p-2 border"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_weight"
           required
         />
@@ -207,7 +207,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           value={formValues.product_dimensions}
           onChange={handleInputChange}
           placeholder="Product Dimensions"
-          className="rounded-lg p-2 border"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1  "
           id="product_dimensions"
           required
         />

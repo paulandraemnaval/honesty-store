@@ -6,7 +6,7 @@ const userLayout = ({ children }) => {
       <Navbar />
       <div className="flex flex-1 flex-col">
         <HeaderBar />
-        <div>{children}</div>
+        <div className="bg-backgroundMain h-full">{children}</div>
       </div>
     </div>
   );

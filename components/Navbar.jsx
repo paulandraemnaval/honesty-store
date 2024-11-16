@@ -13,21 +13,24 @@ import accountManagementIcon from "@public/icons/accounts_icon.png";
 const Navbar = () => {
   const pathName = usePathname();
   const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const getUser = async () => {
       try {
+        setLoading(true);
         const response = await fetch("/api/admin/user");
         const data = await response.json();
         setUser(data?.data || null);
       } catch (err) {
         setUser(null);
         console.error("Failed to fetch user: ", err);
+      } finally {
+        setLoading(false);
       }
     };
     getUser();
   }, []);
 
-  console.log(user, "USER");
   const [showManage, setShowManage] = useState(false);
   const getUserRole = () => {
     if (user?.account_role === "1") return "C.E.O";
@@ -35,10 +38,41 @@ const Navbar = () => {
     if (user?.account_role === "3") return "Auditor";
     if (user?.account_role === "4") return "Secretary";
   };
+
+  const links = [
+    {
+      href: "/admin/user",
+      icon: homeIcon,
+      label: "Dash",
+    },
+    {
+      href: "/admin/user/products",
+      icon: salesIcon,
+      label: "Products",
+    },
+    ...(user?.account_role === "1"
+      ? [
+          {
+            href: "/admin/user/manage_account",
+            icon: accountManagementIcon,
+            label: "Manage Accounts",
+          },
+        ]
+      : []),
+  ];
+
+  const manageLinks = [
+    { href: "/admin/user/manage/add_supplier", label: "Add Supplier" },
+    { href: "/admin/user/manage/add_product", label: "Add Product" },
+    { href: "/admin/user/manage/create_inventory", label: "Create Inventory" },
+    { href: "/admin/user/manage/create_category", label: "Create Category" },
+    { href: "/admin/user/manage/create_audit", label: "Create Audit" },
+    { href: "/admin/user/manage/create_report", label: "Create Report" },
+  ];
+
   return (
     <nav>
       {/*desktop nav*/}
-
       <div className="p-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-5 py-4 w-[14rem]">
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
           Honesty Store
@@ -49,42 +83,51 @@ const Navbar = () => {
             alt="profile_image"
             height={40}
             width={40}
-            className="rounded-full mr-auto"
+            className="rounded-full mr-auto object-cover"
           />
           <div className="flex flex-col w-full px-2">
-            <p className="text-left font-semibold">{user?.account_name}</p>
-            <p className="text-left font-thin">{getUserRole()}</p>
+            <p className="text-left font-semibold">
+              {loading ? "loading..." : user?.account_name}
+            </p>
+            <p className="text-left font-thin">
+              {loading ? "loading..." : getUserRole()}
+            </p>
           </div>
         </div>
-        <div
-          className={` flex w-full bg-white p-2  ${
-            pathName === "/admin/user" ? "text-navbarSelected" : ""
-          }`}
-        >
-          <Image
-            src={homeIcon}
-            alt="home_icon"
-            height={20}
-            width={25}
-            className="object-contain"
-          />
-          <Link
-            href="/admin/user"
-            className="flex-1 items-center ml-4 font-semibold"
-          >
-            Dash
-          </Link>
-        </div>
-        <div className="w-full">
+
+        {links.map(({ href, icon, label }) => (
           <div
-            className={` w-full flex bg-white p-2 cursor-pointer ${
+            key={href}
+            className={`flex w-full bg-white p-2 ${
+              pathName === href ? "text-navbarSelected" : ""
+            }`}
+          >
+            <Image
+              src={icon}
+              alt={`${label}_icon`}
+              height={20}
+              width={25}
+              className="object-contain"
+            />
+            <Link
+              href={href}
+              className="flex-1 items-center ml-4 font-semibold"
+            >
+              {label}
+            </Link>
+          </div>
+        ))}
+
+        <div className={`w-full`}>
+          <div
+            className={`w-full flex bg-white p-2 cursor-pointer ${
               pathName === "/admin/user/manage" ? "text-navbarSelected" : ""
             } ${showManage === true ? "rounded-tr-md rounded-tl-md" : ""}`}
             onClick={() => setShowManage((prev) => !prev)}
           >
             <Image
               src={ManagementIcon}
-              alt="accountManagementIcon_icon"
+              alt="manage_icon"
               height={20}
               width={25}
             />
@@ -92,186 +135,69 @@ const Navbar = () => {
               Manage
             </span>
           </div>
-          {showManage && (
-            <>
+          {showManage &&
+            manageLinks.map(({ href, label }) => (
               <div
-                className={` w-full flex bg-white p-2  cursor-pointer ${
-                  pathName === "/admin/user/manage/add_supplier"
-                    ? "text-navbarSelected"
-                    : ""
+                key={href}
+                className={`w-full flex bg-white p-2 cursor-pointer ${
+                  pathName === href ? "text-navbarSelected" : ""
                 }`}
               >
                 <Link
-                  href="/admin/user/manage/add_supplier"
+                  href={href}
                   className="flex-1 items-center ml-4 font-semibold"
                 >
-                  Add Supplier
+                  {label}
                 </Link>
               </div>
-              <div
-                className={` w-full flex bg-white p-2  cursor-pointer ${
-                  pathName === "/admin/user/manage/add_product"
-                    ? "text-navbarSelected"
-                    : ""
-                }`}
-              >
-                <Link
-                  href="/admin/user/manage/add_product"
-                  className="flex-1 items-center ml-4 mt-1 font-semibold"
-                >
-                  Add Product
-                </Link>
-              </div>
-              <div
-                className={` w-full flex bg-white p-2  cursor-pointer ${
-                  pathName === "/admin/user/manage/create_inventory"
-                    ? "text-navbarSelected"
-                    : ""
-                }`}
-              >
-                <Link
-                  href="/admin/user/manage/create_inventory"
-                  className="flex-1 items-center ml-4 mt-1 font-semibold"
-                >
-                  Create Inventory
-                </Link>
-              </div>
-              <div
-                className={` w-full flex bg-white p-2  cursor-pointer ${
-                  pathName === "/admin/user/manage/create_category"
-                    ? "text-navbarSelected"
-                    : ""
-                }`}
-              >
-                <Link
-                  href="/admin/user/manage/create_category"
-                  className="flex-1 items-center ml-4 mt-1 font-semibold"
-                >
-                  Create Category
-                </Link>
-              </div>
-              <div
-                className={` w-full flex bg-white p-2  cursor-pointer  ${
-                  pathName === "/admin/user/manage/create_audit"
-                    ? "text-navbarSelected"
-                    : ""
-                }`}
-              >
-                <Link
-                  href="/admin/user/manage/create_audit"
-                  className="flex-1 items-center ml-4 mt-1 font-semibold"
-                >
-                  Create Audit
-                </Link>
-              </div>
-              <div
-                className={` w-full flex bg-white p-2  cursor-pointer rounded-bl-md rounded-br-md ${
-                  pathName === "/admin/user/manage/create_report"
-                    ? "text-navbarSelected"
-                    : ""
-                }`}
-              >
-                <Link
-                  href="/admin/user/manage/create_report"
-                  className="flex-1 items-center ml-4 mt-1 font-semibold"
-                >
-                  Create Report
-                </Link>
-              </div>
-            </>
-          )}
+            ))}
         </div>
-        <div
-          className={`  flex w-full bg-white p-2  ${
-            pathName === "/admin/user/products" ? "text-navbarSelected" : ""
-          }`}
-        >
-          <Image src={salesIcon} alt="sales_icon" height={20} width={25} />
-          <Link
-            href="/admin/user/products"
-            className="flex-1 items-center ml-4 mt-auto mb-auto font-semibold"
-          >
-            products
-          </Link>
-        </div>
-
-        {/* <div
-          className={` text-black flex w-full bg-white p-2  ${
-            currentPage === "inventory" ? "text-navbarSelected" : ""
-          }`}
-          onClick={(e) => {
-            e.stopPropagation;
-            setCurrentPage("inventory");
-          }}
-        >
-          <Image
-            src={inventoryIcon}
-            alt="inventory_icon"
-            height={20}
-            width={20}
-          />
-          <Link
-            href="/admin/user/inventory"
-            className="flex-1 items-center ml-4 mt-1/2 "
-          >
-            Inventory
-          </Link>
-        </div>*/}
-        {user?.account_role === "1" && (
-          <div
-            className={` flex w-full bg-white p-2  ${
-              pathName === "/admin/user/manage_account"
-                ? "text-navbarSelected"
-                : ""
-            }`}
-          >
-            <Image
-              src={accountManagementIcon}
-              alt="accounts_icon"
-              height={20}
-              width={25}
-            />
-            <Link
-              href="/admin/user/manage_account"
-              className="flex-1 items-center ml-4 mt-auto mb-auto font-semibold"
-            >
-              Manage Accounts
-            </Link>
-          </div>
-        )}
       </div>
 
       {/*mobile nav*/}
+      <div className="sm:hidden fixed bottom-0 flex w-full py-2 px-2 justify-between z-10 bg-white">
+        {links.map(({ href, icon, label }) => (
+          <Link
+            key={href}
+            href={href}
+            className="p-4 flex flex-1 items-center justify-center"
+          >
+            <Image src={icon} alt={`${label}_icon`} height={20} width={25} />
+          </Link>
+        ))}
 
-      <div className="sm:hidden fixed bottom-0 flex w-full py-2 px-2 justify-between bg-white">
-        <Link
-          href="/admin/user"
-          className="p-4 flex items-center justify-center"
-        >
-          <Image src={homeIcon} alt="home_icon" height={20} width={25} />
-        </Link>
         <div
-          className="p-4 flex-1 flex items-center justify-center"
+          className="p-4 flex-1 flex items-center justify-center cursor-pointer"
           onClick={() => setShowManage((prev) => !prev)}
         >
-          <Image src={ManagementIcon} alt="sales_icon" height={20} width={25} />
+          {showManage && (
+            <div className="fixed inset-0 bg-gray-900 bg-opacity-50 w-full pt-[26rem] h-fit flex items-center justify-center">
+              <div className="bg-white w-full h-full overflow-auto p-2  ">
+                {manageLinks.map(({ href, label }) => (
+                  <div
+                    key={href}
+                    className={`w-full flex bg-white p-2 cursor-pointer ${
+                      pathName === href ? "text-navbarSelected" : ""
+                    }`}
+                  >
+                    <Link
+                      href={href}
+                      className="flex-1 items-center ml-4 font-semibold"
+                    >
+                      {label}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <Image
+            src={ManagementIcon}
+            alt="manage_icon"
+            height={20}
+            width={25}
+          />
         </div>
-        <Link
-          href="/admin/user/products"
-          className="p-4 flex items-center justify-center"
-        >
-          <Image src={salesIcon} alt="sales_icon" height={20} width={25} />
-        </Link>{" "}
-        {user?.account_role === "1" && (
-          <div className="p-4 flex-1">
-            <Image
-              src={accountManagementIcon}
-              alt="accountManagementIcon_icon"
-              height={20}
-              width={25}
-            />
-          </div>
-        )}
       </div>
     </nav>
   );

@@ -41,6 +41,7 @@ const SignInForm = ({ handleSignIn, isProcessing }) => {
         <button
           type="submit"
           className="w-full p-2 bg-mainButtonColor text-white rounded-md"
+          disabled={isProcessing}
         >
           {isProcessing ? "Processing..." : "Sign In"}
         </button>
