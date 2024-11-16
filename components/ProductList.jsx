@@ -4,7 +4,8 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
-const ProductList = ({ filter, searchKeyword = "" }) => {
+
+const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,13 +21,9 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
       try {
         const response = await fetch("/api/admin/inventory");
         const data = await response.json();
-        if (response.ok) {
-          setInventories(
-            Array.isArray(data?.inventories) ? data.inventories : []
-          );
-        } else {
-          setInventories([]);
-        }
+        setInventories(
+          Array.isArray(data?.inventories) ? data.inventories : []
+        );
       } catch (error) {
         console.error("Failed to fetch inventories:", error);
       } finally {
@@ -47,8 +44,8 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
         });
         const data = await response.json();
         if (response.ok && data?.products?.length) {
-          setProducts(data?.products);
-          setLastVisible(data?.products[data?.products.length - 1].product_id);
+          setProducts(data.products);
+          setLastVisible(data.products[data.products.length - 1].product_id);
         }
       } catch (error) {
         console.log("Failed to fetch products:", error);
@@ -70,10 +67,9 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
       });
       const data = await response.json();
       if (response.ok && data?.products?.length) {
-        setProducts((prevProducts) => [...prevProducts, ...data?.products]);
-        setLastVisible(data?.products[data?.products.length - 1].product_id);
-        console.log(data?.products);
-      } else if (response.ok && data?.products.length === 0) {
+        setProducts((prevProducts) => [...prevProducts, ...data.products]);
+        setLastVisible(data.products[data.products.length - 1].product_id);
+      } else if (response.ok && data.products.length === 0) {
         setStopFetching(true);
       }
     } catch (error) {
@@ -129,7 +125,6 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
         });
       }
     });
-    console.log(map, "products with inventories");
     return map;
   }, [products, inventories]);
 
@@ -170,39 +165,42 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
   }, [filter, products, productData, pathname, searchKeyword]);
 
   return (
-    <div className="flex flex-col items-center w-full h-full min-h-fit overflow-y-auto">
-      <div className="flex gap-2 flex-wrap items-center justify-center w-full">
+    <div className="w-full h-full min-h-fit overflow-y-auto">
+      <div
+        className={`grid gap-4 w-full px-2 ${renderMethod}`}
+        style={{
+          gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))",
+        }}
+      >
         {filteredProducts.length > 0 && !loading ? (
           filteredProducts.map((product) => (
             <div
               key={product.product_id}
-              className="p-4 shadow-md rounded-md w-fit min-h-[18rem] max-w-[14rem] min-w-[14rem] flex flex-col bg-white"
+              className="p-6 shadow-md rounded-sm bg-white flex flex-col"
             >
-              <div className="flex flex-col justify-center gap-2">
-                <div className="flex-1 content-center flex justify-center min-h-[12rem] max-h-[12rem]">
+              <div className="flex flex-col justify-center gap-4">
+                <div className="flex justify-center h-[8rem]">
                   <Image
                     src={product.product_image_url || PlaceholderImage}
                     alt={product.product_name}
-                    width={100}
-                    height={100}
+                    width={200}
+                    height={200}
                     className="object-cover w-full"
                   />
                 </div>
-                <div className="w-full h-fit flex justify-center items-center">
-                  <span className="text-sm mr-auto flex-1 truncate">
+                <div className="flex flex-col">
+                  <span className="text-base font-semibold truncate">
                     {product.product_name}
                   </span>
-                  <span className="text-lg">
+                  <span className="text-lg font-bold">
                     {getPrice(product.product_id)}
                   </span>
                 </div>
-                <div className="w-full">
-                  {pathname === "/admin/user/products" && (
-                    <span className="text-sm">
-                      {getStock(product.product_id)} units
-                    </span>
-                  )}
-                </div>
+                {pathname === "/admin/user/products" && (
+                  <span className="text-sm text-gray-600">
+                    {getStock(product.product_id)} units
+                  </span>
+                )}
               </div>
             </div>
           ))
@@ -215,6 +213,7 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
           <p className="text-center mt-4">Loading more products...</p>
         )}
       </div>
+
       {filteredProducts && (
         <div ref={sentinelRef} className="sentinel h-2 w-full"></div>
       )}

@@ -1,50 +1,14 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
-import image_placeholder from "@public/defaultImages/placeholder_image.png";
+import placeholderImage from "@public/defaultImages/placeholder_image.png";
 
-const ProductForm = ({ productData = {}, setShowEdit, method }) => {
-  const [categories, setCategories] = useState([]);
+const ProductForm = () => {
   const [image, setImage] = useState({
     file: null,
-    url: productData.product_image_url || "",
+    url: "",
   });
-
-  const [formValues, setFormValues] = useState({
-    product_name: productData.product_name || "",
-    product_category: productData.product_category?.category_id || "",
-    product_description: productData.product_description || "",
-    product_sku: productData.product_sku || "",
-    product_uom: productData.product_uom || "",
-    product_reorder_point: productData.product_reorder_point || "",
-    product_weight: productData.product_weight || "",
-    product_dimensions: productData.product_dimensions || "",
-  });
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("/api/admin/category");
-
-        const data = await response.json();
-        if (response.ok) {
-          setCategories(Array.isArray(data?.categories) ? data.categories : []);
-        } else {
-          setCategories([]);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-        setCategories([]);
-      }
-    };
-
-    fetchCategories();
-  }, []);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
-  };
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   const handleImage = (e) => {
     if (e.target.files.length === 0) return;
@@ -59,6 +23,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
 
     const formData = new FormData(e.target);
     formData.append("file", image.file);
+    formData.append("product_category", selectedCategory);
 
     const res = await fetch(`/api/admin/products`, {
       method: "POST",
@@ -74,18 +39,12 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
 
   return (
     <form
-      onSubmit={
-        method === "patch"
-          ? (e) => patchProduct(e)
-          : method === "post"
-          ? (e) => postProduct(e)
-          : null
-      }
+      onSubmit={(e) => postProduct(e)}
       className="flex flex-col w-full gap-2 h-fit py-2 px-1"
     >
       <div className="flex flex-col gap-2 w-full">
         <Image
-          src={image.url || image_placeholder}
+          src={image.url || placeholderImage}
           width={100}
           height={100}
           className="object-scale-down max-h-[100px] max-w-[100px] rounded-lg"
@@ -94,38 +53,12 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <input
           type="text"
           name="product_name"
-          value={formValues.product_name}
-          onChange={handleInputChange}
           placeholder="Product name"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           required
         />
         <label htmlFor="product_category">Product Category</label>
-        <select
-          className="border rounded-lg p-2"
-          name="product_category"
-          value={formValues.product_category}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="" disabled>
-            Select category
-          </option>
-
-          {categories.length === 0 ? (
-            <option>no categories available</option>
-          ) : (
-            categories.map((category) => (
-              <option
-                className="p-2 gap-2"
-                key={category.category_id}
-                value={category.category_id}
-              >
-                {category.category_name}
-              </option>
-            ))
-          )}
-        </select>
+        <CategoryInput setSelectedCategory={setSelectedCategory} />
         <label htmlFor="file">Product Image</label>
         <input
           id="file"
@@ -150,8 +83,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <textarea
           type="text"
           name="product_description"
-          value={formValues.product_description}
-          onChange={handleInputChange}
           placeholder="Product description"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           required
@@ -160,8 +91,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <input
           type="text"
           name="product_sku"
-          value={formValues.product_sku}
-          onChange={handleInputChange}
           placeholder="Product SKU"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_sku"
@@ -171,8 +100,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <input
           type="text"
           name="product_uom"
-          value={formValues.product_uom}
-          onChange={handleInputChange}
           placeholder="Product UOM"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_uom"
@@ -182,8 +109,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <input
           type="number"
           name="product_reorder_point"
-          value={formValues.product_reorder_point}
-          onChange={handleInputChange}
           placeholder="Product Reorder Point"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_reorder_point"
@@ -193,8 +118,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <input
           type="number"
           name="product_weight"
-          value={formValues.product_weight}
-          onChange={handleInputChange}
           placeholder="Product Weight"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
           id="product_weight"
@@ -204,8 +127,6 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         <input
           type="text"
           name="product_dimensions"
-          value={formValues.product_dimensions}
-          onChange={handleInputChange}
           placeholder="Product Dimensions"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1  "
           id="product_dimensions"
@@ -214,19 +135,11 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
       </div>
 
       <div className="gap-2 w-full items-start flex flex-row-reverse">
-        {method === "patch" && (
-          <button
-            className="bg-red-600 text-white rounded-lg p-2"
-            onClick={() => setShowEdit((prev) => !prev)}
-          >
-            Cancel
-          </button>
-        )}
         <button
           type="submit"
           className="bg-mainButtonColor text-white rounded-lg p-2 w-fit"
         >
-          {method === "patch" ? "Update Product" : "Create Product"}
+          Create Product
         </button>
       </div>
     </form>
@@ -234,3 +147,110 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
 };
 
 export default ProductForm;
+
+const CategoryInput = ({ setSelectedCategory }) => {
+  const [categoryQuery, setCategoryQuery] = useState("");
+  const [categoryQueryResults, setCategoryQueryResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  const [focused, setFocused] = useState(false);
+
+  const handleCategorySearch = useCallback(async (categoryQuery) => {
+    if (!categoryQuery.trim()) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `/api/admin/query?category=${categoryQuery}`
+      );
+      const data = await response.json();
+      setCategoryQueryResults(Array.isArray(data?.data) ? data.data : []);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      setCategoryQueryResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setCategoryQuery(value);
+    setCategoryQueryResults([]);
+    setLoading(true);
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const newTimer = setTimeout(() => {
+      handleCategorySearch(value);
+    }, 500);
+    setDebounceTimer(newTimer);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [debounceTimer]);
+
+  const handleFocus = () => setFocused(true);
+  const handleBlur = () => {
+    setTimeout(() => setFocused(false), 100);
+  };
+
+  return (
+    <div
+      className={`relative flex flex-col border rounded-lg h-fit ${
+        focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
+      }`}
+    >
+      <input
+        type="text"
+        placeholder="Type Category Name"
+        onChange={handleInputChange}
+        value={categoryQuery}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        className="border-none p-2 focus:outline-none rounded-lg"
+      />
+      {focused && (
+        <div>
+          {loading && (
+            <p className="p-2 bg-gray-100 rounded-bl-lg rounded-br-lg">
+              Searching...
+            </p>
+          )}
+          {!loading && categoryQuery && categoryQueryResults.length === 0 && (
+            <p className="p-2 text-gray-400 bg-gray-100 rounded-bl-lg rounded-br-lg">
+              No Categories found
+            </p>
+          )}
+          {categoryQueryResults.length > 0 && (
+            <ul>
+              {categoryQueryResults.map((category, index) => (
+                <li
+                  key={category.category_id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCategoryQuery(category.category_name);
+                    setSelectedCategory(category.category_id);
+                    setFocused(false);
+                  }}
+                  className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
+                    index === categoryQueryResults.length - 1
+                      ? "rounded-b-lg"
+                      : ""
+                  }`}
+                >
+                  {category.category_name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 
+//TODO: implement infinite scroll for the report history, use patch and lastVisible in request body
+
 const ReportForm = () => {
   const [reports, setReports] = useState([]);
   const [cashInflow, setCashInflow] = useState(0);
@@ -85,7 +87,6 @@ const FlowUI = ({
   };
 
   useEffect(() => {
-    // Check that the values are not empty and are greater than or equal to 0
     const isValid =
       cashInflowValue !== "" &&
       Number(cashInflowValue) >= 0 &&
