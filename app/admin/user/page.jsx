@@ -1,7 +1,7 @@
 import React from "react";
 
 const userPage = () => {
-  return <main>main content</main>;
+  return <main>DASHBOARD CONTENT</main>;
 };
 
 export default userPage;

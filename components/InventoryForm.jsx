@@ -1,46 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const CreateInventory = () => {
-  const [products, setProducts] = useState([]);
-  const [suppliers, setSuppliers] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(""); // Default to empty string
-  const [selectedSupplier, setSelectedSupplier] = useState(""); // Default to empty string
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
 
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const response = await fetch("/api/admin/products");
-        const data = await response.json();
-        if (response.ok) {
-          setProducts(Array.isArray(data?.products) ? data.products : []);
-        } else {
-          setProducts([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch products: ", error);
-      }
-    };
-    getProducts();
-  }, []);
-
-  useEffect(() => {
-    const getSuppliers = async () => {
-      try {
-        const response = await fetch("/api/admin/supplier/");
-        const data = await response.json();
-        if (response.ok) {
-          setSuppliers(Array.isArray(data?.data) ? data.data : []);
-        } else {
-          setSuppliers([]);
-        }
-      } catch (error) {
-        console.error("Failed to fetch suppliers: ", error);
-        setSuppliers([]);
-      }
-    };
-    getSuppliers();
-  }, []);
   const postInventory = async (e) => {
     e.preventDefault();
     try {
@@ -60,7 +24,7 @@ const CreateInventory = () => {
     <form
       action="createInventory"
       onSubmit={(e) => postInventory(e)}
-      className="flex flex-col gap-2"
+      className="flex flex-col w-full gap-2 h-fit py-2 px-1"
     >
       <label htmlFor="wholesale_price">Wholesale Price</label>
       <input
@@ -68,63 +32,27 @@ const CreateInventory = () => {
         placeholder="wholesale price"
         id="wholesale_price"
         name="wholesale_price"
-        className="border h-fit p-2 rounded-lg"
+        className="border h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
 
       <label htmlFor="inventory_product">Product</label>
-      <select
-        className="border h-fit p-2 rounded-lg"
-        name="inventory_product"
-        id="inventory_product"
-        value={selectedProduct}
-        onChange={(e) => setSelectedProduct(e.target.value)}
-        required
-      >
-        <option value="" disabled>
-          Select Product
-        </option>{" "}
-        {products.length === 0 ? (
-          <option>No products available</option>
-        ) : (
-          products.map((product) => (
-            <option key={product.product_id} value={product.product_id}>
-              {product.product_name}
-            </option>
-          ))
-        )}
-      </select>
-
+      <ProductInput
+        setSelectedProduct={setSelectedProduct}
+        className={`border h-fit p-2 rounded-lg focus:outline-none`}
+      />
       <label htmlFor="inventory_supplier">Supplier</label>
-      <select
-        className="border h-fit p-2 rounded-lg"
-        name="inventory_supplier"
-        id="inventory_supplier"
-        value={selectedSupplier}
-        onChange={(e) => setSelectedSupplier(e.target.value)}
-        required
-      >
-        <option value="" disabled>
-          Select Supplier
-        </option>
-        {suppliers?.length === 0 ? (
-          <option>No suppliers available</option>
-        ) : (
-          suppliers?.map((supplier) => (
-            <option key={supplier.supplier_id} value={supplier.supplier_id}>
-              {supplier.supplier_name}
-            </option>
-          ))
-        )}
-      </select>
-
+      <SupplierInput
+        setSelectedSupplier={setSelectedSupplier}
+        className={`border h-fit p-2 rounded-lg focus:outline-mainButtonColor outline ring-mainButtonColor`}
+      />
       <label htmlFor="total_units">Total Units</label>
       <input
         type="number"
         placeholder="total units"
         id="total_units"
         name="total_units"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
 
@@ -134,7 +62,7 @@ const CreateInventory = () => {
         placeholder="retail price"
         id="retail_price"
         name="retail_price"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
 
@@ -143,7 +71,7 @@ const CreateInventory = () => {
         id="inventory_description"
         placeholder="inventory description"
         name="inventory_description"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
 
@@ -153,7 +81,7 @@ const CreateInventory = () => {
         placeholder="profit margin"
         id="inventory_profit_margin"
         name="inventory_profit_margin"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
 
@@ -162,7 +90,7 @@ const CreateInventory = () => {
         type="date"
         id="inventory_expiration_date"
         name="inventory_expiration_date"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
 
@@ -177,3 +105,130 @@ const CreateInventory = () => {
 };
 
 export default CreateInventory;
+
+const ProductInput = ({ setSelectedProduct, className }) => {
+  const [productsQuery, setProductsQuery] = useState("");
+  const [focused, setFocused] = useState(false);
+  return (
+    <div
+      className={`relative flex flex-col border rounded-lg h-fit  ${
+        focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
+      }`}
+    >
+      <input
+        type="text"
+        placeholder="Type Product Name"
+        onChange={(e) => {
+          setTimeout(() => {
+            setProductsQuery(e.target.value);
+          }, 500);
+        }}
+        className="border-none p-2 focus:outline-none rounded-lg"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+      />
+    </div>
+  );
+};
+const SupplierInput = ({ setSelectedSupplier, className }) => {
+  const [suppliersQuery, setSuppliersQuery] = useState("");
+  const [supplierQueryResults, setSupplierQueryResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [debounceTimer, setDebounceTimer] = useState(null);
+  const [focused, setFocused] = useState(false);
+
+  const handleSupplierSearch = useCallback(async (supplierQuery) => {
+    if (!supplierQuery.trim()) {
+      setSupplierQueryResults([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/query?search=${supplierQuery}`);
+      const data = await response.json();
+      setSupplierQueryResults(Array.isArray(data?.data) ? data.data : []);
+    } catch (err) {
+      console.error("Error fetching suppliers:", err);
+      setSupplierQueryResults([]);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSuppliersQuery(value);
+    setSupplierQueryResults([]);
+    setLoading(true);
+
+    if (debounceTimer) clearTimeout(debounceTimer);
+
+    const newTimer = setTimeout(() => {
+      handleSupplierSearch(value);
+    }, 500);
+    setDebounceTimer(newTimer);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [debounceTimer]);
+
+  return (
+    <div
+      className={`relative flex flex-col border rounded-lg h-fit ${
+        focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
+      }`}
+    >
+      <input
+        type="text"
+        placeholder="Type Supplier Name"
+        onChange={handleInputChange}
+        value={suppliersQuery}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        className="border-none p-2 focus:outline-none rounded-lg"
+      />
+      {focused && (
+        <div>
+          {loading && (
+            <p className="p-2 bg-gray-100 rounded-bl-lg rounded-br-lg">
+              Searching...
+            </p>
+          )}
+          {!loading && suppliersQuery && supplierQueryResults.length === 0 && (
+            <p className="p-2 text-gray-400 bg-gray-100 rounded-bl-lg rounded-br-lg">
+              No Suppliers found
+            </p>
+          )}
+          {supplierQueryResults.length > 0 && (
+            <ul>
+              {supplierQueryResults.map((supplier, index) => (
+                <li
+                  key={supplier.supplier_id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSuppliersQuery(supplier.supplier_name);
+                    console.log(supplier.supplier_id);
+                    console.log(supplier.supplier_name);
+                    setSupplierQueryResults([]);
+                    setFocused(false);
+                  }}
+                  className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
+                    index === supplierQueryResults.length - 1
+                      ? "rounded-b-lg"
+                      : ""
+                  }`}
+                >
+                  {supplier.supplier_name}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

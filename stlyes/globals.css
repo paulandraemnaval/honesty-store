@@ -9,3 +9,8 @@
 .custom_shadow {
   box-shadow: -3px 5px 0px var(--authformShadow);
 }
+
+.hide_scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

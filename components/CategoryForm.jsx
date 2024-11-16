@@ -37,40 +37,51 @@ const CategoryForm = () => {
     <form
       action=""
       onSubmit={(e) => postCategory(e)}
-      className="flex flex-col gap-2"
+      className="flex flex-col px-1 py-2 gap-2"
     >
       <Image
         src={image.url || image_placeholder}
         alt="categoryImage"
-        className="object-cover h-24 w-24 rounded-md"
+        className="object-scale-down max-h-[100px] max-w-[100px] rounded-lg "
         height={100}
         width={100}
       />
-      <label>Category Image</label>
-      <div className="flex">
+      <label className="">Category Image</label>
+      <div className="flex ">
         <label
           htmlFor="file"
           className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
         >
           Upload Image
         </label>
-        <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate">
+        <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate bg-white">
           {image.file?.name || "No image selected"}
         </p>
       </div>
-      <label htmlFor="category_name">Category Name</label>
+      <input
+        type="file"
+        id="file"
+        name="file"
+        onChange={handleImageSelect}
+        hidden
+      />
+      <label htmlFor="category_name" className="">
+        Category Name
+      </label>
       <input
         type="text"
         id="category_name"
         name="category_name"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 "
         required
       />
-      <label htmlFor="category_description">Category Description</label>
+      <label htmlFor="category_description" className="">
+        Category Description
+      </label>
       <textarea
         id="category_description"
         name="category_description"
-        className="border h-fit p-2 rounded-lg"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         required
       />
       <button

@@ -4,11 +4,6 @@ import Image from "next/image";
 import defaultProfileImage from "@public/defaultImages/default_profile_image.png";
 
 const HeaderBar = () => {
-  //   let accountData = {};
-  //   const getUser = async () => {
-  //     const loggedinuser = await getLoggedInUser();
-  //     accountData = loggedinuser;
-  //   };
   const [user, setUser] = useState({});
   useEffect(() => {
     const getUser = async () => {
@@ -24,12 +19,9 @@ const HeaderBar = () => {
     getUser();
   }, []);
 
-  console.log(user, "headerbar user");
   return (
     <div className="bg-gradient-to-r from-gradientStart  to-gradientEnd min-h-[4rem] flex flex-row-reverse">
-      <div className="flex items-center justify-center w-1/3 px-4 gap-8 text-white">
-        <p>Notif bell</p>
-        <p>{user?.account_name}</p>
+      <div className="flex items-center md:justify-cente md:w-1/3 w-full px-4 gap-8 flex-row-reverse  text-white">
         <Image
           src={user?.account_profile_url || defaultProfileImage}
           alt="profile_image"
@@ -37,6 +29,8 @@ const HeaderBar = () => {
           height={40}
           width={40}
         />
+        <p>{user?.account_name}</p>
+        <p>Notif bell</p>
       </div>
     </div>
   );
