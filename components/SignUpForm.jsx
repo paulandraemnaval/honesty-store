@@ -1,13 +1,48 @@
-import React from "react";
+"use client";
+import { useState } from "react";
 import Image from "next/image";
 import defaultImage from "@public/defaultImages/default_profile_image.png";
 
-const SignUpForm = ({
-  handleSignUp,
-  handleSelectPicture,
-  file,
-  isProcessing,
-}) => {
+const SignUpForm = () => {
+  const [file, setFile] = useState({});
+  const [isProcessing, setIsProcessing] = useState(false);
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+
+    const form = e.target;
+    const formData = new FormData(form);
+
+    const password = formData.get("password");
+    formData.delete("password");
+
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+
+    formData.append("password", hashedPassword);
+    formData.append("salt", salt);
+
+    try {
+      setIsProcessing(true);
+      const request = await fetch("/api/admin/signup", {
+        method: "POST",
+        body: formData,
+      });
+      const response = await request.json();
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleSelectPicture = (e) => {
+    setFile({
+      file: e.target.files[0],
+      url: URL.createObjectURL(e.target.files[0]),
+    });
+  };
+
   return (
     <form action="signup" onSubmit={(e) => handleSignUp(e)}>
       <div className="bg-white px-6 py-2 rounded-sm">

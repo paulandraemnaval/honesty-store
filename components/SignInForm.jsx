@@ -19,6 +19,7 @@ const SignInForm = ({ handleSignIn, isProcessing }) => {
           id="email"
           name="email"
           className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          required
         />
       </div>
       <div className="mb-4">
@@ -33,12 +34,13 @@ const SignInForm = ({ handleSignIn, isProcessing }) => {
           id="password"
           name="password"
           className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          required
         />
       </div>
       <div className="mt-auto">
         <button
           type="submit"
-          className="w-full p-2 bg-customerRibbonGreen text-white rounded-md"
+          className="w-full p-2 bg-mainButtonColor text-white rounded-md"
         >
           {isProcessing ? "Processing..." : "Sign In"}
         </button>

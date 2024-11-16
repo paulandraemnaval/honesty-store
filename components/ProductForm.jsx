@@ -1,16 +1,16 @@
 "use client";
-import React from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import image_placeholder from "@public/defaultImages/placeholder_image.png";
 
 const ProductForm = ({ productData = {}, setShowEdit, method }) => {
-  const [categories, setCategories] = React.useState([]);
-  const [image, setImage] = React.useState({
+  const [categories, setCategories] = useState([]);
+  const [image, setImage] = useState({
     file: null,
     url: productData.product_image_url || "",
   });
 
-  const [formValues, setFormValues] = React.useState({
+  const [formValues, setFormValues] = useState({
     product_name: productData.product_name || "",
     product_category: productData.product_category?.category_id || "",
     product_description: productData.product_description || "",
@@ -21,24 +21,15 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
     product_dimensions: productData.product_dimensions || "",
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("/api/admin/category", {
-          method: "GET",
-        });
+        const response = await fetch("/api/admin/category");
 
-        // Ensure the response is OK
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const data = await res.json();
-
-        if (Array.isArray(data.data)) {
-          setCategories(data.data);
+        const data = await response.json();
+        if (response.ok) {
+          setCategories(Array.isArray(data?.categories) ? data.categories : []);
         } else {
-          console.error("Expected an array but got:", data.data);
           setCategories([]);
         }
       } catch (error) {
@@ -90,7 +81,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           ? (e) => postProduct(e)
           : null
       }
-      className="flex h-fit max-w-full flex-col rounded-lg gap-2 w-full"
+      className="flex flex-col w-full gap-2"
     >
       <div className="flex flex-col gap-2 w-full">
         <Image
@@ -99,19 +90,23 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           height={100}
           className="object-scale-down max-h-[100px] max-w-[100px] rounded-lg"
         />
+        <label htmlFor="product_name">Product Name</label>
         <input
           type="text"
           name="product_name"
           value={formValues.product_name}
           onChange={handleInputChange}
           placeholder="Product name"
-          className="border  h-fit p-2 rounded-lg"
+          className="border h-fit p-2 rounded-lg"
+          required
         />
+        <label htmlFor="product_category">Product Category</label>
         <select
           className="border rounded-lg p-2"
           name="product_category"
           value={formValues.product_category}
           onChange={handleInputChange}
+          required
         >
           <option value="" disabled>
             Select category
@@ -131,17 +126,19 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
             ))
           )}
         </select>
+        <label htmlFor="file">Product Image</label>
         <input
           id="file"
           type="file"
           className="hidden"
           name="file"
           onChange={handleImage}
+          required
         />
         <div className="flex">
           <label
             htmlFor="file"
-            className="bg-customerRibbonGreen text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+            className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
           >
             Upload Image
           </label>
@@ -149,6 +146,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
             {image.file?.name || image.url || "No image selected"}
           </p>
         </div>
+        <label htmlFor="product_description">Product Description</label>
         <textarea
           type="text"
           name="product_description"
@@ -156,6 +154,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           onChange={handleInputChange}
           placeholder="Product description"
           className="rounded-lg p-2 border"
+          required
         />
         <label htmlFor="product_sku">Product SKU</label>
         <input
@@ -166,6 +165,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           placeholder="Product SKU"
           className="rounded-lg p-2 border"
           id="product_sku"
+          required
         />
         <label htmlFor="product_uom">Product UOM</label>
         <input
@@ -176,6 +176,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           placeholder="Product UOM"
           className="rounded-lg p-2 border"
           id="product_uom"
+          required
         />
         <label htmlFor="product_reorder_point">Product Reorder Point</label>
         <input
@@ -186,6 +187,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           placeholder="Product Reorder Point"
           className="rounded-lg p-2 border"
           id="product_reorder_point"
+          required
         />
         <label htmlFor="product_weight">Product Weight</label>
         <input
@@ -196,20 +198,22 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
           placeholder="Product Weight"
           className="rounded-lg p-2 border"
           id="product_weight"
+          required
         />
         <label htmlFor="product_dimension">Product Dimensions</label>
         <input
           type="text"
           name="product_dimensions"
-          value={formValues.product_dimension}
+          value={formValues.product_dimensions}
           onChange={handleInputChange}
           placeholder="Product Dimensions"
           className="rounded-lg p-2 border"
           id="product_dimensions"
+          required
         />
       </div>
 
-      <div className="gap-2 w-full items-start flex">
+      <div className="gap-2 w-full items-start flex flex-row-reverse">
         {method === "patch" && (
           <button
             className="bg-red-600 text-white rounded-lg p-2"
@@ -220,7 +224,7 @@ const ProductForm = ({ productData = {}, setShowEdit, method }) => {
         )}
         <button
           type="submit"
-          className="bg-customerRibbonGreen text-white rounded-lg p-2 w-fit"
+          className="bg-mainButtonColor text-white rounded-lg p-2 w-fit"
         >
           {method === "patch" ? "Update Product" : "Create Product"}
         </button>

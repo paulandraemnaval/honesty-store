@@ -1,23 +1,22 @@
 "use client";
-import React from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
 const AuditForm = () => {
-  const [inventories, setInventories] = React.useState([]);
-  const [products, setProducts] = React.useState([]);
-  const [quantities, setQuantities] = React.useState({});
-  const [showSummary, setShowSummary] = React.useState(false);
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  React.useEffect(() => {
+  const [inventories, setInventories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [showSummary, setShowSummary] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
     const getInventories = async () => {
       try {
         const response = await fetch("/api/admin/inventory");
         const data = await response.json();
-        if (response.status === 200) {
-          setInventories(data?.inventories || []);
-        } else {
-          setInventories([]);
-        }
+        setInventories(
+          Array.isArray(data?.inventories) ? data.inventories : []
+        );
       } catch (err) {
         console.error("Failed to fetch inventories: ", err);
         setInventories([]);
@@ -26,16 +25,12 @@ const AuditForm = () => {
     getInventories();
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const getProducts = async () => {
       try {
         const response = await fetch("/api/admin/products");
         const data = await response.json();
-        if (response.status === 200) {
-          setProducts(data?.data || []);
-        } else {
-          setProducts([]);
-        }
+        setProducts(Array.isArray(data?.data) ? data.data : []);
       } catch (err) {
         console.error("Failed to fetch products: ", err);
         setProducts([]);
@@ -101,30 +96,41 @@ const AuditForm = () => {
     }
   };
 
+  console.log(inventories);
+  console.log(products, "products");
   return (
-    <>
+    <div className="overflow-auto max-h-full flex flex-col">
       <form
-        className="gap-4 flex flex-col p-2 relative"
+        className="gap-4 flex flex-col p-2 relative overflow-auto"
         onSubmit={(e) => {
           e.preventDefault();
         }}
       >
-        {inventories.map((inventory) => (
-          <AuditFormField
-            key={inventory.inventory_id}
-            inventory={inventory}
-            productName={getProductName(inventory.inventory_product)}
-            image={getProductImage(inventory.inventory_product)}
-            onQuantityChange={handleQuantityChange}
-            quantities={quantities}
-          />
-        ))}
+        {inventories.length > 0 ? (
+          inventories.map((inventory) => (
+            <AuditFormField
+              key={inventory.inventory_id}
+              inventory={inventory}
+              productName={getProductName(inventory.inventory_product)}
+              image={getProductImage(inventory.inventory_product)}
+              onQuantityChange={handleQuantityChange}
+              quantities={quantities}
+            />
+          ))
+        ) : (
+          <p>No auditable inventories found</p>
+        )}
 
         <button
-          className="bg-customerRibbonGreen text-white py-2 px-4 w-fit rounded-md"
+          className={`bg-customerRibbonGreen text-white py-2 px-4 rounded-md  w-fit self-end ${
+            Object.keys(quantities).length === 0
+              ? "cursor-not-allowed bg-mainButtonColorDisabled"
+              : "bg-mainButtonColor"
+          } `}
           onClick={() => {
             handleShowSummary();
           }}
+          disabled={Object.keys(quantities).length === 0}
         >
           Submit
         </button>
@@ -139,7 +145,7 @@ const AuditForm = () => {
           isProcessing={isProcessing}
         />
       )}
-    </>
+    </div>
   );
 };
 
@@ -175,6 +181,7 @@ const AuditFormField = ({
         className="w-full p-2 border border-gray-200 rounded-md mt-2"
         onChange={handleChange}
         value={quantities[inventory.inventory_id] || ""}
+        required
       />
     </div>
   );
