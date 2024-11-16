@@ -1,13 +1,5 @@
-import { db, createLog, getLoggedInUser } from "@utils/firebase";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-  doc,
-  setDoc,
-  query,
-  where,
-} from "firebase/firestore";
+import { db } from "@utils/firebase";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
 function calculateSimilarity(supplierName, searchTerm) {
@@ -20,43 +12,92 @@ function calculateSimilarity(supplierName, searchTerm) {
 
 export async function GET(request) {
   const url = new URL(request.url);
-  const search = url.searchParams.get("search");
-  console.log(search);
+  const supplier = url.searchParams.get("supplier");
+  const product = url.searchParams.get("product");
+  const category = url.searchParams.get("category");
 
-  if (!search) {
+  if (!supplier && !product && !category) {
     return NextResponse.json(
       { message: "Search term is required" },
       { status: 400 }
     );
   }
+
   try {
-    const supplierRef = collection(db, "Supplier");
-    const q = query(supplierRef, where("supplier_soft_deleted", "==", false));
+    if (supplier) {
+      const supplierRef = collection(db, "Supplier");
+      const q = query(supplierRef, where("supplier_soft_deleted", "==", false));
 
-    const snapshot = await getDocs(q);
-    const suppliers = snapshot.docs.map((doc) => doc.data());
+      const snapshot = await getDocs(q);
+      const suppliers = snapshot.docs.map((doc) => doc.data());
 
-    const filteredSuppliers = suppliers.filter((supplier) => {
-      return supplier.supplier_name
-        .toLowerCase()
-        .includes(search.toLowerCase());
-    });
+      const filteredSuppliers = suppliers.filter((item) => {
+        return item.supplier_name
+          .toLowerCase()
+          .includes(supplier.toLowerCase());
+      });
 
-    filteredSuppliers.sort((a, b) => {
-      const aSimilarity = calculateSimilarity(a.supplier_name, search);
-      const bSimilarity = calculateSimilarity(b.supplier_name, search);
-      return aSimilarity - bSimilarity; // Ascending order
-    });
+      filteredSuppliers.sort((a, b) => {
+        const aSimilarity = calculateSimilarity(a.supplier_name, supplier);
+        const bSimilarity = calculateSimilarity(b.supplier_name, supplier);
+        return aSimilarity - bSimilarity; // Ascending order
+      });
+      return NextResponse.json(
+        { message: "Suppliers found", data: filteredSuppliers },
+        { status: 200 }
+      );
+    }
 
-    return NextResponse.json(
-      { message: "Suppliers found", data: filteredSuppliers },
-      { status: 200 }
-    );
+    if (product) {
+      const productRef = collection(db, "Product");
+      const q = query(productRef, where("product_soft_deleted", "==", false));
+
+      const snapshot = await getDocs(q);
+      const products = snapshot.docs.map((doc) => doc.data());
+
+      const filteredProducts = products.filter((item) => {
+        return item.product_name.toLowerCase().includes(product.toLowerCase());
+      });
+
+      filteredProducts.sort((a, b) => {
+        const aSimilarity = calculateSimilarity(a.product_name, search);
+        const bSimilarity = calculateSimilarity(b.product_name, search);
+        return aSimilarity - bSimilarity; // Ascending order
+      });
+      return NextResponse.json(
+        { message: "Products found", data: filteredProducts },
+        { status: 200 }
+      );
+    }
+
+    if (category) {
+      const categoryRef = collection(db, "Category");
+      const q = query(categoryRef, where("category_soft_deleted", "==", false));
+
+      const snapshot = await getDocs(q);
+      const categories = snapshot.docs.map((doc) => doc.data());
+
+      const filteredCategory = categories.filter((item) => {
+        return item.category_name
+          .toLowerCase()
+          .includes(category.toLowerCase());
+      });
+
+      filteredCategory.sort((a, b) => {
+        const aSimilarity = calculateSimilarity(a.category_name, category);
+        const bSimilarity = calculateSimilarity(b.category_name, category);
+        return aSimilarity - bSimilarity; // Ascending order
+      });
+      return NextResponse.json(
+        { message: "Categories found", data: filteredCategory },
+        { status: 200 }
+      );
+    }
   } catch (error) {
     console.log(error);
-    return (
-      NextResponse,
-      json({ message: "Error fetching suppliers" }, { status: 500 })
+    return NextResponse.json(
+      { message: "Error fetching filtered collection" },
+      { status: 500 }
     );
   }
 }
