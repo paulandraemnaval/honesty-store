@@ -5,27 +5,29 @@ import { useEffect, useState } from "react";
 const FilterBar = ({ setFilter, filter }) => {
   const [filters, setFilters] = useState([]);
   useEffect(() => {
-    try {
-      const getCategories = async () => {
+    const getCategories = async () => {
+      try {
         const response = await fetch("/api/admin/category");
         const data = await response.json();
         if (response.ok) {
-          setFilters(data?.data || []);
+          setFilters(Array.isArray(data?.categories) ? data.categories : []);
+        } else {
+          setFilters([]);
         }
-      };
-      getCategories();
-    } catch (err) {
-      console.error("Failed to fetch categories:", err);
-      setFilters([]);
-    }
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+        setFilters([]);
+      }
+    };
+    getCategories();
   }, []);
   return (
-    <div className="w-full h-full min-w-[18rem] flex-1 flex flex-col p-4">
+    <div className="w-full h-full flex-1 flex flex-col p-4">
       <button
         key={"all"}
         onClick={() => setFilter("all")}
         className={`p-2 bg-transparent text-center rounded-md ${
-          "all" === filter ? "text-customerRibbonGreen" : ""
+          "all" === filter ? "text-selectedTextColor" : ""
         }`}
       >
         All

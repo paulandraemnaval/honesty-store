@@ -1,10 +1,13 @@
-import React from "react";
+import HeaderBar from "@components/HeaderBar";
 import Navbar from "../../../components/Navbar";
 const userLayout = ({ children }) => {
   return (
     <div className="flex min-h-[100vh]">
       <Navbar />
-      <div className="flex p-4 flex-1">{children}</div>
+      <div className="flex flex-1 flex-col">
+        <HeaderBar />
+        <div>{children}</div>
+      </div>
     </div>
   );
 };

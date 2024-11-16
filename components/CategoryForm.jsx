@@ -46,10 +46,11 @@ const CategoryForm = () => {
         height={100}
         width={100}
       />
+      <label>Category Image</label>
       <div className="flex">
         <label
           htmlFor="file"
-          className="bg-customerRibbonGreen text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+          className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
         >
           Upload Image
         </label>
@@ -62,24 +63,19 @@ const CategoryForm = () => {
         type="text"
         id="category_name"
         name="category_name"
-        className="border"
+        className="border h-fit p-2 rounded-lg"
+        required
       />
       <label htmlFor="category_description">Category Description</label>
       <textarea
         id="category_description"
         name="category_description"
-        className="border"
-      />
-      <input
-        type="file"
-        id="file"
-        name="file"
-        onChange={handleImageSelect}
-        className="hidden"
+        className="border h-fit p-2 rounded-lg"
+        required
       />
       <button
         type="submit"
-        className="bg-customerRibbonGreen text-white rounded-lg p-2 w-fit"
+        className="bg-customerRibbonGreen text-white bg-mainButtonColor rounded-lg p-2 w-fit self-end"
       >
         Create Category
       </button>

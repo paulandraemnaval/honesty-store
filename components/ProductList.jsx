@@ -4,7 +4,7 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
-const ProductList = ({ filter }) => {
+const ProductList = ({ filter, searchKeyword = "" }) => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -20,7 +20,13 @@ const ProductList = ({ filter }) => {
       try {
         const response = await fetch("/api/admin/inventory");
         const data = await response.json();
-        if (response.ok) setInventories(data.inventories || []);
+        if (response.ok) {
+          setInventories(
+            Array.isArray(data?.inventories) ? data.inventories : []
+          );
+        } else {
+          setInventories([]);
+        }
       } catch (error) {
         console.error("Failed to fetch inventories:", error);
       } finally {
@@ -40,9 +46,9 @@ const ProductList = ({ filter }) => {
           body: JSON.stringify({ lastVisible: null }),
         });
         const data = await response.json();
-        if (response.ok && data.products?.length) {
-          setProducts(data.products);
-          setLastVisible(data.products[data.products.length - 1].product_id);
+        if (response.ok && data?.products?.length) {
+          setProducts(data?.products);
+          setLastVisible(data?.products[data?.products.length - 1].product_id);
         }
       } catch (error) {
         console.log("Failed to fetch products:", error);
@@ -63,11 +69,11 @@ const ProductList = ({ filter }) => {
         body: JSON.stringify({ lastVisible }),
       });
       const data = await response.json();
-      if (response.ok && data.products?.length) {
-        setProducts((prevProducts) => [...prevProducts, ...data.products]);
-        setLastVisible(data.products[data.products.length - 1].product_id);
+      if (response.ok && data?.products?.length) {
+        setProducts((prevProducts) => [...prevProducts, ...data?.products]);
+        setLastVisible(data?.products[data?.products.length - 1].product_id);
         console.log(data?.products);
-      } else if (response.ok && data.products.length === 0) {
+      } else if (response.ok && data?.products.length === 0) {
         setStopFetching(true);
       }
     } catch (error) {
@@ -142,20 +148,29 @@ const ProductList = ({ filter }) => {
       (product) => !productData.has(product.product_id)
     );
 
-    // Show all products (with and without inventory) on specific route
+    const result = filter
+      ? productsWithInventory.filter(
+          (product) =>
+            (product.product_category === filter || filter === "all") &&
+            product.product_name
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase())
+        )
+      : productsWithInventory.filter((product) =>
+          product.product_name
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase())
+        );
+
     if (pathname === "/admin/user/products") {
-      return [...productsWithInventory, ...productsWithoutInventory];
+      return [...result, ...productsWithoutInventory];
     }
 
-    return filter
-      ? productsWithInventory.filter(
-          (product) => product.product_category === filter || filter === "all"
-        )
-      : productsWithInventory;
-  }, [filter, products, productData, pathname]);
+    return result;
+  }, [filter, products, productData, pathname, searchKeyword]);
 
   return (
-    <div className="flex flex-col items-center w-full h-full min-h-[80vh] overflow-y-auto">
+    <div className="flex flex-col items-center w-full h-full min-h-fit overflow-y-auto">
       <div className="flex gap-2 flex-wrap items-center justify-center w-full">
         {filteredProducts.length > 0 && !loading ? (
           filteredProducts.map((product) => (

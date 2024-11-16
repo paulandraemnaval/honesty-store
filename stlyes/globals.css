@@ -3,9 +3,9 @@
 @tailwind utilities;
 
 :root {
-  --authformYellow: #fdc530;
+  --authformShadow: #02e2f2;
 }
 
 .custom_shadow {
-  box-shadow: -3px 5px 0px var(--authformYellow);
+  box-shadow: -3px 5px 0px var(--authformShadow);
 }
