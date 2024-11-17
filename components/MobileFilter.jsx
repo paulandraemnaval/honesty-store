@@ -72,7 +72,7 @@ const MobileFilter = ({ setFilter, selectedFilter }) => {
               ))}
             </div>
           </div>
-          <div className="w-full px-4 mt-auto flex flex-row-reverse">
+          <div className="w-full px-4 py-2 mt-auto flex flex-row-reverse">
             <button
               className="bg-mainButtonColor text-white p-2 rounded-md"
               onClick={() => handleSelectFilter()}
