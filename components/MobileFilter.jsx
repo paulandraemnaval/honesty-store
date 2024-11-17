@@ -34,7 +34,7 @@ const MobileFilter = ({ setFilter, selectedFilter }) => {
         <Image src={FilterIcon} height={30} width={40} alt="filter_icon" />
       </div>
       {isExpanded && (
-        <div className="h-full w-[70vw] absolute top-0 right-0 bg-white flex flex-col ">
+        <div className="h-[calc(100vh-8rem)] w-[70vw] absolute top-[4rem] right-0 bg-white flex flex-col ">
           <div className="flex py-2 px-4 justify-center items-center">
             <span className="mr-auto font-semibold text-xl">Filter</span>
             <div

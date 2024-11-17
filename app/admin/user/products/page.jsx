@@ -31,7 +31,7 @@ const productspage = () => {
         </div>
 
         <div className="w-full border"></div>
-        <div className="overflow-y-auto flex-1">
+        <div className="overflow-y-auto flex-1 ">
           <ProductList filter={filter} searchKeyword={searchKeyword} />
         </div>
       </div>
