@@ -40,7 +40,7 @@ const ProductForm = () => {
   return (
     <form
       onSubmit={(e) => postProduct(e)}
-      className="flex flex-col w-full gap-2 h-fit py-2 px-1"
+      className="flex flex-col w-full gap-2 h-fit py-2 px-1 z-0"
     >
       <div className="flex flex-col gap-2 w-full">
         <Image
@@ -202,7 +202,7 @@ const CategoryInput = ({ setSelectedCategory }) => {
 
   return (
     <div
-      className={`relative flex flex-col border rounded-lg h-fit ${
+      className={`relative flex flex-col border rounded-lg h-fit z-0${
         focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
       }`}
     >
