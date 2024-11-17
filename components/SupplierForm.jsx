@@ -27,7 +27,7 @@ const SupplierForm = () => {
         type="text"
         id="supplier_name"
         name="supplier_name"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
       <label htmlFor="supplier_contact_person">Contact Person</label>
@@ -35,7 +35,7 @@ const SupplierForm = () => {
         type="text"
         id="supplier_contact_person"
         name="supplier_contact_person"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
       <label htmlFor="supplier_contact_number">Contact</label>
@@ -43,7 +43,7 @@ const SupplierForm = () => {
         type="text"
         id="supplier_contact_number"
         name="supplier_contact_number"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
       <label htmlFor="supplier_email_address">Email Address</label>
@@ -51,14 +51,14 @@ const SupplierForm = () => {
         type="email"
         id="supplier_email_address"
         name="supplier_email_address"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
       <label htmlFor="supplier_notes">Supplier Notes</label>
       <textarea
         id="supplier_notes"
         name="supplier_notes"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
       />
       <div className="w-full flex flex-row-reverse">
         <button

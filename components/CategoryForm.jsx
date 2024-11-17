@@ -72,7 +72,7 @@ const CategoryForm = () => {
         type="text"
         id="category_name"
         name="category_name"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 "
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
       <label htmlFor="category_description" className="">
@@ -81,7 +81,7 @@ const CategoryForm = () => {
       <textarea
         id="category_description"
         name="category_description"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
       <button

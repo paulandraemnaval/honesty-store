@@ -54,7 +54,7 @@ const ProductForm = () => {
           type="text"
           name="product_name"
           placeholder="Product name"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           required
         />
         <label htmlFor="product_category">Product Category</label>
@@ -84,7 +84,7 @@ const ProductForm = () => {
           type="text"
           name="product_description"
           placeholder="Product description"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           required
         />
         <label htmlFor="product_sku">Product SKU</label>
@@ -92,7 +92,7 @@ const ProductForm = () => {
           type="text"
           name="product_sku"
           placeholder="Product SKU"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           id="product_sku"
           required
         />
@@ -101,7 +101,7 @@ const ProductForm = () => {
           type="text"
           name="product_uom"
           placeholder="Product UOM"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           id="product_uom"
           required
         />
@@ -110,7 +110,7 @@ const ProductForm = () => {
           type="number"
           name="product_reorder_point"
           placeholder="Product Reorder Point"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           id="product_reorder_point"
           required
         />
@@ -119,7 +119,7 @@ const ProductForm = () => {
           type="number"
           name="product_weight"
           placeholder="Product Weight"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           id="product_weight"
           required
         />
@@ -128,7 +128,7 @@ const ProductForm = () => {
           type="text"
           name="product_dimensions"
           placeholder="Product Dimensions"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1  "
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 "
           id="product_dimensions"
           required
         />

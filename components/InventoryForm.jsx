@@ -28,7 +28,7 @@ const CreateInventory = () => {
     <form
       action="createInventory"
       onSubmit={(e) => postInventory(e)}
-      className="flex flex-col w-full gap-2 h-fit py-2 px-1"
+      className="flex flex-col w-full gap-2 h-fit px-1"
     >
       <label htmlFor="wholesale_price">Wholesale Price</label>
       <input
@@ -36,7 +36,7 @@ const CreateInventory = () => {
         placeholder="wholesale price"
         id="wholesale_price"
         name="wholesale_price"
-        className="border h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="border h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border-gray-300"
         required
       />
 
@@ -50,7 +50,7 @@ const CreateInventory = () => {
         placeholder="total units"
         id="total_units"
         name="total_units"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
 
@@ -60,7 +60,7 @@ const CreateInventory = () => {
         placeholder="retail price"
         id="retail_price"
         name="retail_price"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
 
@@ -69,7 +69,7 @@ const CreateInventory = () => {
         id="inventory_description"
         placeholder="inventory description"
         name="inventory_description"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
 
@@ -79,7 +79,7 @@ const CreateInventory = () => {
         placeholder="profit margin"
         id="inventory_profit_margin"
         name="inventory_profit_margin"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
 
@@ -88,7 +88,7 @@ const CreateInventory = () => {
         type="date"
         id="inventory_expiration_date"
         name="inventory_expiration_date"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         required
       />
 
@@ -120,6 +120,7 @@ const ProductInput = ({ setSelectedProduct }) => {
     try {
       const response = await fetch(`/api/admin/query?product=${productsQuery}`);
       const data = await response.json();
+      console.log(data);
       setproductsQueryResults(Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
       console.error("Error fetching suppliers:", err);
@@ -208,7 +209,6 @@ const ProductInput = ({ setSelectedProduct }) => {
     </div>
   );
 };
-
 const SupplierInput = ({ setSelectedSupplier }) => {
   const [supplierQuery, setSupplierQuery] = useState("");
   const [supplierQueryResults, setSupplierQueryResults] = useState([]);

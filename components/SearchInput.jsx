@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from "react";
-import FilterIcon from "@public/icons/filter_icon.png";
-import Image from "next/image";
-import FilterBar from "@components/FilterBar";
+import { useEffect, useState } from "react";
 const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
   const [localSearch, setLocalSearch] = useState(searchKeyword);
-  const [filterVisible, setFilterVisible] = useState(false);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setSearchKeyword(localSearch);
@@ -26,17 +23,6 @@ const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
         value={localSearch}
         onChange={handleChange}
       />
-      <div
-        className="flex sm:hidden object-cover w-fit h-full items-center justify-center "
-        onClick={() => setFilterVisible((prev) => !prev)}
-      >
-        <Image src={FilterIcon} alt="filter" width={30} height={30} />
-      </div>
-      {filterVisible && (
-        <div className="absolute sm:hidden flex bg-white h-full top-0 right-0">
-          <FilterBar />
-        </div>
-      )}
     </div>
   );
 };

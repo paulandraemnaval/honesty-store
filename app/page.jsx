@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import "../stlyes/globals.css";
 import ProductList from "@components/ProductList";
@@ -26,11 +26,7 @@ const Page = () => {
           />
 
           <div className="w-full border border-horizontalLineColor"></div>
-          <ProductList
-            filter={filter}
-            searchKeyword={searchKeyword}
-            renderMethod={`justify-evenly`}
-          />
+          <ProductList filter={filter} searchKeyword={searchKeyword} />
         </div>
       </div>
     </>

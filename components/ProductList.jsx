@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
 
-const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
+const ProductList = ({ filter, searchKeyword = "" }) => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,6 +14,10 @@ const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
   const [stopFetching, setStopFetching] = useState(false);
   const pathname = usePathname();
   const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    console.log("FROM PRODUCTLIST.JSX filter:", filter);
+  }, [filter]);
 
   useEffect(() => {
     const getInventories = async () => {
@@ -121,7 +125,7 @@ const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
           product_name: product.product_name,
           product_image_url: product.product_image_url,
           retail_price: `₱${oldestInventory.inventory_retail_price}`,
-          total_units: oldestInventory.inventory_total_units,
+          total_units: `${oldestInventory.inventory_total_units} units`,
         });
       }
     });
@@ -129,10 +133,10 @@ const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
   }, [products, inventories]);
 
   const getPrice = (productId) =>
-    productData?.get(productId)?.retail_price ?? "unavailable";
+    productData?.get(productId)?.retail_price ?? "no price";
 
   const getStock = (productId) =>
-    productData.get(productId)?.total_units ?? "unavailable";
+    productData.get(productId)?.total_units ?? "no inventory";
 
   const filteredProducts = useMemo(() => {
     const productsWithInventory = products.filter((product) =>
@@ -143,7 +147,7 @@ const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
       (product) => !productData.has(product.product_id)
     );
 
-    const result = filter
+    const productsWithInventoryResult = filter
       ? productsWithInventory.filter(
           (product) =>
             (product.product_category === filter || filter === "all") &&
@@ -157,57 +161,71 @@ const ProductList = ({ filter, searchKeyword = "", renderMethod }) => {
             .includes(searchKeyword.toLowerCase())
         );
 
+    const productsWithoutInventoryResult = filter
+      ? productsWithoutInventory.filter(
+          (product) =>
+            (product.product_category === filter || filter === "all") &&
+            product.product_name
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase())
+        )
+      : productsWithoutInventory.filter((product) =>
+          product.product_name
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase())
+        );
+
     if (pathname === "/admin/user/products") {
-      return [...result, ...productsWithoutInventory];
+      return [
+        ...productsWithInventoryResult,
+        ...productsWithoutInventoryResult,
+      ];
     }
 
-    return result;
+    return productsWithInventoryResult;
   }, [filter, products, productData, pathname, searchKeyword]);
 
   return (
-    <div className="w-full h-full min-h-fit overflow-y-auto">
-      <div
-        className={`grid gap-4 w-full px-2 ${renderMethod}`}
-        style={{
-          gridTemplateColumns: "repeat(auto-fit, minmax(12rem, 1fr))",
-        }}
-      >
-        {filteredProducts.length > 0 && !loading ? (
-          filteredProducts.map((product) => (
-            <div
-              key={product.product_id}
-              className="p-6 shadow-md rounded-sm bg-white flex flex-col"
-            >
-              <div className="flex flex-col justify-center gap-4">
-                <div className="flex justify-center h-[8rem]">
-                  <Image
-                    src={product.product_image_url || PlaceholderImage}
-                    alt={product.product_name}
-                    width={200}
-                    height={200}
-                    className="object-cover w-full"
-                  />
+    <div className="w-full h-full min-h-fit overflow-y-auto justify-center items-center ">
+      <div className="grid gap-4 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,12rem)]">
+        {filteredProducts.length > 0 && !loading
+          ? filteredProducts.map((product) => (
+              <div
+                key={product.product_id}
+                className="p-6 shadow-md rounded-sm bg-white flex flex-col"
+              >
+                <div className="flex flex-col justify-center gap-4">
+                  <div className="flex justify-center h-[8rem]">
+                    <Image
+                      src={product.product_image_url || PlaceholderImage}
+                      alt={product.product_name}
+                      width={200}
+                      height={200}
+                      className="object-cover w-full"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold truncate">
+                      {product.product_name}
+                    </span>
+                    <span className="text-lg font-bold">
+                      {getPrice(product.product_id)}
+                    </span>
+                  </div>
+                  {pathname === "/admin/user/products" && (
+                    <span className="text-sm text-gray-600">
+                      {getStock(product.product_id)}
+                    </span>
+                  )}
                 </div>
-                <div className="flex flex-col">
-                  <span className="text-base font-semibold truncate">
-                    {product.product_name}
-                  </span>
-                  <span className="text-lg font-bold">
-                    {getPrice(product.product_id)}
-                  </span>
-                </div>
-                {pathname === "/admin/user/products" && (
-                  <span className="text-sm text-gray-600">
-                    {getStock(product.product_id)} units
-                  </span>
-                )}
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="flex justify-center items-center h-full w-full">
-            <p className="text-xl">No products found.</p>
-          </div>
+            ))
+          : null}
+      </div>
+
+      <div className="w-full mt-6 flex flex-col items-center">
+        {!loading && filteredProducts.length === 0 && (
+          <p className="text-xl text-center">No products found.</p>
         )}
         {isFetchingMore && (
           <p className="text-center mt-4">Loading more products...</p>

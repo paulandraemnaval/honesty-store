@@ -1,15 +1,16 @@
 import HeaderBar from "@components/HeaderBar";
 import Navbar from "../../../components/Navbar";
-const userLayout = ({ children }) => {
+
+const UserLayout = ({ children }) => {
   return (
-    <div className="flex min-h-[100vh]">
+    <div className="flex min-h-screen">
       <Navbar />
-      <div className="flex flex-1 flex-col">
+      <div className="bg-backgroundMain flex-1">
         <HeaderBar />
-        <div className="bg-backgroundMain h-full">{children}</div>
+        {children}
       </div>
     </div>
   );
 };
 
-export default userLayout;
+export default UserLayout;
