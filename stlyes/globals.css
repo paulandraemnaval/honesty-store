@@ -10,7 +10,24 @@
   box-shadow: -3px 5px 0px var(--authformShadow);
 }
 
+/* Only hide scrollbars for small screens */
 .hide_scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar for IE 10+ */
+}
+
+.hide_scrollbar::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari, and Edge */
+}
+
+/* Reset scrollbar visibility for md and larger screens */
+@media (min-width: 768px) {
+  .hide_scrollbar {
+    scrollbar-width: auto; /* Default scrollbar for Firefox */
+    -ms-overflow-style: auto; /* Default scrollbar for IE 10+ */
+  }
+
+  .hide_scrollbar::-webkit-scrollbar {
+    display: block; /* Restore scrollbar for Chrome, Safari, and Edge */
+  }
 }

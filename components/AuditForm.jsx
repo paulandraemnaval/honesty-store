@@ -211,7 +211,7 @@ const AuditFormField = ({
         name={inventory.inventory_id}
         id={inventory.inventory_id}
         placeholder="Enter quantity"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 w-full border"
+        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border w-full border-gray-300"
         onChange={handleChange}
         value={quantities[inventory.inventory_id] || ""}
         required

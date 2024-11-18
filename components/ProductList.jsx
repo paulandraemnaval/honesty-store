@@ -4,6 +4,7 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
+
 const ProductList = ({ filter, searchKeyword = "" }) => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -15,18 +16,18 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
   const sentinelRef = useRef(null);
 
   useEffect(() => {
+    console.log("FROM PRODUCTLIST.JSX filter:", filter);
+  }, [filter]);
+
+  useEffect(() => {
     const getInventories = async () => {
       setLoading(true);
       try {
         const response = await fetch("/api/admin/inventory");
         const data = await response.json();
-        if (response.ok) {
-          setInventories(
-            Array.isArray(data?.inventories) ? data.inventories : []
-          );
-        } else {
-          setInventories([]);
-        }
+        setInventories(
+          Array.isArray(data?.inventories) ? data.inventories : []
+        );
       } catch (error) {
         console.error("Failed to fetch inventories:", error);
       } finally {
@@ -47,8 +48,8 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
         });
         const data = await response.json();
         if (response.ok && data?.products?.length) {
-          setProducts(data?.products);
-          setLastVisible(data?.products[data?.products.length - 1].product_id);
+          setProducts(data.products);
+          setLastVisible(data.products[data.products.length - 1].product_id);
         }
       } catch (error) {
         console.log("Failed to fetch products:", error);
@@ -70,10 +71,9 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
       });
       const data = await response.json();
       if (response.ok && data?.products?.length) {
-        setProducts((prevProducts) => [...prevProducts, ...data?.products]);
-        setLastVisible(data?.products[data?.products.length - 1].product_id);
-        console.log(data?.products);
-      } else if (response.ok && data?.products.length === 0) {
+        setProducts((prevProducts) => [...prevProducts, ...data.products]);
+        setLastVisible(data.products[data.products.length - 1].product_id);
+      } else if (response.ok && data.products.length === 0) {
         setStopFetching(true);
       }
     } catch (error) {
@@ -125,19 +125,18 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
           product_name: product.product_name,
           product_image_url: product.product_image_url,
           retail_price: `₱${oldestInventory.inventory_retail_price}`,
-          total_units: oldestInventory.inventory_total_units,
+          total_units: `${oldestInventory.inventory_total_units} units`,
         });
       }
     });
-    console.log(map, "products with inventories");
     return map;
   }, [products, inventories]);
 
   const getPrice = (productId) =>
-    productData?.get(productId)?.retail_price ?? "unavailable";
+    productData?.get(productId)?.retail_price ?? "no price";
 
   const getStock = (productId) =>
-    productData.get(productId)?.total_units ?? "unavailable";
+    productData.get(productId)?.total_units ?? "no inventory";
 
   const filteredProducts = useMemo(() => {
     const productsWithInventory = products.filter((product) =>
@@ -148,7 +147,7 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
       (product) => !productData.has(product.product_id)
     );
 
-    const result = filter
+    const productsWithInventoryResult = filter
       ? productsWithInventory.filter(
           (product) =>
             (product.product_category === filter || filter === "all") &&
@@ -162,59 +161,77 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
             .includes(searchKeyword.toLowerCase())
         );
 
+    const productsWithoutInventoryResult = filter
+      ? productsWithoutInventory.filter(
+          (product) =>
+            (product.product_category === filter || filter === "all") &&
+            product.product_name
+              .toLowerCase()
+              .includes(searchKeyword.toLowerCase())
+        )
+      : productsWithoutInventory.filter((product) =>
+          product.product_name
+            .toLowerCase()
+            .includes(searchKeyword.toLowerCase())
+        );
+
     if (pathname === "/admin/user/products") {
-      return [...result, ...productsWithoutInventory];
+      return [
+        ...productsWithInventoryResult,
+        ...productsWithoutInventoryResult,
+      ];
     }
 
-    return result;
+    return productsWithInventoryResult;
   }, [filter, products, productData, pathname, searchKeyword]);
 
   return (
-    <div className="flex flex-col items-center w-full h-full min-h-fit overflow-y-auto">
-      <div className="flex gap-2 flex-wrap items-center justify-center w-full">
-        {filteredProducts.length > 0 && !loading ? (
-          filteredProducts.map((product) => (
-            <div
-              key={product.product_id}
-              className="p-4 shadow-md rounded-md w-fit min-h-[18rem] max-w-[14rem] min-w-[14rem] flex flex-col bg-white"
-            >
-              <div className="flex flex-col justify-center gap-2">
-                <div className="flex-1 content-center flex justify-center min-h-[12rem] max-h-[12rem]">
-                  <Image
-                    src={product.product_image_url || PlaceholderImage}
-                    alt={product.product_name}
-                    width={100}
-                    height={100}
-                    className="object-cover w-full"
-                  />
-                </div>
-                <div className="w-full h-fit flex justify-center items-center">
-                  <span className="text-sm mr-auto flex-1 truncate">
-                    {product.product_name}
-                  </span>
-                  <span className="text-lg">
-                    {getPrice(product.product_id)}
-                  </span>
-                </div>
-                <div className="w-full">
+    <div className="w-full h-full min-h-fit overflow-y-auto justify-center items-center ">
+      <div className="grid gap-4 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,12rem)]">
+        {filteredProducts.length > 0 && !loading
+          ? filteredProducts.map((product) => (
+              <div
+                key={product.product_id}
+                className="p-6 shadow-md rounded-sm bg-white flex flex-col"
+              >
+                <div className="flex flex-col justify-center gap-4">
+                  <div className="flex justify-center h-[8rem]">
+                    <Image
+                      src={product.product_image_url || PlaceholderImage}
+                      alt={product.product_name}
+                      width={200}
+                      height={200}
+                      className="object-cover w-full"
+                    />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-base font-semibold truncate">
+                      {product.product_name}
+                    </span>
+                    <span className="text-lg font-bold">
+                      {getPrice(product.product_id)}
+                    </span>
+                  </div>
                   {pathname === "/admin/user/products" && (
-                    <span className="text-sm">
-                      {getStock(product.product_id)} units
+                    <span className="text-sm text-gray-600">
+                      {getStock(product.product_id)}
                     </span>
                   )}
                 </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="flex justify-center items-center h-full w-full">
-            <p className="text-xl">No products found.</p>
-          </div>
+            ))
+          : null}
+      </div>
+
+      <div className="w-full mt-6 flex flex-col items-center">
+        {!loading && filteredProducts.length === 0 && (
+          <p className="text-xl text-center">No products found.</p>
         )}
         {isFetchingMore && (
           <p className="text-center mt-4">Loading more products...</p>
         )}
       </div>
+
       {filteredProducts && (
         <div ref={sentinelRef} className="sentinel h-2 w-full"></div>
       )}

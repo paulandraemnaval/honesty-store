@@ -20,7 +20,7 @@ const HeaderBar = () => {
   }, []);
 
   return (
-    <div className="bg-gradient-to-r from-gradientStart  to-gradientEnd min-h-[4rem] flex flex-row-reverse">
+    <div className="bg-gradient-to-r from-gradientStart  to-gradientEnd min-h-[4rem] flex flex-row-reverse sticky top-0 z-10">
       <div className="flex items-center md:justify-cente md:w-1/3 w-full px-4 gap-8 flex-row-reverse  text-white">
         <Image
           src={user?.account_profile_url || defaultProfileImage}

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-
+import { useEffect, useState } from "react";
 const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
   const [localSearch, setLocalSearch] = useState(searchKeyword);
 
@@ -16,11 +15,11 @@ const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
   };
 
   return (
-    <div className="p-1">
+    <div className="px-4 sm:py-2 py-0 flex gap-4">
       <input
         type="text"
         placeholder="search"
-        className="p-3 rounded-full ring-0 focus:ring-2 focus:outline-none bg-searchbarColor"
+        className="py-2 px-4 items-center flex justify-center rounded-full ring-0 focus:ring-2 focus:outline-none bg-searchbarColor w-full sm:w-[18rem]"
         value={localSearch}
         onChange={handleChange}
       />

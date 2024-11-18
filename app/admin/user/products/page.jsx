@@ -3,22 +3,37 @@
 import { useState } from "react";
 import FilterBar from "@components/FilterBar";
 import ProductList from "@components/ProductList";
+import SearchInput from "@components/SearchInput";
+import MobileFilter from "@components/MobileFilter";
 
 const productspage = () => {
   const [filter, setFilter] = useState("all");
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   return (
-    <div className="flex h-full bg-backgroundColorMain gap-2 relative">
-      <div className="flex flex-col w-64 gap-2">
-        <span className="text-xl font-bold p-4">Filter</span>
-        <div className="w-full border max-h-[0rem]"></div>
+    <div className="w-full px-4 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9rem)] mt-2">
+      <div className="sm:flex hidden">
         <FilterBar setFilter={setFilter} filter={filter} />
       </div>
 
-      <div className="flex flex-col w-full overflow-auto gap-2">
+      <div className="flex flex-col w-full gap-2">
         <span className="text-xl font-bold p-4">Products</span>
+        <div className="flex">
+          <div className="flex-1">
+            <SearchInput
+              searchKeyword={searchKeyword}
+              setSearchKeyword={setSearchKeyword}
+            />
+          </div>
+          <div className="sm:hidden block pr-4">
+            <MobileFilter setFilter={setFilter} filter={filter} />
+          </div>
+        </div>
+
         <div className="w-full border"></div>
-        <ProductList filter={filter} />
+        <div className="overflow-y-auto flex-1 ">
+          <ProductList filter={filter} searchKeyword={searchKeyword} />
+        </div>
       </div>
     </div>
   );

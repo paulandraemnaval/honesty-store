@@ -155,48 +155,60 @@ const Navbar = () => {
       </div>
 
       {/*mobile nav*/}
-      <div className="sm:hidden fixed bottom-0 flex w-full py-2 px-2 justify-between z-10 bg-white">
-        {links.map(({ href, icon, label }) => (
-          <Link
-            key={href}
-            href={href}
-            className="p-4 flex flex-1 items-center justify-center"
-          >
-            <Image src={icon} alt={`${label}_icon`} height={20} width={25} />
-          </Link>
-        ))}
+      <div className="sm:hidden fixed bottom-0 w-full z-10 bg-white">
+        <div className="relative">
+          {/* Main Navigation */}
+          <div className="flex w-full py-2 px-2 justify-between">
+            {links.map(({ href, icon, label }) => (
+              <Link
+                key={href}
+                href={href}
+                className="p-4 flex flex-1 items-center justify-center"
+              >
+                <Image
+                  src={icon}
+                  alt={`${label}_icon`}
+                  height={20}
+                  width={25}
+                />
+              </Link>
+            ))}
 
-        <div
-          className="p-4 flex-1 flex items-center justify-center cursor-pointer"
-          onClick={() => setShowManage((prev) => !prev)}
-        >
-          {showManage && (
-            <div className="fixed inset-0 bg-gray-900 bg-opacity-50 w-full pt-[26rem] h-fit flex items-center justify-center">
-              <div className="bg-white w-full h-full overflow-auto p-2  ">
-                {manageLinks.map(({ href, label }) => (
-                  <div
-                    key={href}
-                    className={`w-full flex bg-white p-2 cursor-pointer ${
-                      pathName === href ? "text-navbarSelected" : ""
-                    }`}
-                  >
-                    <Link
-                      href={href}
-                      className="flex-1 items-center ml-4 font-semibold"
-                    >
-                      {label}
-                    </Link>
-                  </div>
-                ))}
-              </div>
+            <div
+              className="p-4 flex-1 flex items-center justify-center cursor-pointer"
+              onClick={() => setShowManage((prev) => !prev)}
+            >
+              <Image
+                src={ManagementIcon}
+                alt="manage_icon"
+                height={20}
+                width={25}
+              />
             </div>
-          )}
-          <Image
-            src={ManagementIcon}
-            alt="manage_icon"
-            height={20}
-            width={25}
-          />
+          </div>
+
+          {/* Manage Links (Expanded Menu) */}
+          <div
+            className={`absolute bottom-full left-0 w-full bg-white transition-all duration-300 ease-in-out ${
+              showManage ? "flex flex-col" : "hidden"
+            }`}
+          >
+            {manageLinks.map(({ href, label }) => (
+              <div
+                key={href}
+                className={`w-full flex bg-white p-2 cursor-pointer ${
+                  pathName === href ? "text-navbarSelected" : ""
+                }`}
+              >
+                <Link
+                  href={href}
+                  className="flex-1 items-center ml-4 font-semibold"
+                >
+                  {label}
+                </Link>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </nav>
