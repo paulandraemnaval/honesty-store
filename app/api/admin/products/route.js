@@ -124,7 +124,7 @@ export async function POST(request) {
       10
     );
     const product_weight = parseFloat(reqFormData.get("product_weight"));
-    const product_dimension = parseFloat(reqFormData.get("product_dimensions"));
+    const product_dimension = reqFormData.get("product_dimensions");
 
     const imageURL = await getImageURL(file, productDoc.id, "Product");
     if (!imageURL) {

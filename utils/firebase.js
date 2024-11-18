@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -15,7 +15,6 @@ import {
 } from "firebase/firestore";
 import { decrypt } from "@utils/session";
 import { cookies } from "next/headers";
-import next from "next";
 
 const firebaseConfig = {
   apiKey: process.env.API_KEY,
