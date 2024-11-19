@@ -139,60 +139,63 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
     productData.get(productId)?.total_units ?? "no inventory";
 
   const filteredProducts = useMemo(() => {
-    const productsWithInventory = products.filter((product) =>
-      productData.has(product.product_id)
-    );
+    const productsWithInventory = products
+      .filter((product) => productData.has(product.product_id))
+      .sort((a, b) => {
+        const aUnits = parseInt(
+          productData.get(a.product_id)?.total_units || "0",
+          10
+        );
+        const bUnits = parseInt(
+          productData.get(b.product_id)?.total_units || "0",
+          10
+        );
+        return bUnits - aUnits;
+      });
 
     const productsWithoutInventory = products.filter(
       (product) => !productData.has(product.product_id)
     );
 
-    const productsWithInventoryResult = filter
-      ? productsWithInventory.filter(
-          (product) =>
-            (product.product_category === filter || filter === "all") &&
+    const filterProducts = (productList) =>
+      filter
+        ? productList.filter(
+            (product) =>
+              (product.product_category === filter || filter === "all") &&
+              product.product_name
+                .toLowerCase()
+                .includes(searchKeyword.toLowerCase())
+          )
+        : productList.filter((product) =>
             product.product_name
               .toLowerCase()
               .includes(searchKeyword.toLowerCase())
-        )
-      : productsWithInventory.filter((product) =>
-          product.product_name
-            .toLowerCase()
-            .includes(searchKeyword.toLowerCase())
-        );
+          );
 
-    const productsWithoutInventoryResult = filter
-      ? productsWithoutInventory.filter(
-          (product) =>
-            (product.product_category === filter || filter === "all") &&
-            product.product_name
-              .toLowerCase()
-              .includes(searchKeyword.toLowerCase())
-        )
-      : productsWithoutInventory.filter((product) =>
-          product.product_name
-            .toLowerCase()
-            .includes(searchKeyword.toLowerCase())
-        );
+    const filteredWithInventory = filterProducts(productsWithInventory);
+    const filteredWithoutInventory = filterProducts(productsWithoutInventory);
 
     if (pathname === "/admin/user/products") {
-      return [
-        ...productsWithInventoryResult,
-        ...productsWithoutInventoryResult,
-      ];
+      return [...filteredWithInventory, ...filteredWithoutInventory];
     }
 
-    return productsWithInventoryResult;
+    return filteredWithInventory;
   }, [filter, products, productData, pathname, searchKeyword]);
 
   return (
-    <div className="w-full h-full min-h-fit overflow-y-auto justify-center items-center ">
-      <div className="grid gap-4 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,12rem)]">
+    <div className="w-full h-full min-h-fit overflow-y-auto">
+      <div
+        className={`grid gap-2 w-full grid-cols-2 ${
+          filteredProducts.length > 3
+            ? "md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
+            : "md:grid-cols-[repeat(auto-fit,14rem)]"
+        }`}
+      >
         {filteredProducts.length > 0 && !loading
           ? filteredProducts.map((product) => (
               <div
                 key={product.product_id}
-                className="p-6 shadow-md rounded-sm bg-white flex flex-col"
+                className="p-6 shadow-sm rounded-sm bg-white flex flex-col border-2"
               >
                 <div className="flex flex-col justify-center gap-4">
                   <div className="flex justify-center h-[8rem]">

@@ -3,7 +3,7 @@ import Image from "next/image";
 import FilterIcon from "@public/icons/filter_icon.png";
 import closeIcon from "@public/icons/close_icon.png";
 import { useEffect, useState } from "react";
-const MobileFilter = ({ setFilter, selectedFilter }) => {
+const MobileFilter = ({ setFilter, selectedFilter, renderedIn }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [filters, setFilters] = useState([]);
   const [localFilter, setLocalFilter] = useState(selectedFilter);
@@ -28,13 +28,20 @@ const MobileFilter = ({ setFilter, selectedFilter }) => {
   return (
     <>
       <div
-        className="object-cover"
+        className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-sm white font-semibold text-white"
         onClick={() => setIsExpanded((prev) => !prev)}
       >
-        <Image src={FilterIcon} height={30} width={40} alt="filter_icon" />
+        <span>Filter</span>
+        <Image src={FilterIcon} height={20} width={20} alt="filter_icon" />
       </div>
       {isExpanded && (
-        <div className="h-[calc(100vh-8rem)] w-[70vw] absolute top-[4rem] right-0 bg-white flex flex-col ">
+        <div
+          className={`${
+            renderedIn === "customer"
+              ? "h-[calc(100vh-4rem)]"
+              : "h-[calc(100vh-8rem)]"
+          } w-[70vw] absolute top-[4rem] right-0 bg-white flex flex-col`}
+        >
           <div className="flex py-2 px-4 justify-center items-center">
             <span className="mr-auto font-semibold text-xl">Filter</span>
             <div
