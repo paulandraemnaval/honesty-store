@@ -21,74 +21,97 @@ import {
   isProfitMarginAboveThreshold,
 } from "@utils/calculations";
 
-export async function GET() {
+export async function GET(request) {
   let inventories = [];
+  const url = new URL(request.url);
+  const productId = url.searchParams.get("productId");
+  console.log(productId);
+
   try {
-    const reportExist = await checkCollectionExists("Report");
     const inventoryRef = collection(db, "Inventory");
-    let snapshot;
-
-    if (!reportExist) {
-      const q = query(
-        inventoryRef,
-        where("inventory_total_units", ">", 0),
-        orderBy("inventory_timestamp")
-      );
-      snapshot = await getDocs(q);
-      inventories = snapshot.docs.map((doc) => doc.data());
-
-      if (inventories.length === 0) {
+    if (productId) {
+      const q = query(inventoryRef, where("product_id", "==", productId));
+      const productSnapshot = await getDocs(q);
+      if (productSnapshot.empty) {
         return NextResponse.json(
-          {
-            message: "There are no inventories in the database",
-          },
-          { status: 200 }
-        );
-      }
-    } else {
-      const lastReport = await getLastReportEndDate();
-      const currentDate = new Date();
-
-      const q = query(
-        inventoryRef,
-        where("inventory_last_updated", ">=", lastReport),
-        where("inventory_last_updated", "<=", currentDate),
-        where("inventory_total_units", ">", 0),
-        orderBy("inventory_timestamp")
-      );
-      snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-        return NextResponse.json(
-          { message: "No inventories found since the last report." },
+          { message: "No inventories under this product" },
           { status: 404 }
         );
-      } else {
+      }
+      inventories = productSnapshot.docs.map((doc) => doc.data());
+      return NextResponse.json(
+        {
+          message: `Inventories found with this product ID: ${productId}`,
+          data: inventories,
+        },
+        { status: 200 }
+      );
+    } else {
+      const reportExist = await checkCollectionExists("Report");
+      let snapshot;
+
+      if (!reportExist) {
+        const q = query(
+          inventoryRef,
+          where("inventory_total_units", ">", 0),
+          orderBy("inventory_timestamp")
+        );
+        snapshot = await getDocs(q);
         inventories = snapshot.docs.map((doc) => doc.data());
+
+        if (inventories.length === 0) {
+          return NextResponse.json(
+            {
+              message: "There are no inventories in the database",
+            },
+            { status: 200 }
+          );
+        }
+      } else {
+        const lastReport = await getLastReportEndDate();
+        const currentDate = new Date();
+
+        const q = query(
+          inventoryRef,
+          where("inventory_last_updated", ">=", lastReport),
+          where("inventory_last_updated", "<=", currentDate),
+          where("inventory_total_units", ">", 0),
+          orderBy("inventory_timestamp")
+        );
+        snapshot = await getDocs(q);
+
+        if (snapshot.empty) {
+          return NextResponse.json(
+            { message: "No inventories found since the last report." },
+            { status: 404 }
+          );
+        } else {
+          inventories = snapshot.docs.map((doc) => doc.data());
+        }
       }
+
+      const oldInventories = inventories.reduce((acc, inventory) => {
+        const productId = inventory.product_id;
+        if (
+          !acc[productId] ||
+          acc[productId].inventory_timestamp > inventory.inventory_timestamp
+        ) {
+          acc[productId] = inventory;
+        }
+        return acc;
+      }, {});
+
+      const result = Object.values(oldInventories);
+      return NextResponse.json(
+        {
+          message: reportExist
+            ? "Inventories found since the last report"
+            : "All inventories",
+          inventories: result,
+        },
+        { status: 200 }
+      );
     }
-
-    const oldInventories = inventories.reduce((acc, inventory) => {
-      const productId = inventory.product_id;
-      if (
-        !acc[productId] ||
-        acc[productId].inventory_timestamp > inventory.inventory_timestamp
-      ) {
-        acc[productId] = inventory;
-      }
-      return acc;
-    }, {});
-
-    const result = Object.values(oldInventories);
-    return NextResponse.json(
-      {
-        message: reportExist
-          ? "Inventories found since the last report"
-          : "All inventories",
-        inventories: result,
-      },
-      { status: 200 }
-    );
   } catch (error) {
     console.error("Error fetching inventories:", error);
     return NextResponse.json(

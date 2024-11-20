@@ -3,6 +3,7 @@ import {
   createLog,
   getLoggedInUser,
   checkCollectionExists,
+  createNotification,
 } from "@utils/firebase";
 import {
   collection,
@@ -20,6 +21,9 @@ export async function POST(request) {
   const auditDoc = doc(auditRef);
   let audit_gross_income = 0;
   let audit_total_expense = 0;
+  const notificationRef = collection(db, "Notification");
+  const notificationDoc = doc(notificationRef);
+  const restock = [];
   try {
     const data = await request.json();
     const cycleCountRef = collection(db, "CycleCount");
@@ -67,6 +71,17 @@ export async function POST(request) {
         cycle_count_timestamp: Timestamp.now(),
         cycle_count_last_updated: Timestamp.now(),
       });
+
+      const productRef = doc(db, "Product", inventoryDoc.product_id);
+      const productSnapshot = await getDoc(productRef);
+      if (!productSnapshot.exists()) {
+        throw new Error(`Product document does not exist`);
+      }
+      const productDoc = productSnapshot.data();
+      if(productDoc.product_reorder_point >= remainingUnits) {
+        restock.push({productDoc.product_name, inventoryId});
+      }
+
 
       await updateDoc(inventoryRef, {
         inventory_total_units: remainingUnits,
