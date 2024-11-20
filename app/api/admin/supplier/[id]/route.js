@@ -1,16 +1,16 @@
 import { db, createLog, getLoggedInUser } from "@utils/firebase";
-import { Timestamp, doc, updateDoc } from "firebase/firestore";
+import { Timestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
-export async function GET({ params }) {
+export async function GET(request, { params }) {
   try {
     const { id } = params;
     const supplierDoc = doc(db, "Supplier", id);
     const snapshot = await getDoc(supplierDoc);
-    if (snapshot.exists) {
+    if (!snapshot.exists()) {
       return NextResponse.json(
         { message: "No supplier found with the given ID" },
-        { status: 200 }
+        { status: 404 }
       );
     }
     const supplier = snapshot.data();

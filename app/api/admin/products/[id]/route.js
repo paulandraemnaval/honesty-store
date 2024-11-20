@@ -3,10 +3,34 @@ import { Timestamp, doc, updateDoc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
 
+export async function GET(request, { params }) {
+  const { id } = params;
+  console.log(id);
+
+  try {
+    const productRef = doc(db, "Product", id);
+    const productDoc = await getDoc(productRef);
+    if (!productDoc.exists()) {
+      return new NextResponse.json(
+        { message: "Product not found" },
+        { status: 404 }
+      );
+    }
+    const product = productDoc.data();
+    return NextResponse.json(
+      { message: "Product found", data: product },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Error fetching product", error: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 //-------------------------------------------DELETE----------------------------------
 export async function DELETE(request, { params }) {
-  console.log(params);
-
   const { id } = params;
   try {
     const productRef = doc(db, "Product", id);

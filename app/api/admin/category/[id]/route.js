@@ -1,7 +1,29 @@
 import { db, getLoggedInUser, createLog } from "@utils/firebase";
-import { Timestamp, updateDoc, doc } from "firebase/firestore";
+import { Timestamp, updateDoc, doc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
+
+export async function GET(request, { params }) {
+  try {
+    const { id } = params;
+    const categoryDoc = doc(db, "Category", id);
+    const snapshot = await getDoc(categoryDoc);
+    if (!snapshot.exists()) {
+      return NextResponse.json(
+        { message: "No category found with the given ID" },
+        { status: 404 }
+      );
+    }
+    const category = snapshot.data();
+    return NextResponse.json(
+      { message: `Category found with the given ID: `, data: category },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ message: error }, { status: 500 });
+  }
+}
 
 export async function DELETE(request, { params }) {
   const { id } = params;
