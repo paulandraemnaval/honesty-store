@@ -4,6 +4,7 @@ import { useMemo, useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
+import Link from "@node_modules/next/link";
 
 const ProductList = ({ filter, searchKeyword = "" }) => {
   const [inventories, setInventories] = useState([]);
@@ -12,6 +13,7 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
   const [lastVisible, setLastVisible] = useState("");
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [stopFetching, setStopFetching] = useState(false);
+  const [showMore, setShowMore] = useState(false);
   const pathname = usePathname();
   const sentinelRef = useRef(null);
 
@@ -186,7 +188,7 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
     <div className="w-full h-full min-h-fit overflow-y-auto">
       <div
         className={`grid gap-2 w-full grid-cols-2 ${
-          filteredProducts.length > 3
+          filteredProducts.length > 4
             ? "md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
             : "md:grid-cols-[repeat(auto-fit,14rem)]"
         }`}
@@ -195,7 +197,7 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
           ? filteredProducts.map((product) => (
               <div
                 key={product.product_id}
-                className="p-6 shadow-sm rounded-sm bg-white flex flex-col border-2"
+                className="p-6 shadow-sm rounded-sm bg-white flex flex-col border-2 relative"
               >
                 <div className="flex flex-col justify-center gap-4">
                   <div className="flex justify-center h-[8rem]">
@@ -219,6 +221,31 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
                     <span className="text-sm text-gray-600">
                       {getStock(product.product_id)}
                     </span>
+                  )}
+                  {pathname === "/admin/user/products" && (
+                    <details className="absolute bottom-4 right-5">
+                      <summary className="list-none cursor-pointer relative">
+                        . . .
+                      </summary>
+                      <ul className="absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded shadow-lg w-40 z-10">
+                        <li className="h-full w-full flex">
+                          <Link
+                            className="text-sm px-4 py-2 w-full text-left hover:bg-gray-100"
+                            href={`/admin/user/products/edit_product/${product.product_id}`}
+                          >
+                            Edit product
+                          </Link>
+                        </li>
+                        <li className="h-full w-full flex">
+                          <Link
+                            className="text-sm px-4 py-2 w-full text-left hover:bg-gray-100"
+                            href={`/admin/user/products/view_inventories/${product.product_id}`}
+                          >
+                            Inventories
+                          </Link>
+                        </li>
+                      </ul>
+                    </details>
                   )}
                 </div>
               </div>
