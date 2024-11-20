@@ -24,7 +24,8 @@ async function createSession(userId, path) {
     account_auth_id: userId,
     session_access_type: "authenticated",
     session_accessed_url: path,
-    session_timestamp: Timestamp.now().toDate(),
+    session_timestamp: Timestamp.now(),
+    session_expiration_date: expiresAt,
   };
 
   await setDoc(sessionDoc, sessionData);
@@ -50,7 +51,6 @@ const signInUser = async (email, password) => {
       password
     );
     const user = userCredentials.user;
-    console.log(user);
 
     return user;
   } catch (error) {

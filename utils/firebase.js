@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getStorage } from "firebase/storage";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -15,7 +15,6 @@ import {
 } from "firebase/firestore";
 import { decrypt } from "@utils/session";
 import { cookies } from "next/headers";
-import next from "next";
 
 const firebaseConfig = {
   apiKey: process.env.API_KEY,
@@ -187,5 +186,28 @@ export async function twoWeeksBeforeExpiration() {
   } catch (error) {
     console.log("Error fetching products expiring in two weeks,", error);
     return [];
+  }
+}
+
+export async function createNotification(user, title, body, type) {
+  try {
+    const notificationRef = collection(db, "Notification");
+    const notificationDoc = doc(notificationRef);
+
+    const notification = {
+      notification_id: notificationDoc.id,
+      account_id: user.account_id,
+      notification_title: title,
+      notification_body: body,
+      notification_type: type,
+      notification_is_read: false,
+      notification_timestamp: Timestamp.now(),
+      notification_soft_deleted: false,
+    };
+
+    await setDoc(notificationDoc, notification);
+    return notification;
+  } catch (error) {
+    console.log(error);
   }
 }
