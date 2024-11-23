@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
 const ProductForm = ({ productID = "" }) => {
   const [image, setImage] = useState({
     file: null,
@@ -12,7 +12,7 @@ const ProductForm = ({ productID = "" }) => {
   const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(false); // Add loading state
   const [categoryName, setCategoryName] = useState("");
-
+  const [categoryValid, setCategoryValid] = useState(true);
   const handleImage = (e) => {
     if (e.target.files.length === 0) return;
     setImage({
@@ -63,7 +63,7 @@ const ProductForm = ({ productID = "" }) => {
     formData.append("file", image.file);
     formData.append("product_category", selectedCategory);
 
-    setLoading(true); // Start loading spinner
+    setLoading(true);
     try {
       const res = await fetch(`/api/admin/products`, {
         method: "POST",
@@ -71,16 +71,28 @@ const ProductForm = ({ productID = "" }) => {
       });
 
       if (res.ok) {
-        toast.success("Product added successfully.");
+        toast.success("Login successful!", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
         e.target.reset();
         setImage({ file: null, url: "" });
       } else {
-        toast.error("Failed to add product.");
+        toast.error("Login failed. Please try again.", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
       }
     } catch (err) {
       toast.error("Error occurred while adding product.");
     } finally {
-      setLoading(false); // Stop loading spinner
+      setLoading(false);
     }
   };
 
@@ -102,11 +114,27 @@ const ProductForm = ({ productID = "" }) => {
       });
 
       if (res.ok) {
+        toast.success("Product Update Successful!", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+          iconTheme: {
+            primary: "#4285F4",
+            secondary: "white",
+          },
+        });
       } else {
-        setToastMessage("Failed to update product.");
+        toast.error("Login failed. Please try again.", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
       }
     } catch (err) {
-      setToastMessage("Error occurred while updating product.");
     } finally {
       setLoading(false);
     }
@@ -146,6 +174,7 @@ const ProductForm = ({ productID = "" }) => {
             setSelectedCategory={setSelectedCategory}
             categoryName={categoryName}
             setCategoryName={setCategoryName}
+            setCategoryValid={setCategoryValid}
           />
           <label htmlFor="file">Product Image</label>
           <input
@@ -229,11 +258,18 @@ const ProductForm = ({ productID = "" }) => {
         <div className="gap-2 w-full items-start flex flex-row-reverse">
           <button
             type="submit"
-            className="bg-mainButtonColor text-white rounded-lg p-2 w-fit"
-            disabled={loading} // Disable button while loading
+            className={`w-fit p-2 bg-mainButtonColor text-white rounded-md flex items-center justify-center ${
+              loading || !categoryValid
+                ? "opacity-70 cursor-not-allowed"
+                : "hover:opacity-90"
+            }`}
+            disabled={loading || !categoryValid} // Disable button while loading
           >
             {loading ? (
-              <div className="spinner-border animate-spin border-2 rounded-full w-5 h-5 border-t-2 border-white"></div>
+              <>
+                <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+                Processing...
+              </>
             ) : productID ? (
               "Update Product"
             ) : (
@@ -247,10 +283,12 @@ const ProductForm = ({ productID = "" }) => {
 };
 
 export default ProductForm;
+
 const CategoryInput = ({
   setSelectedCategory,
   categoryName,
   setCategoryName,
+  setCategoryValid,
 }) => {
   const [categoryQuery, setCategoryQuery] = useState(categoryName || "");
   const [categoryQueryResults, setCategoryQueryResults] = useState([]);
@@ -265,6 +303,7 @@ const CategoryInput = ({
   const handleCategorySearch = useCallback(async (categoryQuery) => {
     if (!categoryQuery.trim()) {
       setLoading(false);
+      setCategoryQueryResults([]);
       return;
     }
 
@@ -273,7 +312,8 @@ const CategoryInput = ({
         `/api/admin/query?category=${categoryQuery}`
       );
       const data = await response.json();
-      setCategoryQueryResults(Array.isArray(data?.data) ? data.data : []);
+      const categories = Array.isArray(data?.data) ? data.data : [];
+      setCategoryQueryResults(categories);
     } catch (err) {
       console.error("Error fetching categories:", err);
       setCategoryQueryResults([]);
@@ -286,6 +326,7 @@ const CategoryInput = ({
     const value = e.target.value;
     setCategoryQuery(value);
     setCategoryQueryResults([]);
+    setCategoryValid(false); // Mark as invalid when typing again
     setLoading(true);
 
     if (debounceTimer) clearTimeout(debounceTimer);
@@ -302,14 +343,16 @@ const CategoryInput = ({
   };
 
   const handleCategorySelect = (category) => {
-    setCategoryQuery(category.category_name); // Clear search query
-    setCategoryName(category.category_name); // Update display value
-    setSelectedCategory(category.category_id); // Set category ID
+    setCategoryQuery(category.category_name); // Update input value
+    setCategoryName(category.category_name); // Update the display value
+    setSelectedCategory(category.category_id); // Set the selected category ID
+    setCategoryValid(true); // Mark the category as valid
+    setFocused(false); // Close the dropdown
   };
 
   return (
     <div
-      className={`relative flex flex-col border rounded-lg h-fit z-0${
+      className={`relative flex flex-col border rounded-lg h-fit z-0 ${
         focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
       }`}
     >
@@ -342,7 +385,6 @@ const CategoryInput = ({
                   onClick={(e) => {
                     e.stopPropagation();
                     handleCategorySelect(category);
-                    setFocused(false); // Close the dropdown
                   }}
                   className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
                     index === categoryQueryResults.length - 1
