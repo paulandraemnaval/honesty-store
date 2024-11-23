@@ -5,6 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
 import Link from "@node_modules/next/link";
+import downArrow from "@public/icons/down_arrow_icon.png";
+import upArrow from "@public/icons/up_arrow_icon.png";
 
 const ProductList = ({ filter, searchKeyword = "" }) => {
   const [inventories, setInventories] = useState([]);
@@ -13,13 +15,9 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
   const [lastVisible, setLastVisible] = useState("");
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [stopFetching, setStopFetching] = useState(false);
-  const [showMore, setShowMore] = useState(false);
+  const [showMore, setShowMore] = useState({});
   const pathname = usePathname();
   const sentinelRef = useRef(null);
-
-  useEffect(() => {
-    console.log("FROM PRODUCTLIST.JSX filter:", filter);
-  }, [filter]);
 
   useEffect(() => {
     const getInventories = async () => {
@@ -184,12 +182,19 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
     return filteredWithInventory;
   }, [filter, products, productData, pathname, searchKeyword]);
 
+  const handleSetShowMore = (productId) => {
+    setShowMore((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
   return (
     <div className="w-full h-full min-h-fit overflow-y-auto">
       <div
         className={`grid gap-2 w-full grid-cols-2 ${
           filteredProducts.length > 4
-            ? "md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]"
+            ? "md:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]"
             : "md:grid-cols-[repeat(auto-fit,14rem)]"
         }`}
       >
@@ -197,16 +202,61 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
           ? filteredProducts.map((product) => (
               <div
                 key={product.product_id}
-                className="p-6 shadow-sm rounded-sm bg-white flex flex-col border-2 relative"
+                className={`bg-white p-4 rounded-smxl shadow-lg relative`}
               >
-                <div className="flex flex-col justify-center gap-4">
+                {/* Dark Overlay */}
+                {showMore[product.product_id] && (
+                  <div className="absolute inset-0 bg-black opacity-20 z-10"></div>
+                )}
+
+                {/* Overlay Trigger */}
+                <div className="w-full flex justify-end z-20 mb-1">
+                  <Image
+                    src={downArrow}
+                    alt="down_arrow"
+                    width={20}
+                    height={20}
+                    className="cursor-pointer"
+                    onClick={() => handleSetShowMore(product.product_id)}
+                  />
+                </div>
+
+                {/* Overlay Menu */}
+                {showMore[product.product_id] && (
+                  <div className="absolute top-0 right-0 mt-0 bg-white shadow-lg md w-full flex flex-col z-20">
+                    <div className="w-full pt-4 px-4">
+                      <Image
+                        src={upArrow}
+                        alt="up_arrow"
+                        width={20}
+                        height={20}
+                        onClick={() => handleSetShowMore(product.product_id)}
+                        className="ml-auto cursor-pointer"
+                      />
+                    </div>
+                    <Link
+                      href={`/admin/user/products/edit_product/${product.product_id}`}
+                      className="block text-sm text-gray-700 hover:bg-mainButtonColor hover:text-white mb-2 p-2"
+                    >
+                      Edit Product Info
+                    </Link>
+                    <Link
+                      href={`/admin/user/products/edit_inventory/${product.product_id}`}
+                      className="block text-sm text-gray-700 hover:bg-mainButtonColor hover:text-white p-2"
+                    >
+                      See Inventories
+                    </Link>
+                  </div>
+                )}
+
+                <div className="flex flex-col justify-center gap-4 z-20">
                   <div className="flex justify-center h-[8rem]">
                     <Image
                       src={product.product_image_url || PlaceholderImage}
                       alt={product.product_name}
-                      width={200}
-                      height={200}
-                      className="object-cover w-full"
+                      width={150}
+                      height={170}
+                      className="object-scale-down "
                     />
                   </div>
                   <div className="flex flex-col">
@@ -221,31 +271,6 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
                     <span className="text-sm text-gray-600">
                       {getStock(product.product_id)}
                     </span>
-                  )}
-                  {pathname === "/admin/user/products" && (
-                    <details className="absolute bottom-4 right-5">
-                      <summary className="list-none cursor-pointer relative">
-                        . . .
-                      </summary>
-                      <ul className="absolute left-0 top-full mt-2 bg-white border border-gray-300 rounded shadow-lg w-40 z-10">
-                        <li className="h-full w-full flex">
-                          <Link
-                            className="text-sm px-4 py-2 w-full text-left hover:bg-gray-100"
-                            href={`/admin/user/products/edit_product/${product.product_id}`}
-                          >
-                            Edit product
-                          </Link>
-                        </li>
-                        <li className="h-full w-full flex">
-                          <Link
-                            className="text-sm px-4 py-2 w-full text-left hover:bg-gray-100"
-                            href={`/admin/user/products/view_inventories/${product.product_id}`}
-                          >
-                            Inventories
-                          </Link>
-                        </li>
-                      </ul>
-                    </details>
                   )}
                 </div>
               </div>

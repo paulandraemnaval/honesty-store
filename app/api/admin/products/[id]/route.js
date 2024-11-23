@@ -68,13 +68,26 @@ export async function PATCH(request, { params }) {
     const product_weight = parseFloat(reqFormData.get("product_weight"));
     const product_dimension = parseFloat(reqFormData.get("product_dimensions"));
 
-    const imageURL = await getImageURL(file, productDoc.id, "Product");
-    if (!imageURL) {
-      console.error("Failed to generate image URL:", error);
-      return NextResponse.json(
-        { error: "Failed to generate image URL" },
-        { status: 400 }
-      );
+    const url = reqFormData.get("url");
+
+    let imageURL = url; // Default to the provided URL
+    if (file && file.size > 0) {
+      try {
+        imageURL = await getImageURL(file, productDoc.id, "Product");
+        if (!imageURL) {
+          console.error("Failed to generate image URL");
+          return NextResponse.json(
+            { error: "Failed to generate image URL" },
+            { status: 400 }
+          );
+        }
+      } catch (error) {
+        console.error("Error generating image URL:", error);
+        return NextResponse.json(
+          { error: "Error generating image URL" },
+          { status: 500 }
+        );
+      }
     }
 
     await updateDoc(productDoc, {

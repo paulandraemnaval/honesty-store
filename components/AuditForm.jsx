@@ -118,17 +118,6 @@ const AuditForm = () => {
     products.some((product) => product.product_id === inventory.product_id)
   );
 
-  const isSubmitEnabled = () => {
-    return (
-      filteredInventories.length > 0 &&
-      filteredInventories.every(
-        (inventory) =>
-          quantities[inventory.inventory_id] !== undefined &&
-          Number(quantities[inventory.inventory_id]) >= 0
-      )
-    );
-  };
-
   return (
     <div className="overflow-auto max-h-full flex flex-col">
       <form

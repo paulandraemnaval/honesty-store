@@ -1,34 +1,14 @@
-"use client";
-import { useEffect, useState } from "react";
+import ProductInventories from "@components/ProductInventories";
 const page = ({ params }) => {
-  const [loading, setLoading] = useState();
-  const [productInventories, setProductInventories] = useState([]);
-  useEffect(() => {
-    const getProductInventories = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `/api/admin/inventory?productId=${params.product_id}`
-        );
-        const data = await response.json();
-        console.log(data?.data);
-        setProductInventories(Array.isArray(data?.data) ? data?.data : []);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getProductInventories();
-  }, []);
-  console.log(params.product_id);
   return (
-    <div>
-      {productInventories.map((productInventory) => (
-        <div key={productInventory.inventory_id}>
-          <div>{productInventory.inventory_id}</div>
-        </div>
-      ))}
+    <div className="w-full px-4 flex flex-col sm:h-[calc(100vh-5rem)] h-[calc(100vh-9rem)] mt-2">
+      <h1 className="text-2xl font-bold">Product Inventories</h1>
+      <p className="text-gray-500">Browse the product's inventories</p>
+      <div className="w-full border mb-2"></div>
+
+      <div className="overflow-y-auto flex-1 py-2">
+        <ProductInventories productId={params.product_id} />
+      </div>
     </div>
   );
 };

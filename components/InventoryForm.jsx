@@ -144,15 +144,9 @@ const ProductInput = ({ setSelectedProduct }) => {
     setDebounceTimer(newTimer);
   };
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-    };
-  }, [debounceTimer]);
-
   const handleFocus = () => setFocused(true);
   const handleBlur = () => {
-    setTimeout(() => setFocused(false), 100);
+    setTimeout(() => setFocused(false), 300);
   };
 
   return (
@@ -251,15 +245,9 @@ const SupplierInput = ({ setSelectedSupplier }) => {
     setDebounceTimer(newTimer);
   };
 
-  useEffect(() => {
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-    };
-  }, [debounceTimer]);
-
   const handleFocus = () => setFocused(true);
   const handleBlur = () => {
-    setTimeout(() => setFocused(false), 100);
+    setTimeout(() => setFocused(false), 300);
   };
 
   return (
