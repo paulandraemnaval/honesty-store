@@ -78,10 +78,9 @@ export async function POST(request) {
         throw new Error(`Product document does not exist`);
       }
       const productDoc = productSnapshot.data();
-      if(productDoc.product_reorder_point >= remainingUnits) {
-        restock.push({productDoc.product_name, inventoryId});
+      if (productDoc.product_reorder_point >= remainingUnits) {
+        restock.push({ product_name: productDoc.product_name, inventoryId });
       }
-
 
       await updateDoc(inventoryRef, {
         inventory_total_units: remainingUnits,
