@@ -202,7 +202,7 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
           ? filteredProducts.map((product) => (
               <div
                 key={product.product_id}
-                className={`bg-white p-4 rounded-smxl shadow-lg relative`}
+                className={`bg-white p-4 rounded-smxl shadow-lg relative border-2`}
               >
                 {/* Dark Overlay */}
                 {showMore[product.product_id] && (
@@ -210,45 +210,50 @@ const ProductList = ({ filter, searchKeyword = "" }) => {
                 )}
 
                 {/* Overlay Trigger */}
-                <div className="w-full flex justify-end z-20 mb-1">
-                  <Image
-                    src={downArrow}
-                    alt="down_arrow"
-                    width={20}
-                    height={20}
-                    className="cursor-pointer"
-                    onClick={() => handleSetShowMore(product.product_id)}
-                  />
-                </div>
-
-                {/* Overlay Menu */}
-                {showMore[product.product_id] && (
-                  <div className="absolute top-0 right-0 mt-0 bg-white shadow-lg md w-full flex flex-col z-20">
-                    <div className="w-full pt-4 px-4">
+                {pathname === "/admin/user/products" && (
+                  <>
+                    <div className="w-full flex justify-end z-20 mb-1">
                       <Image
-                        src={upArrow}
-                        alt="up_arrow"
+                        src={downArrow}
+                        alt="down_arrow"
                         width={20}
                         height={20}
+                        className="cursor-pointer"
                         onClick={() => handleSetShowMore(product.product_id)}
-                        className="ml-auto cursor-pointer"
                       />
                     </div>
-                    <Link
-                      href={`/admin/user/products/edit_product/${product.product_id}`}
-                      className="block text-sm text-gray-700 hover:bg-mainButtonColor hover:text-white mb-2 p-2"
-                    >
-                      Edit Product Info
-                    </Link>
-                    <Link
-                      href={`/admin/user/products/edit_inventory/${product.product_id}`}
-                      className="block text-sm text-gray-700 hover:bg-mainButtonColor hover:text-white p-2"
-                    >
-                      See Inventories
-                    </Link>
-                  </div>
-                )}
 
+                    {/* Overlay Menu */}
+                    {showMore[product.product_id] && (
+                      <div className="absolute top-0 right-0 mt-0 bg-white shadow-lg md w-full flex flex-col z-20">
+                        <div className="w-full pt-4 px-4">
+                          <Image
+                            src={upArrow}
+                            alt="up_arrow"
+                            width={20}
+                            height={20}
+                            onClick={() =>
+                              handleSetShowMore(product.product_id)
+                            }
+                            className="ml-auto cursor-pointer"
+                          />
+                        </div>
+                        <Link
+                          href={`/admin/user/products/edit_product/${product.product_id}`}
+                          className="block text-sm text-gray-700 hover:bg-mainButtonColor hover:text-white mb-2 p-2"
+                        >
+                          Edit Product Info
+                        </Link>
+                        <Link
+                          href={`/admin/user/products/edit_inventory/${product.product_id}`}
+                          className="block text-sm text-gray-700 hover:bg-mainButtonColor hover:text-white p-2"
+                        >
+                          See Inventories
+                        </Link>
+                      </div>
+                    )}
+                  </>
+                )}
                 <div className="flex flex-col justify-center gap-4 z-20">
                   <div className="flex justify-center h-[8rem]">
                     <Image

@@ -9,7 +9,7 @@ const Page = () => {
       </div>
 
       <div className="overflow-y-auto flex-1">
-        <ProductForm />
+        <ProductForm productID={""} />
       </div>
     </div>
   );
