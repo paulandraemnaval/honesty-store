@@ -6,10 +6,12 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import defaultProfileImage from "@public/defaultImages/default_profile_image.png";
 import homeIcon from "@public/icons/home_icon.png";
-import salesIcon from "@public/icons/sales_icon.png";
-import ManagementIcon from "@public/icons/account_management_icon.png";
+import productsIcon from "@public/icons/products_icon.png";
+import productsIconSelected from "@public/icons/products_icon_selected.png";
+import ManagementIcon from "@public/icons/manage_icon.png";
 import accountManagementIcon from "@public/icons/accounts_icon.png";
-
+import homeIconSelected from "@public/icons/home_icon_selected.png";
+import accountManagementIconSelected from "@public/icons/accounts_icon_selected.png";
 const Navbar = () => {
   const pathName = usePathname();
   const [user, setUser] = useState({});
@@ -42,19 +44,25 @@ const Navbar = () => {
   const links = [
     {
       href: "/admin/user",
-      icon: homeIcon,
+      icon: pathName === "/admin/user" ? homeIconSelected : homeIcon,
       label: "Dashboard",
     },
     {
       href: "/admin/user/products",
-      icon: salesIcon,
+      icon:
+        pathName === "/admin/user/products"
+          ? productsIconSelected
+          : productsIcon,
       label: "Products",
     },
     ...(user?.account_role === "1"
       ? [
           {
             href: "/admin/user/manage_account",
-            icon: accountManagementIcon,
+            icon:
+              pathName === "/admin/user/manage_account"
+                ? accountManagementIconSelected
+                : accountManagementIcon,
             label: "Manage Accounts",
           },
         ]
@@ -73,19 +81,19 @@ const Navbar = () => {
   return (
     <nav>
       {/*desktop nav*/}
-      <div className="p-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-5 py-4 w-[14rem]">
+      <div className="p-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[14rem]">
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
           Honesty Store
         </p>
-        <div className="flex items-center justify-center w-full px-6 py-8">
+        <div className="flex items-center justify-center w-full px-6 py-2 rounded-sm shadow-sm mt-12 bg-slate-100">
           <Image
             src={user?.account_profile_url || defaultProfileImage}
             alt="profile_image"
-            height={40}
-            width={40}
-            className="rounded-full mr-auto object-cover"
+            height={70}
+            width={70}
+            className=" h-10 w-10 rounded-full mr-auto object-cover"
           />
-          <div className="flex flex-col w-full px-2">
+          <div className="flex flex-col w-full px-4">
             <p className="text-left font-semibold">
               {loading ? "loading..." : user?.account_name}
             </p>
@@ -98,7 +106,7 @@ const Navbar = () => {
         {links.map(({ href, icon, label }) => (
           <div
             key={href}
-            className={`flex w-full bg-white p-2 hover:text-mainButtonColor transition duration-100 ${
+            className={`flex w-full bg-white p-2 hover:bg-mainButtonColor hover:text-white rounded-sm transition duration-100 items-center justify-center ${
               pathName === href ? "text-navbarSelected" : ""
             }`}
           >
@@ -107,7 +115,7 @@ const Navbar = () => {
               alt={`${label}_icon`}
               height={20}
               width={25}
-              className="object-contain"
+              className="object-contain h-8 w-8"
             />
             <Link
               href={href}
@@ -120,7 +128,7 @@ const Navbar = () => {
 
         <div className={`w-full`}>
           <div
-            className={`w-full flex bg-white p-2 cursor-pointer hover:text-mainButtonColor transition-all duration-100 ${
+            className={`w-full flex bg-white p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm items-center justify-center ${
               pathName === "/admin/user/manage" ? "text-navbarSelected" : ""
             }`}
             onClick={() => setShowManage((prev) => !prev)}
@@ -130,16 +138,19 @@ const Navbar = () => {
               alt="manage_icon"
               height={20}
               width={25}
+              className="object-contain h-8 w-8"
             />
             <span className="flex-1 items-center ml-4 font-semibold">
               Manage
             </span>
           </div>
+
+          {/* Manage Links (Expanded Menu) */}
           {showManage &&
             manageLinks.map(({ href, label }) => (
               <div
                 key={href}
-                className={`w-full flex  py-[0.25rem] cursor-pointer hover:text-mainButtonColor transition-all duration-100 ${
+                className={`w-full flex  py-[0.25rem] cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 ${
                   pathName === href ? "text-navbarSelected" : ""
                 }`}
               >
@@ -154,7 +165,7 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/*mobile nav*/}
+      {/*--------------------------------mobile nav----------------------------------------*/}
       <div className="sm:hidden fixed bottom-0 w-full z-10 bg-white">
         <div className="relative">
           {/* Main Navigation */}

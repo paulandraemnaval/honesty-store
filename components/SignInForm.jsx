@@ -1,5 +1,3 @@
-import React from "react";
-
 const SignInForm = ({ handleSignIn, isProcessing, isCompleted }) => {
   return (
     <form
