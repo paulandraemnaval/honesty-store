@@ -31,7 +31,9 @@ const AuthForm = () => {
           },
         });
         setIsCompleted(true);
-        router.push("/admin/user");
+        setTimeout(() => {
+          router.push("/admin/user");
+        }, 1000);
         console.log("Login successful.");
       } else {
         toast.error("Login failed. Please try again.", {
