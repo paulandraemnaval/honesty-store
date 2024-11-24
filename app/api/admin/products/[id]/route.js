@@ -69,7 +69,7 @@ export async function PATCH(request, { params }) {
     const url = reqFormData.get("url");
 
     let imageURL = url;
-    if (file && file !== "") {
+    if (file && file.size > 0) {
       try {
         imageURL = await getImageURL(file, productDoc.id, "Product");
         if (!imageURL) {

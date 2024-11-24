@@ -43,7 +43,7 @@ const Navbar = () => {
     {
       href: "/admin/user",
       icon: homeIcon,
-      label: "Dash",
+      label: "Dashboard",
     },
     {
       href: "/admin/user/products",
@@ -98,7 +98,7 @@ const Navbar = () => {
         {links.map(({ href, icon, label }) => (
           <div
             key={href}
-            className={`flex w-full bg-white p-2 ${
+            className={`flex w-full bg-white p-2 hover:text-mainButtonColor transition duration-100 ${
               pathName === href ? "text-navbarSelected" : ""
             }`}
           >
@@ -120,9 +120,9 @@ const Navbar = () => {
 
         <div className={`w-full`}>
           <div
-            className={`w-full flex bg-white p-2 cursor-pointer ${
+            className={`w-full flex bg-white p-2 cursor-pointer hover:text-mainButtonColor transition-all duration-100 ${
               pathName === "/admin/user/manage" ? "text-navbarSelected" : ""
-            } ${showManage === true ? "rounded-tr-md rounded-tl-md" : ""}`}
+            }`}
             onClick={() => setShowManage((prev) => !prev)}
           >
             <Image
@@ -139,7 +139,7 @@ const Navbar = () => {
             manageLinks.map(({ href, label }) => (
               <div
                 key={href}
-                className={`w-full flex bg-white p-2 cursor-pointer ${
+                className={`w-full flex  py-[0.25rem] cursor-pointer hover:text-mainButtonColor transition-all duration-100 ${
                   pathName === href ? "text-navbarSelected" : ""
                 }`}
               >

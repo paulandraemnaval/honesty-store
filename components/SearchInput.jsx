@@ -15,11 +15,11 @@ const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
   };
 
   return (
-    <div className="px-4 sm:py-2 py-0 flex gap-4">
+    <div className="gap-4 w-full flex-1">
       <input
         type="text"
         placeholder="search"
-        className="py-2 px-4 items-center flex justify-center rounded-full ring-0 focus:ring-2 focus:outline-none bg-searchbarColor w-full sm:w-[18rem]"
+        className="py-2 px-4 items-center flex justify-center rounded-sm ring-0 focus:ring-2 focus:outline-none bg-searchbarColor w-full sm:w-[18rem]"
         value={localSearch}
         onChange={handleChange}
       />

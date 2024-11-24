@@ -31,3 +31,10 @@
     display: block; /* Restore scrollbar for Chrome, Safari, and Edge */
   }
 }
+
+.spinner-border {
+  display: inline-block;
+  border-radius: 50%;
+  border-width: 2px;
+  border-color: #ffffff transparent transparent transparent;
+}

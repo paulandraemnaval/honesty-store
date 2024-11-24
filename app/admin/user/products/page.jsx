@@ -17,21 +17,24 @@ const productspage = () => {
       </div>
 
       <div className="flex flex-col w-full gap-2">
-        <span className="text-xl font-bold p-4">Products</span>
-        <div className="flex">
+        <div className="flex gap-1">
           <div className="flex-1">
             <SearchInput
               searchKeyword={searchKeyword}
               setSearchKeyword={setSearchKeyword}
             />
           </div>
-          <div className="sm:hidden block pr-4">
-            <MobileFilter setFilter={setFilter} filter={filter} />
+          <div className="sm:hidden block z-10">
+            <MobileFilter
+              setFilter={setFilter}
+              filter={filter}
+              renderedIn={"admin"}
+            />
           </div>
         </div>
 
         <div className="w-full border"></div>
-        <div className="overflow-y-auto flex-1 ">
+        <div className="overflow-y-auto flex-1">
           <ProductList filter={filter} searchKeyword={searchKeyword} />
         </div>
       </div>

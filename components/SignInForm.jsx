@@ -1,6 +1,6 @@
 import React from "react";
 
-const SignInForm = ({ handleSignIn, isProcessing }) => {
+const SignInForm = ({ handleSignIn, isProcessing, isCompleted }) => {
   return (
     <form
       action="signin"
@@ -40,10 +40,23 @@ const SignInForm = ({ handleSignIn, isProcessing }) => {
       <div className="mt-auto">
         <button
           type="submit"
-          className="w-full p-2 bg-mainButtonColor text-white rounded-md"
-          disabled={isProcessing}
+          className={`w-full p-2 bg-mainButtonColor text-white rounded-md flex items-center justify-center ${
+            isProcessing || isCompleted
+              ? "opacity-70 cursor-not-allowed"
+              : "hover:opacity-90"
+          }`}
+          disabled={isProcessing || isCompleted}
         >
-          {isProcessing ? "Processing..." : "Sign In"}
+          {isProcessing ? (
+            <>
+              <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+              Processing...
+            </>
+          ) : isCompleted ? (
+            "Success"
+          ) : (
+            "Sign In"
+          )}
         </button>
       </div>
     </form>
