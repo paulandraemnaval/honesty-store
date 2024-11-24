@@ -3,7 +3,6 @@ import {
   createLog,
   getLoggedInUser,
   checkCollectionExists,
-  createNotification,
 } from "@utils/firebase";
 import {
   collection,
