@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import SignInForm from "./SignInForm";
-
+import bcryptjs from "bcryptjs";
 const AuthForm = () => {
   const router = useRouter();
 

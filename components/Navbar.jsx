@@ -1,21 +1,25 @@
 "use client";
-
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import defaultProfileImage from "@public/defaultImages/default_profile_image.png";
 import homeIcon from "@public/icons/home_icon.png";
+import homeIconSelected from "@public/icons/home_icon_selected.png";
 import productsIcon from "@public/icons/products_icon.png";
 import productsIconSelected from "@public/icons/products_icon_selected.png";
-import ManagementIcon from "@public/icons/manage_icon.png";
+import managementIcon from "@public/icons/manage_icon.png";
+import managementIconSelected from "@public/icons/manage_icon_selected.png";
 import accountManagementIcon from "@public/icons/accounts_icon.png";
-import homeIconSelected from "@public/icons/home_icon_selected.png";
 import accountManagementIconSelected from "@public/icons/accounts_icon_selected.png";
 const Navbar = () => {
   const pathName = usePathname();
   const [user, setUser] = useState({});
   const [loading, setLoading] = useState(false);
+
+  const [showManage, setShowManage] = useState(false);
+  const [showManageAccounts, setShowManageAccounts] = useState(false); // State for "Manage Accounts" dropdown
+
   useEffect(() => {
     const getUser = async () => {
       try {
@@ -33,7 +37,6 @@ const Navbar = () => {
     getUser();
   }, []);
 
-  const [showManage, setShowManage] = useState(false);
   const getUserRole = () => {
     if (user?.account_role === "1") return "C.E.O";
     if (user?.account_role === "2") return "Treasurer";
@@ -55,18 +58,6 @@ const Navbar = () => {
           : productsIcon,
       label: "Products",
     },
-    ...(user?.account_role === "1"
-      ? [
-          {
-            href: "/admin/user/manage_account",
-            icon:
-              pathName === "/admin/user/manage_account"
-                ? accountManagementIconSelected
-                : accountManagementIcon,
-            label: "Manage Accounts",
-          },
-        ]
-      : []),
   ];
 
   const manageLinks = [
@@ -78,9 +69,17 @@ const Navbar = () => {
     { href: "/admin/user/manage/create_report", label: "Create Report" },
   ];
 
+  const manageAccountsLinks = [
+    { href: "/admin/user/manage_account/create", label: "Create New Account" },
+    {
+      href: "/admin/user/manage_account/edit",
+      label: "Edit Existing Accounts",
+    },
+  ];
+
   return (
     <nav>
-      {/*desktop nav*/}
+      {/* Desktop nav */}
       <div className="p-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[14rem]">
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
           Honesty Store
@@ -91,7 +90,7 @@ const Navbar = () => {
             alt="profile_image"
             height={70}
             width={70}
-            className=" h-10 w-10 rounded-full mr-auto object-cover"
+            className="h-10 w-10 rounded-full mr-auto object-cover"
           />
           <div className="flex flex-col w-full px-4">
             <p className="text-left font-semibold">
@@ -106,8 +105,8 @@ const Navbar = () => {
         {links.map(({ href, icon, label }) => (
           <div
             key={href}
-            className={`flex w-full bg-white p-2 hover:bg-mainButtonColor hover:text-white rounded-sm transition duration-100 items-center justify-center ${
-              pathName === href ? "text-navbarSelected" : ""
+            className={`flex w-full  p-2 hover:bg-mainButtonColor hover:text-white rounded-sm transition duration-100 ${
+              pathName === href ? "bg-mainButtonColor text-white" : ""
             }`}
           >
             <Image
@@ -115,7 +114,7 @@ const Navbar = () => {
               alt={`${label}_icon`}
               height={20}
               width={25}
-              className="object-contain h-8 w-8"
+              className="object-contain"
             />
             <Link
               href={href}
@@ -126,19 +125,18 @@ const Navbar = () => {
           </div>
         ))}
 
+        {/* Manage Dropdown */}
         <div className={`w-full`}>
           <div
-            className={`w-full flex bg-white p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm items-center justify-center ${
-              pathName === "/admin/user/manage" ? "text-navbarSelected" : ""
-            }`}
+            className={`w-full flex  p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm 
+            `}
             onClick={() => setShowManage((prev) => !prev)}
           >
             <Image
-              src={ManagementIcon}
+              src={managementIcon}
               alt="manage_icon"
               height={20}
               width={25}
-              className="object-contain h-8 w-8"
             />
             <span className="flex-1 items-center ml-4 font-semibold">
               Manage
@@ -150,8 +148,8 @@ const Navbar = () => {
             manageLinks.map(({ href, label }) => (
               <div
                 key={href}
-                className={`w-full flex  py-[0.25rem] cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 ${
-                  pathName === href ? "text-navbarSelected" : ""
+                className={`w-full flex py-[0.25rem] cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 ${
+                  pathName === href ? "bg-mainButtonColor text-white" : ""
                 }`}
               >
                 <Link
@@ -163,8 +161,50 @@ const Navbar = () => {
               </div>
             ))}
         </div>
-      </div>
 
+        {/* Manage Accounts Dropdown */}
+        {user?.account_role === "1" && (
+          <div className={`w-full`}>
+            <div
+              className={`w-full flex bg-white p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm ${
+                pathName.startsWith("/admin/user/manage_accounts")
+                  ? "text-navbarSelected"
+                  : ""
+              }`}
+              onClick={() => setShowManageAccounts((prev) => !prev)}
+            >
+              <Image
+                src={accountManagementIcon}
+                alt="manage_accounts_icon"
+                height={20}
+                width={25}
+              />
+              <span className="flex-1 items-center ml-4 font-semibold">
+                Manage Accounts
+              </span>
+            </div>
+
+            {/* Manage Accounts Links (Expanded Menu) */}
+            {showManageAccounts &&
+              manageAccountsLinks.map(({ href, label }) => (
+                <div
+                  key={href}
+                  className={`w-full flex py-[0.25rem] cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 ${
+                    pathName === href ? "text-navbarSelected" : ""
+                  }`}
+                >
+                  <Link
+                    href={href}
+                    className="flex-1 items-center ml-4 font-semibold"
+                  >
+                    {label}
+                  </Link>
+                </div>
+              ))}
+          </div>
+        )}
+      </div>
+      {/* Mobile nav */}
       {/*--------------------------------mobile nav----------------------------------------*/}
       <div className="sm:hidden fixed bottom-0 w-full z-10 bg-white">
         <div className="relative">
@@ -174,7 +214,9 @@ const Navbar = () => {
               <Link
                 key={href}
                 href={href}
-                className="p-4 flex flex-1 items-center justify-center"
+                className={`p-4 flex flex-1 items-center justify-center rounded-md ${
+                  href === pathName ? "bg-mainButtonColor" : ""
+                }`}
               >
                 <Image
                   src={icon}
@@ -185,20 +227,56 @@ const Navbar = () => {
               </Link>
             ))}
 
+            {/* Manage Dropdown Trigger */}
             <div
-              className="p-4 flex-1 flex items-center justify-center cursor-pointer"
-              onClick={() => setShowManage((prev) => !prev)}
+              className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md ${
+                pathName.includes("manage/") ? "bg-mainButtonColor" : ""
+              }`}
+              onClick={() => {
+                setShowManage((prev) => !prev);
+                setShowManageAccounts(false);
+              }}
             >
               <Image
-                src={ManagementIcon}
+                src={
+                  pathName.includes("manage/")
+                    ? managementIconSelected
+                    : managementIcon
+                }
                 alt="manage_icon"
                 height={20}
                 width={25}
               />
             </div>
+
+            {/* Manage Accounts Dropdown Trigger */}
+            {user?.account_role === "1" && (
+              <div
+                className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md ${
+                  pathName.includes("manage_account")
+                    ? "bg-mainButtonColor"
+                    : ""
+                }`}
+                onClick={() => {
+                  setShowManageAccounts((prev) => !prev);
+                  setShowManage(false);
+                }}
+              >
+                <Image
+                  src={
+                    pathName.includes("manage_account")
+                      ? accountManagementIconSelected
+                      : accountManagementIcon
+                  }
+                  alt="manage_accounts_icon"
+                  height={20}
+                  width={25}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Manage Links (Expanded Menu) */}
+          {/* Manage Dropdown (Expanded Menu) */}
           <div
             className={`absolute bottom-full left-0 w-full bg-white transition-all duration-300 ease-in-out ${
               showManage ? "flex flex-col" : "hidden"
@@ -207,8 +285,8 @@ const Navbar = () => {
             {manageLinks.map(({ href, label }) => (
               <div
                 key={href}
-                className={`w-full flex bg-white p-2 cursor-pointer ${
-                  pathName === href ? "text-navbarSelected" : ""
+                className={`w-full flex  p-2 cursor-pointer ${
+                  pathName === href ? "bg-mainButtonColor text-white" : ""
                 }`}
               >
                 <Link
@@ -220,6 +298,31 @@ const Navbar = () => {
               </div>
             ))}
           </div>
+
+          {/* Manage Accounts Dropdown (Expanded Menu) */}
+          {user?.account_role === "1" && (
+            <div
+              className={`absolute bottom-full left-0 w-full bg-white  ${
+                showManageAccounts ? "flex flex-col" : "hidden"
+              }`}
+            >
+              {manageAccountsLinks.map(({ href, label }) => (
+                <div
+                  key={href}
+                  className={`w-full flex p-2 cursor-pointer  ${
+                    pathName === href ? "bg-mainButtonColor text-white" : ""
+                  }`}
+                >
+                  <Link
+                    href={href}
+                    className="flex-1 items-center ml-4 font-semibold"
+                  >
+                    {label}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </nav>

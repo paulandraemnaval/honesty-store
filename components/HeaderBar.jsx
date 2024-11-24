@@ -50,17 +50,21 @@ const HeaderBar = () => {
       <div className="flex items-center md:justify-cente md:w-1/3 w-full px-4 gap-2 flex-row-reverse  text-white">
         <div
           className={`p-1 rounded-tr-md rounded-tl-md ${
-            userMenuVisible ? "bg-white" : "bg-transparent"
+            userMenuVisible
+              ? "bg-white rounded-tr-sm rounded-tl-sm"
+              : "bg-transparent"
           }`}
         >
-          <Image
-            src={user?.account_profile_url || defaultProfileImage}
-            alt="profile_image"
-            className="object-cover rounded-full h-10 w-10 cursor-pointer"
-            height={70}
-            width={70}
-            onClick={() => setUserMenuVisible((prev) => !prev)}
-          />
+          <div className="rounded-full bg-white p-1">
+            <Image
+              src={user?.account_profile_url || defaultProfileImage}
+              alt="profile_image"
+              className="object-cover rounded-full h-10 w-10 cursor-pointer"
+              height={70}
+              width={70}
+              onClick={() => setUserMenuVisible((prev) => !prev)}
+            />
+          </div>
         </div>
         <div className="rounded-full bg-white p-1">
           <Image
@@ -73,7 +77,7 @@ const HeaderBar = () => {
         </div>
       </div>
       {userMenuVisible && (
-        <div className="absolute top-14 right-4 bg-white rounded-tr-none rounded-tl-none rounded-br-sm rounded-bl-sm shadow-md p-2 w-[14rem] flex flex-col gap-2">
+        <div className="absolute top-14 right-4 bg-white rounded-tr-none rounded-tl-sm rounded-br-sm rounded-bl-sm shadow-md p-2 w-[14rem] flex flex-col gap-2">
           <div className="roudned-md p-2 shadow-md bg-mainButtonColor">
             <p className="text-xl text-gray-800 font-semibold">
               Hello, {user?.account_name}
