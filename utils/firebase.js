@@ -189,25 +189,4 @@ export async function twoWeeksBeforeExpiration() {
   }
 }
 
-export async function createNotification(user, title, body, type) {
-  try {
-    const notificationRef = collection(db, "Notification");
-    const notificationDoc = doc(notificationRef);
 
-    const notification = {
-      notification_id: notificationDoc.id,
-      account_id: user.account_id,
-      notification_title: title,
-      notification_body: body,
-      notification_type: type,
-      notification_is_read: false,
-      notification_timestamp: Timestamp.now(),
-      notification_soft_deleted: false,
-    };
-
-    await setDoc(notificationDoc, notification);
-    return notification;
-  } catch (error) {
-    console.log(error);
-  }
-}

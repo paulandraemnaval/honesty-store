@@ -5,13 +5,12 @@ import getImageURL from "@utils/imageURL";
 
 export async function GET(request, { params }) {
   const { id } = params;
-  console.log(id);
 
   try {
     const productRef = doc(db, "Product", id);
     const productDoc = await getDoc(productRef);
     if (!productDoc.exists()) {
-      return new NextResponse.json(
+      return NextResponse.json(
         { message: "Product not found" },
         { status: 404 }
       );
@@ -67,10 +66,9 @@ export async function PATCH(request, { params }) {
     );
     const product_weight = parseFloat(reqFormData.get("product_weight"));
     const product_dimension = parseFloat(reqFormData.get("product_dimensions"));
-
     const url = reqFormData.get("url");
 
-    let imageURL = url; // Default to the provided URL
+    let imageURL = url;
     if (file && file.size > 0) {
       try {
         imageURL = await getImageURL(file, productDoc.id, "Product");
@@ -104,12 +102,7 @@ export async function PATCH(request, { params }) {
     });
 
     const user = await getLoggedInUser();
-    const logData = await createLog(
-      user.account_id,
-      "Product",
-      id,
-      `Updated product with ID ${id}`
-    );
+    const logData = await createLog(user.account_id, "Product", id, `UPDATE`);
 
     return NextResponse.json(
       { message: `Updated product with ID ${id} successfully.`, data: logData },

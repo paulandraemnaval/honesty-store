@@ -3,7 +3,6 @@ import {
   createLog,
   getLoggedInUser,
   checkCollectionExists,
-  createNotification,
 } from "@utils/firebase";
 import {
   collection,
@@ -23,14 +22,14 @@ export async function POST(request) {
   let audit_total_expense = 0;
   const notificationRef = collection(db, "Notification");
   const notificationDoc = doc(notificationRef);
-  const restock = [];
+  const restockItems = [];
   try {
     const data = await request.json();
     const cycleCountRef = collection(db, "CycleCount");
 
     const promises = data.map(async (item) => {
       const { inventoryId, remaining } = item;
-      const remainingUnits = parseInt(remaining, 10) | 0;
+      const remainingUnits = parseInt(remaining, 10) || 0;
 
       const cycleCountDoc = doc(cycleCountRef);
 
@@ -79,7 +78,15 @@ export async function POST(request) {
       }
       const productDoc = productSnapshot.data();
       if (productDoc.product_reorder_point >= remainingUnits) {
-        restock.push({ product_name: productDoc.product_name, inventoryId });
+        restockItems.push(inventoryDoc);
+
+        const invNotifRef = collection(db, "InventoryNotification");
+        const invNotifDoc = doc(invNotifRef);
+        await setDoc(invNotifDoc, {
+          inventory_notification_id: invNotifDoc.id,
+          inventory_id: inventoryId,
+          notification_id: notificationDoc.id,
+        });
       }
 
       await updateDoc(inventoryRef, {
@@ -110,6 +117,19 @@ export async function POST(request) {
       audit_last_updated: Timestamp.now(),
       audit_soft_deleted: false,
     });
+
+    if (restockItems.length > 0) {
+      await setDoc(notificationDoc, {
+        notification_id: notificationDoc.id,
+        account_id: user.account_id,
+        notification_title: "Restock Alert: Inventory Reorder Point Reached",
+        notification_body: `${restockItems.length} products have fallen below the reorder point. Please restock as soon as possible.`,
+        notification_type: 0,
+        notification_is_read: false,
+        notification_timestamp: Timestamp.now(),
+        notification_soft_deleted: false,
+      });
+    }
 
     return NextResponse.json(
       { message: "Audit successfully created.", logData },
