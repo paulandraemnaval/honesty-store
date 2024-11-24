@@ -1,15 +1,14 @@
 "use client";
-
-import React from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import SignInForm from "./SignInForm";
-
+import bcryptjs from "bcryptjs";
 const AuthForm = () => {
   const router = useRouter();
 
-  const [isProcessing, setIsProcessing] = React.useState(false);
-  const [isCompleted, setIsCompleted] = React.useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
@@ -23,8 +22,7 @@ const AuthForm = () => {
         method: "POST",
         body: formData,
       });
-
-      if (request.ok) {
+      if (request.status === 200) {
         toast.success("Login successful!", {
           duration: 3000,
           style: {
@@ -32,8 +30,9 @@ const AuthForm = () => {
             padding: "16px",
           },
         });
-        setIsCompleted(true); // Prevent button press after success
+        setIsCompleted(true);
         router.push("/admin/user");
+        console.log("Login successful.");
       } else {
         toast.error("Login failed. Please try again.", {
           duration: 3000,

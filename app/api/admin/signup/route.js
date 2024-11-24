@@ -1,9 +1,9 @@
-import { auth, db } from "@utils/firebase";
+import { auth, db, createLog } from "@utils/firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { collection, Timestamp, doc, setDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import getImageURL from "@utils/imageURL";
-
+import bcryptjs from "bcryptjs";
 const signUpUser = async (email, password) => {
   try {
     const userCredentials = await createUserWithEmailAndPassword(
