@@ -61,12 +61,11 @@ const Navbar = () => {
   ];
 
   const manageLinks = [
-    { href: "/admin/user/manage/add_supplier", label: "Add Supplier" },
-    { href: "/admin/user/manage/add_product", label: "Add Product" },
-    { href: "/admin/user/manage/create_inventory", label: "Create Inventory" },
-    { href: "/admin/user/manage/create_category", label: "Create Category" },
-    { href: "/admin/user/manage/create_audit", label: "Create Audit" },
-    { href: "/admin/user/manage/create_report", label: "Create Report" },
+    { href: "/admin/user/manage/create_audit", label: "Audits" },
+    { href: "/admin/user/manage/create_report", label: "Reports" },
+
+    { href: "/admin/user/manage/add_supplier", label: "Suppliers" },
+    { href: "/admin/user/manage/create_category", label: "Categories" },
   ];
 
   const manageAccountsLinks = [
@@ -84,22 +83,22 @@ const Navbar = () => {
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
           Honesty Store
         </p>
-        <div className="flex items-center justify-center w-full px-6 py-2 rounded-sm shadow-sm mt-12 bg-slate-100">
-          <Image
-            src={user?.account_profile_url || defaultProfileImage}
-            alt="profile_image"
-            height={70}
-            width={70}
-            className="h-10 w-10 rounded-full mr-auto object-cover"
-          />
-          <div className="flex flex-col w-full px-4">
-            <p className="text-left font-semibold">
-              {loading ? "loading..." : user?.account_name}
-            </p>
-            <p className="text-left font-thin">
-              {loading ? "loading..." : getUserRole()}
-            </p>
+        <div className="flex flex-col items-center justify-center w-full px-6 py-2  border-gray-300 mt-4">
+          <div className="w-full flex justify-center items-center ">
+            <Image
+              src={user?.account_profile_url || defaultProfileImage}
+              alt="profile_image"
+              height={60}
+              width={60}
+              className=" rounded-full object-cover"
+            />
           </div>
+          <p className="text-left font-semibold">
+            {loading ? "loading..." : user?.account_name}
+          </p>
+          <p className="text-left font-thin">
+            {loading ? "loading..." : getUserRole()}
+          </p>
         </div>
 
         {links.map(({ href, icon, label }) => (
@@ -116,10 +115,7 @@ const Navbar = () => {
               width={25}
               className="object-contain"
             />
-            <Link
-              href={href}
-              className="flex-1 items-center ml-4 font-semibold"
-            >
+            <Link href={href} className="flex-1 items-center ml-4">
               {label}
             </Link>
           </div>
@@ -138,9 +134,7 @@ const Navbar = () => {
               height={20}
               width={25}
             />
-            <span className="flex-1 items-center ml-4 font-semibold">
-              Manage
-            </span>
+            <span className="flex-1 items-center ml-4 ">Manage</span>
           </div>
 
           {/* Manage Links (Expanded Menu) */}
@@ -152,10 +146,7 @@ const Navbar = () => {
                   pathName === href ? "bg-mainButtonColor text-white" : ""
                 }`}
               >
-                <Link
-                  href={href}
-                  className="flex-1 items-center ml-4 font-semibold"
-                >
+                <Link href={href} className="flex-1 items-center ml-4 ">
                   {label}
                 </Link>
               </div>
@@ -179,9 +170,7 @@ const Navbar = () => {
                 height={20}
                 width={25}
               />
-              <span className="flex-1 items-center ml-4 font-semibold">
-                Manage Accounts
-              </span>
+              <span className="flex-1 items-center ml-4 ">Manage Accounts</span>
             </div>
 
             {/* Manage Accounts Links (Expanded Menu) */}
@@ -193,10 +182,7 @@ const Navbar = () => {
                     pathName === href ? "text-navbarSelected" : ""
                   }`}
                 >
-                  <Link
-                    href={href}
-                    className="flex-1 items-center ml-4 font-semibold"
-                  >
+                  <Link href={href} className="flex-1 items-center ml-4 ">
                     {label}
                   </Link>
                 </div>

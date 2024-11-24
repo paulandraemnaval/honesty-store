@@ -263,7 +263,7 @@ const ProductForm = ({ productID = "" }) => {
                 ? "opacity-70 cursor-not-allowed"
                 : "hover:opacity-90"
             }`}
-            disabled={loading || !categoryValid} // Disable button while loading
+            disabled={loading || !categoryValid}
           >
             {loading ? (
               <>
