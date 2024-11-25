@@ -10,8 +10,8 @@ module.exports = {
       colors: {
         backgroundMain: "#F0F4F9",
         foreground: "var(--foreground)",
-        gradientStart: "#02E2F2",
-        gradientEnd: "#003CFF",
+        gradientStart: "#00D4FF",
+        gradientEnd: "#001BFF",
         horizontalLineColor: "#4285F4",
         searchbarColor: "#ECE6F0",
         searchbarTextColor: "#FFFFFF",

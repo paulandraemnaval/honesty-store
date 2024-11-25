@@ -46,7 +46,7 @@ const HeaderBar = () => {
   };
 
   return (
-    <div className="bg-gradient-to-r from-gradientStart  to-gradientEnd min-h-[4rem] flex flex-row-reverse sticky top-0 z-10">
+    <div className="bg-gradient-to-r from-gradientStart  to-gradientEnd min-h-[5rem] flex flex-row-reverse sticky top-0 z-20">
       <div className="flex items-center md:justify-cente md:w-1/3 w-full px-4 gap-2 flex-row-reverse  text-white">
         <div
           className={`p-1 rounded-tr-md rounded-tl-md ${
@@ -55,7 +55,7 @@ const HeaderBar = () => {
               : "bg-transparent"
           }`}
         >
-          <div className="rounded-full bg-white p-1">
+          <div className="rounded-full bg-white p-[0.1rem] flex items-center justify-center">
             <Image
               src={user?.account_profile_url || defaultProfileImage}
               alt="profile_image"
@@ -66,18 +66,16 @@ const HeaderBar = () => {
             />
           </div>
         </div>
-        <div className="rounded-full bg-white p-1">
-          <Image
-            src={bellIcon}
-            alt="notification_icon"
-            className="h-8 w-8 cursor-pointer"
-            height={70}
-            width={70}
-          />
-        </div>
+        <Image
+          src={bellIcon}
+          alt="notification_icon"
+          className="cursor-pointer"
+          height={25}
+          width={25}
+        />
       </div>
       {userMenuVisible && (
-        <div className="absolute top-14 right-4 bg-white rounded-tr-none rounded-tl-sm rounded-br-sm rounded-bl-sm shadow-md p-2 w-[14rem] flex flex-col gap-2">
+        <div className="absolute top-[4rem] right-4 bg-white rounded-tr-none rounded-tl-sm rounded-br-sm rounded-bl-sm shadow-md p-2 w-[14rem] flex flex-col gap-2 z-20">
           <div className="roudned-md p-2 shadow-md bg-mainButtonColor">
             <p className="text-xl text-gray-800 font-semibold">
               Hello, {user?.account_name}

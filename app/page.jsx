@@ -15,8 +15,8 @@ const Page = () => {
       <header className="flex justify-center items-center p-4 bg-gradient-to-r from-gradientStart to-gradientEnd">
         <p className="text-2xl text-white font-bold">HONESTY STORE</p>
       </header>
-      <div className="w-full px-4 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-4rem)] mt-2">
-        <div className="sm:flex hidden">
+      <div className="w-full px-4 flex sm:h-[calc(100vh-6rem)] h-[calc(100vh-4rem)] mt-2">
+        <div className="sm:flex hidden pr-2">
           <FilterBar setFilter={setFilter} filter={filter} />
         </div>
 

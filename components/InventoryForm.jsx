@@ -1,13 +1,85 @@
 "use client";
+import { duration } from "@node_modules/@mui/material";
 import { useState, useEffect, useCallback } from "react";
+import { toast } from "react-hot-toast";
 
-const CreateInventory = () => {
+const CreateInventory = ({ productName }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
+  const [supplierQuery, setSupplierQuery] = useState("");
+  const [wholesalePrice, setWholesalePrice] = useState(0);
+  const [profitMargin, setProfitMargin] = useState(0);
+  const [retailPrice, setRetailPrice] = useState(0);
+  const [manualRetailPrice, setManualRetailPrice] = useState(false);
+
+  useEffect(() => {
+    if (productName) {
+      const fetchProduct = async () => {
+        try {
+          setDataLoading(true);
+          const response = await fetch(
+            `/api/admin/query?product=${productName}`
+          );
+          const data = await response.json();
+          setSelectedProduct(
+            Array.isArray(data?.data) ? data.data[0].product_id : null
+          );
+        } catch (error) {
+          console.error("Failed to fetch product: ", error);
+        } finally {
+          setDataLoading(false);
+        }
+      };
+      fetchProduct();
+    }
+  }, [productName]);
+
+  useEffect(() => {
+    if (!manualRetailPrice) {
+      setRetailPrice(wholesalePrice + profitMargin);
+    }
+  }, [wholesalePrice, profitMargin, manualRetailPrice]);
 
   const postInventory = async (e) => {
     e.preventDefault();
+    if (
+      !selectedSupplier ||
+      wholesalePrice <= 0 ||
+      profitMargin <= 0 ||
+      retailPrice <= 0 ||
+      e.target.total_units.value <= 0 ||
+      !e.target.inventory_expiration_date.value ||
+      e.target.inventory_expiration_date.value <
+        new Date().toISOString().split("T")[0]
+    ) {
+      toast.error(
+        "One or more invalid inputs. Please check the inputs and try again.",
+        {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        }
+      );
+      return;
+    }
+
+    if (retailPrice < wholesalePrice + profitMargin) {
+      toast.error("Please check the retail price and try again.", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
+      return;
+    }
+
     try {
+      setLoading(true);
       const formData = new FormData(e.target);
 
       formData.append("inventory_product", selectedProduct);
@@ -17,86 +89,152 @@ const CreateInventory = () => {
         method: "POST",
         body: formData,
       });
-      const data = await response.json();
-      console.log(data);
+
+      if (response.ok) {
+        toast.success("Inventory Created Successfully!", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+        e.target.reset();
+        setSupplierQuery("");
+        setWholesalePrice(0);
+        setProfitMargin(0);
+        setRetailPrice(0);
+        setManualRetailPrice(false);
+      } else {
+        toast.error("Failed to create inventory. Please try again later.", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
     } catch (error) {
-      console.error("Failed to post inventory: ", error);
+      toast.error("Failed to create inventory. Please try again later.");
+      console.error("Failed to post inventory: ", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <form
-      action="createInventory"
       onSubmit={(e) => postInventory(e)}
       className="flex flex-col w-full gap-2 h-fit px-1"
     >
-      <label htmlFor="wholesale_price">Wholesale Price</label>
+      <label htmlFor="inventory_supplier">
+        Supplier<span className="text-red-600">*</span>
+      </label>
+      <SupplierInput
+        setSelectedSupplier={setSelectedSupplier}
+        setSupplierQuery={setSupplierQuery}
+        supplierQuery={supplierQuery}
+      />
+
+      <label htmlFor="wholesale_price">
+        Wholesale Price <span className="text-red-600">*</span>
+      </label>
       <input
         type="number"
-        placeholder="wholesale price"
         id="wholesale_price"
         name="wholesale_price"
-        className="border h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border-gray-300"
+        className="border p-2 rounded-lg"
         required
+        value={wholesalePrice}
+        onChange={(e) => setWholesalePrice(parseFloat(e.target.value) || "")}
       />
 
-      <label htmlFor="inventory_product">Product</label>
-      <ProductInput setSelectedProduct={setSelectedProduct} />
-      <label htmlFor="inventory_supplier">Supplier</label>
-      <SupplierInput setSelectedSupplier={setSelectedSupplier} />
-      <label htmlFor="total_units">Total Units</label>
+      <label htmlFor="inventory_profit_margin">
+        Profit Margin<span className="text-red-600">*</span>
+      </label>
       <input
         type="number"
-        placeholder="total units"
-        id="total_units"
-        name="total_units"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        id="inventory_profit_margin"
+        name="inventory_profit_margin"
+        className="border p-2 rounded-lg"
         required
+        value={profitMargin}
+        onChange={(e) => setProfitMargin(parseFloat(e.target.value) || "")}
       />
 
-      <label htmlFor="retail_price">Retail Price</label>
+      <div className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          id="manual_retail_price"
+          className="h-4 w-4"
+          checked={manualRetailPrice}
+          onChange={(e) => setManualRetailPrice(e.target.checked)}
+        />
+        <label htmlFor="manual_retail_price">Set Retail Price Manually</label>
+      </div>
+
+      <label htmlFor="retail_price">
+        Retail Price<span className="text-red-600">*</span>
+      </label>
       <input
         type="number"
-        placeholder="retail price"
         id="retail_price"
         name="retail_price"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        className="border p-2 rounded-lg"
+        required
+        value={retailPrice}
+        onChange={(e) =>
+          manualRetailPrice
+            ? setRetailPrice(parseFloat(e.target.value) || "")
+            : null
+        }
+        readOnly={!manualRetailPrice}
+      />
+
+      <label htmlFor="total_units">
+        Total Units<span className="text-red-600">*</span>
+      </label>
+      <input
+        type="number"
+        id="total_units"
+        name="total_units"
+        className="border p-2 rounded-lg"
+        required
+      />
+
+      <label htmlFor="inventory_expiration_date">
+        Expiration Date<span className="text-red-600">*</span>
+      </label>
+      <input
+        type="date"
+        id="inventory_expiration_date"
+        name="inventory_expiration_date"
+        className="border p-2 rounded-lg"
         required
       />
 
       <label htmlFor="inventory_description">Inventory Description</label>
       <textarea
         id="inventory_description"
-        placeholder="inventory description"
         name="inventory_description"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-        required
-      />
-
-      <label htmlFor="inventory_profit_margin">Profit Margin</label>
-      <input
-        type="number"
-        placeholder="profit margin"
-        id="inventory_profit_margin"
-        name="inventory_profit_margin"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-        required
-      />
-
-      <label htmlFor="inventory_expiration_date">Expiration Date</label>
-      <input
-        type="date"
-        id="inventory_expiration_date"
-        name="inventory_expiration_date"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-        required
+        className="border p-2 rounded-lg"
       />
 
       <button
         type="submit"
-        className="bg-customerRibbonGreen text-white rounded-lg p-2 w-fit bg-mainButtonColor self-end"
+        className={` text-white rounded-lg p-2 w-fit ${
+          loading || dataLoading
+            ? "bg-mainButtonColorDisabled"
+            : "bg-mainButtonColor"
+        }`}
+        disabled={loading || dataLoading}
       >
-        Create Inventory
+        {loading ? "Creating Inventory..." : "Create Inventory"}
       </button>
     </form>
   );
@@ -104,107 +242,11 @@ const CreateInventory = () => {
 
 export default CreateInventory;
 
-const ProductInput = ({ setSelectedProduct }) => {
-  const [productsQuery, setproductsQuery] = useState("");
-  const [productsQueryResults, setproductsQueryResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [debounceTimer, setDebounceTimer] = useState(null);
-  const [focused, setFocused] = useState(false);
-
-  const handleProductSearch = useCallback(async (productsQuery) => {
-    if (!productsQuery.trim()) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/admin/query?product=${productsQuery}`);
-      const data = await response.json();
-      console.log(data);
-      setproductsQueryResults(Array.isArray(data?.data) ? data.data : []);
-    } catch (err) {
-      console.error("Error fetching suppliers:", err);
-      setproductsQueryResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const handleInputChange = (e) => {
-    const value = e.target.value;
-    setproductsQuery(value);
-    setproductsQueryResults([]);
-    setLoading(true);
-
-    if (debounceTimer) clearTimeout(debounceTimer);
-
-    const newTimer = setTimeout(() => {
-      handleProductSearch(value);
-    }, 500);
-    setDebounceTimer(newTimer);
-  };
-
-  const handleFocus = () => setFocused(true);
-  const handleBlur = () => {
-    setTimeout(() => setFocused(false), 300);
-  };
-
-  return (
-    <div
-      className={`relative flex flex-col border rounded-lg h-fit ${
-        focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
-      }`}
-    >
-      <input
-        type="text"
-        placeholder="Type Product Name"
-        onChange={handleInputChange}
-        value={productsQuery}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        className="border-none p-2 focus:outline-none rounded-lg"
-      />
-      {focused && (
-        <div>
-          {loading && (
-            <p className="p-2 bg-gray-100 rounded-bl-lg rounded-br-lg">
-              Searching...
-            </p>
-          )}
-          {!loading && productsQuery && productsQueryResults.length === 0 && (
-            <p className="p-2 text-gray-400 bg-gray-100 rounded-bl-lg rounded-br-lg">
-              No Products found
-            </p>
-          )}
-          {productsQueryResults.length > 0 && (
-            <ul>
-              {productsQueryResults.map((product, index) => (
-                <li
-                  key={product.product_id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setproductsQuery(product.product_name);
-                    setSelectedProduct(product.product_id);
-                    setFocused(false);
-                  }}
-                  className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
-                    index === productsQueryResults.length - 1
-                      ? "rounded-b-lg"
-                      : ""
-                  }`}
-                >
-                  {product.product_name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-const SupplierInput = ({ setSelectedSupplier }) => {
-  const [supplierQuery, setSupplierQuery] = useState("");
+const SupplierInput = ({
+  setSelectedSupplier,
+  supplierQuery,
+  setSupplierQuery,
+}) => {
   const [supplierQueryResults, setSupplierQueryResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [debounceTimer, setDebounceTimer] = useState(null);
@@ -264,6 +306,7 @@ const SupplierInput = ({ setSelectedSupplier }) => {
         onFocus={handleFocus}
         onBlur={handleBlur}
         className="border-none p-2 focus:outline-none rounded-lg"
+        required
       />
       {focused && (
         <div>
