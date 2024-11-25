@@ -191,7 +191,7 @@ export async function POST(request) {
       user.account_id,
       "Inventory",
       inventoryDoc.id,
-      "Added a new inventory"
+      "CREATE"
     );
 
     return NextResponse.json(
