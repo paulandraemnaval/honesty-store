@@ -1,9 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import SignInForm from "./SignInForm";
-import bcryptjs from "bcryptjs";
 const AuthForm = () => {
   const router = useRouter();
 
@@ -22,7 +21,8 @@ const AuthForm = () => {
         method: "POST",
         body: formData,
       });
-      if (request.status === 200) {
+      const data = await request.json();
+      if (request.ok) {
         toast.success("Login successful!", {
           duration: 3000,
           style: {
@@ -30,19 +30,22 @@ const AuthForm = () => {
             padding: "16px",
           },
         });
+        console.log(data.message);
         setIsCompleted(true);
-        setTimeout(() => {
-          router.push("/admin/user");
-        }, 1000);
+        router.push("/admin/user");
         console.log("Login successful.");
       } else {
-        toast.error("Login failed. Please try again.", {
-          duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
-        });
+        toast.error(
+          `Login failed. Please try again. Status: ${request.status}`,
+          {
+            duration: 3000,
+            style: {
+              fontSize: "1.2rem",
+              padding: "16px",
+            },
+          }
+        );
+        console.log(data.message);
       }
     } catch (err) {
       toast.error("An error occurred. Please try again later.", {

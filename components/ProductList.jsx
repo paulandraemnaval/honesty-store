@@ -265,15 +265,18 @@ const ProductList = ({
                       </span>
                     )}
                     {pathname === "/admin/user/products" && (
-                      <div className="bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor">
+                      <Link
+                        href={`/admin/user/manage/create_inventory/${product.product_name}`}
+                        className=" bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
+                      >
                         <Image
                           src={addInventoryIcon}
-                          alt="Add product"
+                          alt="Add inventory"
                           width={30}
                           height={30}
                           className="object-cover w-fit cursor-pointer"
                         />
-                      </div>
+                      </Link>
                     )}
                   </div>
                 </div>
