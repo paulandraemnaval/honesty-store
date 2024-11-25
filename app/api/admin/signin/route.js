@@ -105,9 +105,6 @@ export async function POST(request) {
       },
       {
         status: 200,
-        headers: {
-          "Set-Cookie": cookies().serialize(),
-        },
       }
     );
   } catch (error) {
