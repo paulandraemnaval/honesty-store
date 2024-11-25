@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import SignInForm from "./SignInForm";
@@ -32,7 +32,7 @@ const AuthForm = () => {
         });
         console.log(data.message);
         setIsCompleted(true);
-        router.push("/admin/user");
+        router.push("/admin/user/");
         console.log("Login successful.");
       } else {
         toast.error(
