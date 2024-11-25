@@ -13,7 +13,18 @@ const ProductForm = ({ productID = "" }) => {
   const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("");
-  const [categoryValid, setCategoryValid] = useState(true);
+  const [categoryValid, setCategoryValid] = useState(false);
+
+  const [validationMessages, setValidationMessages] = useState({
+    image_input: "",
+    product_name: "",
+    product_sku: "",
+    product_uom: "",
+    product_reorder_point: "",
+    product_weight: "",
+    product_weight_unit: "",
+    product_dimensions: "",
+  });
 
   const handleImage = (e) => {
     if (e.target.files.length === 0) return;
@@ -55,6 +66,54 @@ const ProductForm = ({ productID = "" }) => {
       fetchProductData();
     }
   }, [productID]);
+
+  const validateForm = (formData) => {
+    const messages = {
+      image_input:
+        image.file || product?.product_image_url
+          ? ""
+          : "Please select an image.",
+      product_name: formData.get("product_name").trim()
+        ? ""
+        : "Product name is required.",
+      product_category: selectedCategory ? "" : "Category is required.",
+      product_sku: formData.get("product_sku")
+        ? ""
+        : "Product SKU is required.",
+      product_uom: formData.get("product_uom")
+        ? ""
+        : "Product UOM is required.",
+      product_reorder_point:
+        Number(formData.get("product_reorder_point")) > 0
+          ? ""
+          : "Reorder point must be greater than 0.",
+      product_weight:
+        Number(formData.get("product_weight")) > 0
+          ? ""
+          : "Weight must be greater than 0.",
+      product_weight_unit: formData.get("product_weight_unit")
+        ? ""
+        : "Weight unit is required.",
+      product_dimensions: formData.get("product_dimensions")
+        ? ""
+        : "Dimensions are required.",
+    };
+
+    setValidationMessages(messages);
+
+    Object.keys(messages).forEach((name) => {
+      const input = document.getElementById(name);
+      if (input) {
+        if (messages[name]) {
+          input.classList.add("border-red-500", "border");
+        } else {
+          input.classList.remove("border-red-500");
+        }
+      }
+    });
+
+    return Object.values(messages).every((msg) => msg === "");
+  };
 
   const postProduct = async (e) => {
     e.preventDefault();
@@ -134,74 +193,13 @@ const ProductForm = ({ productID = "" }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Perform validation logic
-    const form = e.target;
-    const formData = new FormData(form);
-    const inputs = form.querySelectorAll("input");
-    let formValid = true;
+    const formData = new FormData(e.target);
 
-    if (!image.file) {
-      document
-        .querySelector(".image_input")
-        .classList.add("ring-1", "ring-red-600");
-      formValid = false;
-    } else {
-      document
-        .querySelector(".image_input")
-        .classList.remove("ring-1", "ring-red-600");
-    }
-
-    console.log(
-      formData.get("product_reorder_point"),
-
-      Number(formData.get("product_reorder_point")) <= 0,
-      formData.get("product_weight"),
-      Number(formData.get("product_weight")) <= 0
-    );
-
-    if (
-      Number(formData.get("product_reorder_point")) <= 0 ||
-      !formData.get("product_reorder_point")
-    ) {
-      document
-        .querySelector("#product_reorder_point")
-        .classList.add("ring-1", "ring-red-600");
-      formValid = false;
-    } else {
-      document
-        .querySelector("#product_reorder_point")
-        .classList.remove("ring-1", "ring-red-600");
-    }
-
-    if (
-      Number(formData.get("product_weight")) <= 0 ||
-      !formData.get("product_weight")
-    ) {
-      document
-        .getElementById("product_weight")
-        .classList.add("ring-1", "ring-red-600");
-      formValid = false;
-    } else {
-      document
-        .getElementById("product_weight")
-        .classList.remove("ring-1", "ring-red-600");
-    }
-
-    inputs.forEach((input) => {
-      if (
-        !input.value.trim() &&
-        input.type !== "file" &&
-        input.type !== "hidden"
-      ) {
-        input.classList.add("ring-1", "ring-red-600");
-        formValid = false;
-      } else {
-        input.classList.remove("ring-1", "ring-red-600");
-      }
-    });
-
-    if (!formValid || !categoryValid) {
-      toast.error("Please fill all required fields.");
+    if (!validateForm(formData)) {
+      toast.error("Please check the values and try again.", {
+        duration: 3000,
+        style: { fontSize: "1.2rem", padding: "16px" },
+      });
       return;
     }
 
@@ -215,9 +213,9 @@ const ProductForm = ({ productID = "" }) => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col w-full gap-2 h-fit py-2 px-1 z-0"
+      className="flex flex-col w-full h-fit py-2 px-1 z-0"
     >
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex flex-col w-full ">
         <Image
           src={image.url || product?.product_image_url || placeholderImage}
           width={100}
@@ -225,14 +223,20 @@ const ProductForm = ({ productID = "" }) => {
           className="object-scale-down max-h-[100px] max-w-[100px] rounded-lg"
           alt="Product"
         />
-        <label htmlFor="product_name">Product Name</label>
+        <label htmlFor="product_name">
+          Product Name <span className="text-red-500">*</span>
+        </label>
         <input
+          id="product_name"
           type="text"
           name="product_name"
           placeholder="Product name"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
           defaultValue={product?.product_name || ""}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_name || "\u00A0"}
+        </p>
         <label htmlFor="product_category">
           Product Category <span className="text-red-600">*</span>
         </label>
@@ -242,6 +246,9 @@ const ProductForm = ({ productID = "" }) => {
           setCategoryName={setCategoryName}
           setCategoryValid={setCategoryValid}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_category || "\u00A0"}
+        </p>
         <label htmlFor="file">
           Product Image <span className="text-red-600">*</span>
         </label>
@@ -252,7 +259,7 @@ const ProductForm = ({ productID = "" }) => {
           name="file"
           onChange={handleImage}
         />
-        <div className="flex image_input rounded-lg">
+        <div className="flex image_input rounded-lg" id="image_input">
           <label
             htmlFor="file"
             className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
@@ -263,11 +270,14 @@ const ProductForm = ({ productID = "" }) => {
             {product?.product_image_url || image.url || "No image selected"}
           </p>
         </div>
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.image_input || "\u00A0"}
+        </p>
         <label htmlFor="product_description">Product Description</label>
         <textarea
           name="product_description"
           placeholder="Product description"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
           defaultValue={product?.product_description || ""}
         />
         <label htmlFor="product_sku">
@@ -281,6 +291,9 @@ const ProductForm = ({ productID = "" }) => {
           id="product_sku"
           defaultValue={product?.product_sku || ""}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_sku || "\u00A0"}
+        </p>
         <label htmlFor="product_uom">
           Product UOM<span className="text-red-600">*</span>
         </label>
@@ -292,6 +305,9 @@ const ProductForm = ({ productID = "" }) => {
           id="product_uom"
           defaultValue={product?.product_uom || ""}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_uom || "\u00A0"}
+        </p>
         <label htmlFor="product_reorder_point">
           Product Reorder Point<span className="text-red-600">*</span>
         </label>
@@ -303,6 +319,9 @@ const ProductForm = ({ productID = "" }) => {
           id="product_reorder_point"
           defaultValue={product?.product_reorder_point || ""}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_reorder_point || "\u00A0"}
+        </p>
         <label htmlFor="product_weight">
           Product Weight<span className="text-red-600">*</span>
         </label>
@@ -314,6 +333,9 @@ const ProductForm = ({ productID = "" }) => {
           id="product_weight"
           defaultValue={product?.product_weight || ""}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_weight || "\u00A0"}
+        </p>
         <label htmlFor="">
           Product Weight Unit
           <span className="text-red-600">*</span>
@@ -326,7 +348,9 @@ const ProductForm = ({ productID = "" }) => {
           id="product_weight_unit"
           defaultValue={""}
         />
-
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_weight_unit || "\u00A0"}
+        </p>
         <label htmlFor="product_dimension">
           Product Dimensions<span className="text-red-600">*</span>
         </label>
@@ -338,6 +362,9 @@ const ProductForm = ({ productID = "" }) => {
           id="product_dimensions"
           defaultValue={product?.product_dimension || ""}
         />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_dimensions || "\u00A0"}
+        </p>
       </div>
 
       <div className="gap-2 w-full items-start flex flex-row-reverse">
@@ -432,6 +459,7 @@ const CategoryInput = ({
       className={`relative flex flex-col border rounded-lg h-fit z-0 ${
         focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
       }`}
+      id="product_category"
     >
       <input
         type="text"

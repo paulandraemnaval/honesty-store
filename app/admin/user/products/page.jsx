@@ -28,7 +28,7 @@ const productspage = () => {
               setSearchKeyword={setSearchKeyword}
             />
           </div>
-          <div className="sm:hidden block z-20">
+          <div className="sm:hidden block">
             <MobileFilter
               setFilter={setFilter}
               filter={filter}
