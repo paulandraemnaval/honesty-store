@@ -35,6 +35,12 @@ export default async function middleware(req) {
     return NextResponse.redirect(new URL("/admin", req.nextUrl));
   }
 
+  console.log("Path:", path);
+  console.log("Protected Route:", isProtectedRoute);
+  console.log("Public Route:", isPublicRoute);
+  console.log("Session Data:", sessionData);
+  console.log("Session Valid:", isSessionValid);
+
   if (
     isPublicRoute &&
     isSessionValid &&
