@@ -23,6 +23,7 @@ export default async function middleware(req) {
   const isPublicRoute = publicRoutes.includes(path);
 
   const encryptedSession = cookies().get("session")?.value;
+
   const sessionData = await decrypt(encryptedSession);
 
   // if (!sessionData) {
@@ -35,12 +36,16 @@ export default async function middleware(req) {
     return NextResponse.redirect(new URL("/admin", req.nextUrl));
   }
 
+  console.log("---------------------");
+  console.log("Request URL:", req.nextUrl.href);
+  console.log("encryptedSession:", encryptedSession);
+
   console.log("Path:", path);
   console.log("Protected Route:", isProtectedRoute);
   console.log("Public Route:", isPublicRoute);
   console.log("Session Data:", sessionData);
   console.log("Session Valid:", isSessionValid);
-
+  console.log("---------------------");
   if (
     isPublicRoute &&
     isSessionValid &&
