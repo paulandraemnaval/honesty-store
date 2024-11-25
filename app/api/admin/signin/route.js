@@ -33,10 +33,11 @@ async function createSession(userId, path) {
   const sessionId = sessionDoc.id;
   const encryptedSession = await encrypt({ sessionId, expiresAt });
   cookies().set("session", encryptedSession, {
-    httpOnly: true,
-    secure: true,
-    expires: expiresAt,
-    path: "/",
+    httpOnly: true, // Prevents client-side access to the cookie
+    secure: true, // Ensures the cookie is sent only over HTTPS
+    sameSite: "None", // Allows cross-origin requests
+    expires: expiresAt, // Sets expiration date
+    path: "/", // Cookie is available across the entire app
   });
 
   return sessionData;
