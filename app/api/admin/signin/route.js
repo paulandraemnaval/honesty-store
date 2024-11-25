@@ -102,7 +102,12 @@ export async function POST(request) {
         sessionData,
         logData,
       },
-      { status: 200 }
+      {
+        status: 200,
+        headers: {
+          "Set-Cookie": cookies().serialize(),
+        },
+      }
     );
   } catch (error) {
     console.log("Error in sign-in:", error.message);
