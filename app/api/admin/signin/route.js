@@ -36,6 +36,7 @@ async function createSession(userId, path) {
     httpOnly: true,
     secure: true,
     expires: expiresAt,
+    sameSite: "lax",
     path: "/",
   });
 
