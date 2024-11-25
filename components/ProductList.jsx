@@ -220,7 +220,10 @@ const ProductList = ({
         {filteredProducts.length > 0 && !loading ? (
           <>
             {pathname.includes("admin") && (
-              <div className="flex flex-col justify-center gap-4 px-4 py-8">
+              <Link
+                className="flex flex-col justify-center gap-4 px-4 py-8"
+                href="manage/add_product"
+              >
                 <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all">
                   <span className="text-base font-semibold break-all flex flex-col items-center justify-center text-mainButtonColor">
                     Add product
@@ -233,7 +236,7 @@ const ProductList = ({
                     />
                   </span>
                 </div>
-              </div>
+              </Link>
             )}
             {filteredProducts.map((product) => (
               <div

@@ -32,7 +32,7 @@ const AuthForm = () => {
         });
         console.log(data.message);
         setIsCompleted(true);
-        router.push("/admin/user/");
+        router.replace("/admin/user/");
         console.log("Login successful.");
       } else {
         toast.error(
