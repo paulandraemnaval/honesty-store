@@ -16,14 +16,14 @@ const ProductForm = ({ productID = "" }) => {
   const [categoryValid, setCategoryValid] = useState(false);
 
   const [validationMessages, setValidationMessages] = useState({
-    image_input: "",
-    product_name: "",
-    product_sku: "",
-    product_uom: "",
-    product_reorder_point: "",
-    product_weight: "",
-    product_weight_unit: "",
-    product_dimensions: "",
+    image_input: "\u00A0",
+    product_name: "\u00A0",
+    product_sku: "\u00A0",
+    product_uom: "\u00A0",
+    product_reorder_point: "\u00A0",
+    product_weight: "\u00A0",
+    product_weight_unit: "\u00A0",
+    product_dimensions: "\u00A0",
   });
 
   const handleImage = (e) => {
@@ -71,48 +71,54 @@ const ProductForm = ({ productID = "" }) => {
     const messages = {
       image_input:
         image.file || product?.product_image_url
-          ? ""
+          ? "\u00A0"
           : "Please select an image.",
       product_name: formData.get("product_name").trim()
-        ? ""
+        ? "\u00A0"
         : "Product name is required.",
-      product_category: selectedCategory ? "" : "Category is required.",
-      product_sku: formData.get("product_sku")
-        ? ""
+      product_category: categoryValid
+        ? "\u00A0"
+        : "Invalid Category. Please select from the dropdown.",
+      product_sku: formData.get("product_sku").trim()
+        ? "\u00A0"
         : "Product SKU is required.",
-      product_uom: formData.get("product_uom")
-        ? ""
+      product_uom: formData.get("product_uom").trim()
+        ? "\u00A0"
         : "Product UOM is required.",
       product_reorder_point:
         Number(formData.get("product_reorder_point")) > 0
-          ? ""
+          ? "\u00A0"
           : "Reorder point must be greater than 0.",
       product_weight:
         Number(formData.get("product_weight")) > 0
-          ? ""
+          ? "\u00A0"
           : "Weight must be greater than 0.",
-      product_weight_unit: formData.get("product_weight_unit")
-        ? ""
+      product_weight_unit: formData.get("product_weight_unit").trim()
+        ? "\u00A0"
         : "Weight unit is required.",
-      product_dimensions: formData.get("product_dimensions")
-        ? ""
+      product_dimensions: formData.get("product_dimensions").trim()
+        ? "\u00A0"
         : "Dimensions are required.",
     };
 
     setValidationMessages(messages);
 
-    Object.keys(messages).forEach((name) => {
-      const input = document.getElementById(name);
+    Object.keys(messages).forEach((id) => {
+      const input = document.getElementById(id);
       if (input) {
-        if (messages[name]) {
-          input.classList.add("border-red-500", "border");
+        if (messages[id] !== "\u00A0") {
+          input.classList.add("border-red-500");
+          input.classList.remove("border-gray-300");
         } else {
           input.classList.remove("border-red-500");
+          input.classList.add("border-gray-300");
         }
       }
     });
 
-    return Object.values(messages).every((msg) => msg === "");
+    return (
+      Object.values(messages).every((msg) => msg === "\u00A0") && categoryValid
+    );
   };
 
   const postProduct = async (e) => {
@@ -144,6 +150,7 @@ const ProductForm = ({ productID = "" }) => {
         });
         e.target.reset();
         setImage({ file: null, url: "" });
+        setCategoryName("");
       } else {
         toast.error("Product addition failed. Please try again.", {
           duration: 3000,
@@ -196,7 +203,7 @@ const ProductForm = ({ productID = "" }) => {
     const formData = new FormData(e.target);
 
     if (!validateForm(formData)) {
-      toast.error("Please check the values and try again.", {
+      toast.error("Please check the inputs and try again.", {
         duration: 3000,
         style: { fontSize: "1.2rem", padding: "16px" },
       });
@@ -235,7 +242,7 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={product?.product_name || ""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_name || "\u00A0"}
+          {validationMessages.product_name}
         </p>
         <label htmlFor="product_category">
           Product Category <span className="text-red-600">*</span>
@@ -247,7 +254,7 @@ const ProductForm = ({ productID = "" }) => {
           setCategoryValid={setCategoryValid}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_category || "\u00A0"}
+          {validationMessages.product_category}
         </p>
         <label htmlFor="file">
           Product Image <span className="text-red-600">*</span>
@@ -271,15 +278,8 @@ const ProductForm = ({ productID = "" }) => {
           </p>
         </div>
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.image_input || "\u00A0"}
+          {validationMessages.image_input}
         </p>
-        <label htmlFor="product_description">Product Description</label>
-        <textarea
-          name="product_description"
-          placeholder="Product description"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
-          defaultValue={product?.product_description || ""}
-        />
         <label htmlFor="product_sku">
           Product SKU<span className="text-red-600">*</span>
         </label>
@@ -292,7 +292,7 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={product?.product_sku || ""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_sku || "\u00A0"}
+          {validationMessages.product_sku}
         </p>
         <label htmlFor="product_uom">
           Product UOM<span className="text-red-600">*</span>
@@ -306,7 +306,7 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={product?.product_uom || ""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_uom || "\u00A0"}
+          {validationMessages.product_uom}
         </p>
         <label htmlFor="product_reorder_point">
           Product Reorder Point<span className="text-red-600">*</span>
@@ -320,7 +320,7 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={product?.product_reorder_point || ""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_reorder_point || "\u00A0"}
+          {validationMessages.product_reorder_point}
         </p>
         <label htmlFor="product_weight">
           Product Weight<span className="text-red-600">*</span>
@@ -334,7 +334,7 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={product?.product_weight || ""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_weight || "\u00A0"}
+          {validationMessages.product_weight}
         </p>
         <label htmlFor="">
           Product Weight Unit
@@ -349,7 +349,7 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_weight_unit || "\u00A0"}
+          {validationMessages.product_weight_unit}
         </p>
         <label htmlFor="product_dimension">
           Product Dimensions<span className="text-red-600">*</span>
@@ -363,8 +363,15 @@ const ProductForm = ({ productID = "" }) => {
           defaultValue={product?.product_dimension || ""}
         />
         <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_dimensions || "\u00A0"}
+          {validationMessages.product_dimensions}
         </p>
+        <label htmlFor="product_description">Product Description</label>
+        <textarea
+          name="product_description"
+          placeholder="Product description"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
+          defaultValue={product?.product_description || ""}
+        />
       </div>
 
       <div className="gap-2 w-full items-start flex flex-row-reverse">
@@ -376,7 +383,7 @@ const ProductForm = ({ productID = "" }) => {
           disabled={loading}
         >
           {loading
-            ? "Saving..."
+            ? "Uploading..."
             : productID
             ? "Update Product"
             : "Create Product"}

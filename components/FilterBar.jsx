@@ -6,7 +6,7 @@ import downArrow from "@public/icons/down_arrow_icon.png";
 import upArrow from "@public/icons/up_arrow_icon.png";
 import plusIcon from "@public/icons/plus_icon.png";
 import Image from "next/image";
-
+import Link from "next/link";
 const FilterBar = ({
   setFilter,
   filter,
@@ -71,10 +71,13 @@ const FilterBar = ({
       {/* Category Filter */}
       <div className="mb-4">
         {pathName.includes("admin") && (
-          <button className="w-full h-10 rouded-sm font-semibold bg-gray-100  border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 border-mainButtonColor hover:bg-gray-200 rounded-sm">
+          <Link
+            href="/admin/user/manage/create_category/"
+            className="w-full h-10 rouded-sm font-semibold bg-gray-100  border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 border-mainButtonColor hover:bg-gray-200 rounded-sm"
+          >
             Create Category
             <Image src={plusIcon} alt="plus" height={20} width={20} />
-          </button>
+          </Link>
         )}
         <button
           className="w-full text-left p-2 flex justify-between items-center object-cover "

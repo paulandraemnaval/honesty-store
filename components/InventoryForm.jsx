@@ -12,7 +12,14 @@ const CreateInventory = ({ productName }) => {
   const [profitMargin, setProfitMargin] = useState(0);
   const [retailPrice, setRetailPrice] = useState(0);
   const [manualRetailPrice, setManualRetailPrice] = useState(false);
-
+  const [validationMessages, setValidationMessages] = useState({
+    inventory_supplier: "\u00A0",
+    inventory_wholesale_price: "\u00A0",
+    inventory_profit_margin: "\u00A0",
+    inventory_retail_price: "\u00A0",
+    inventory_total_units: "\u00A0",
+    inventory_expiration_date: "\u00A0",
+  });
   useEffect(() => {
     if (productName) {
       const fetchProduct = async () => {
@@ -41,58 +48,70 @@ const CreateInventory = ({ productName }) => {
     }
   }, [wholesalePrice, profitMargin, manualRetailPrice]);
 
-  const postInventory = async (e) => {
-    e.preventDefault();
+  const validateForm = (formData) => {
+    const messages = {
+      inventory_supplier: selectedSupplier ? "\u00A0" : "Supplier is required",
+      inventory_wholesale_price:
+        Number(formData.get("inventory_wholesale_price")) > 0
+          ? "\u00A0"
+          : "Wholesale price must be greater than 0",
+      inventory_profit_margin:
+        Number(formData.get("inventory_profit_margin")) > 0
+          ? "\u00A0"
+          : "Profit margin must be greater than 0",
+      inventory_retail_price:
+        Number(formData.get("inventory_retail_price")) > 0
+          ? "\u00A0"
+          : "Retail price must be greater than 0",
+      inventory_total_units:
+        Number(formData.get("inventory_total_units")) > 0
+          ? "\u00A0"
+          : "Total units must be greater than 0",
+      inventory_expiration_date:
+        new Date(formData.get("inventory_expiration_date")) > new Date()
+          ? "\u00A0"
+          : "Expiration date must be in the future",
+    };
 
-    const expirationDate = e.target.inventory_expiration_date.value;
-    const form = e.target;
-    let formValid = true;
+    setValidationMessages(messages);
 
-    // Validate inputs and highlight invalid fields
-    const inputs = form.querySelectorAll("input");
-    inputs.forEach((input) => {
-      if (!input.value.trim() || input.value <= 0) {
-        input.classList.add("ring-1", "ring-red-600");
-        formValid = false;
-      } else {
-        input.classList.remove("ring-1", "ring-red-600");
+    Object.keys(messages).forEach((id) => {
+      const input = document.getElementById(id);
+      if (input) {
+        if (messages[id]) {
+          input.classList.add("border-red-500", "border");
+        } else {
+          input.classList.remove("border-red-500");
+        }
       }
     });
 
-    // Validate if all required fields are filled
-    const isValidForm =
-      selectedSupplier &&
-      wholesalePrice > 0 &&
-      profitMargin > 0 &&
-      retailPrice > 0 &&
-      e.target.total_units.value > 0 &&
-      expirationDate &&
-      expirationDate >= new Date().toISOString().split("T")[0];
+    return Object.values(messages).every((message) => message === "");
+  };
 
-    if (!isValidForm || !formValid) {
-      toast.error(
-        "One or more invalid inputs. Please check the inputs and try again.",
-        {
-          duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
-        }
-      );
-      return;
-    }
-
+  const postInventory = async (e) => {
     try {
       setLoading(true);
       const formData = new FormData(e.target);
+      //to conform to API requirements
       formData.append("inventory_product", selectedProduct);
       formData.append("inventory_supplier", selectedSupplier);
+      formData.append("retail_price", retailPrice);
+      formData.append("wholesale_price", wholesalePrice);
+      formData.append("total_units", formData.get("inventory_total_units"));
+
+      //delete redundant fields
+      formData.delete("inventory_retail_price");
+      formData.delete("inventory_wholesale_price");
+      formData.delete("inventory_total_units");
 
       const response = await fetch("/api/admin/inventory", {
         method: "POST",
         body: formData,
       });
+
+      const data = await response.json();
+      console.log("profit margin: ", formData.get("inventory_profit_margin"));
 
       if (response.ok) {
         toast.success("Inventory Created Successfully!", {
@@ -125,10 +144,29 @@ const CreateInventory = ({ productName }) => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const formData = new FormData(e.target);
+
+    if (!validateForm(formData)) {
+      toast.error("Please check the inputs and try again.", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
+      return;
+    }
+
+    postInventory(e);
+  };
+
   return (
     <form
-      onSubmit={(e) => postInventory(e)}
-      className="flex flex-col w-full gap-2 h-fit px-1"
+      onSubmit={(e) => handleSubmit(e)}
+      className="flex flex-col w-full h-fit px-1"
     >
       <label htmlFor="inventory_supplier">
         Supplier<span className="text-red-600">*</span>
@@ -138,19 +176,25 @@ const CreateInventory = ({ productName }) => {
         setSupplierQuery={setSupplierQuery}
         supplierQuery={supplierQuery}
       />
+      <p className="text-red-600 text-sm mb-2">
+        {validationMessages.inventory_supplier}
+      </p>
 
       <label htmlFor="wholesale_price">
         Wholesale Price <span className="text-red-600">*</span>
       </label>
       <input
         type="number"
-        id="wholesale_price"
-        name="wholesale_price"
+        id="inventory_wholesale_price"
+        name="inventory_wholesale_price"
         className="border p-2 rounded-lg"
         value={wholesalePrice}
         onChange={(e) => setWholesalePrice(parseFloat(e.target.value) || "")}
         placeholder="wholesale price"
       />
+      <p className="text-red-600 text-sm mb-2">
+        {validationMessages.inventory_wholesale_price}
+      </p>
 
       <label htmlFor="inventory_profit_margin">
         Profit Margin<span className="text-red-600">*</span>
@@ -164,7 +208,27 @@ const CreateInventory = ({ productName }) => {
         onChange={(e) => setProfitMargin(parseFloat(e.target.value) || "")}
         placeholder="profit margin"
       />
+      <p className="text-red-600 text-sm mb-2">
+        {validationMessages.inventory_profit_margin}
+      </p>
 
+      <label htmlFor="retail_price">
+        Retail Price<span className="text-red-600">*</span>
+      </label>
+      <input
+        type="number"
+        id="inventory_retail_price"
+        name="inventory_retail_price"
+        className="border p-2 rounded-lg"
+        value={retailPrice}
+        onChange={(e) =>
+          manualRetailPrice
+            ? setRetailPrice(parseFloat(e.target.value) || "")
+            : null
+        }
+        readOnly={!manualRetailPrice}
+        placeholder="retail price"
+      />
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
@@ -176,35 +240,23 @@ const CreateInventory = ({ productName }) => {
         <label htmlFor="manual_retail_price">Set Retail Price Manually</label>
       </div>
 
-      <label htmlFor="retail_price">
-        Retail Price<span className="text-red-600">*</span>
-      </label>
-      <input
-        type="number"
-        id="retail_price"
-        name="retail_price"
-        className="border p-2 rounded-lg"
-        value={retailPrice}
-        onChange={(e) =>
-          manualRetailPrice
-            ? setRetailPrice(parseFloat(e.target.value) || "")
-            : null
-        }
-        readOnly={!manualRetailPrice}
-        placeholder="retail price"
-      />
+      <p className="text-red-600 text-sm mb-2">
+        {validationMessages.inventory_retail_price}
+      </p>
 
       <label htmlFor="total_units">
         Total Units<span className="text-red-600">*</span>
       </label>
       <input
         type="number"
-        id="total_units"
-        name="total_units"
+        id="inventory_total_units"
+        name="inventory_total_units"
         className="border p-2 rounded-lg"
         placeholder="total units"
       />
-
+      <p className="text-red-600 text-sm mb-2">
+        {validationMessages.inventory_total_units}
+      </p>
       <label htmlFor="inventory_expiration_date">
         Expiration Date<span className="text-red-600">*</span>
       </label>
@@ -214,18 +266,21 @@ const CreateInventory = ({ productName }) => {
         name="inventory_expiration_date"
         className="border p-2 rounded-lg"
       />
+      <p className="text-red-600 text-sm mb-2">
+        {validationMessages.inventory_expiration_date}
+      </p>
 
       <label htmlFor="inventory_description">Inventory Description</label>
       <textarea
         id="inventory_description"
         name="inventory_description"
-        className="border p-2 rounded-lg"
+        className="border p-2 rounded-lg mb-2"
         placeholder="inventory description"
       />
 
       <button
         type="submit"
-        className={`text-white rounded-lg p-2 w-fit ${
+        className={`text-white rounded-lg p-2 w-fit self-end ${
           loading || dataLoading
             ? "bg-mainButtonColorDisabled"
             : "bg-mainButtonColor"
@@ -294,6 +349,7 @@ const SupplierInput = ({
       className={`relative flex flex-col border rounded-lg h-fit ${
         focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
       }`}
+      id="inventory_supplier"
     >
       <input
         type="text"
