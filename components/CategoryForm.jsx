@@ -2,7 +2,7 @@
 import { useState } from "react";
 import image_placeholder from "@public/defaultImages/placeholder_image.png";
 import Image from "next/image";
-import closeIconWhite from "@public/icons/close_icon_white.png";
+import closeIcon from "@public/icons/close_icon.png";
 import { toast } from "react-hot-toast";
 const CategoryForm = ({ setShowCategoryForm }) => {
   const [image, setImage] = useState({
@@ -121,11 +121,11 @@ const CategoryForm = ({ setShowCategoryForm }) => {
           </h2>
         </div>
         <div
-          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm "
+          className="w-fit h-fit cursor-pointer"
           onClick={() => setShowCategoryForm(false)}
         >
           <Image
-            src={closeIconWhite}
+            src={closeIcon}
             alt="close icon"
             width={30}
             height={30}

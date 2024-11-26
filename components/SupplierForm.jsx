@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Image from "next/image";
-import closeIconWhite from "@public/icons/close_icon_white.png";
+import closeIcon from "@public/icons/close_icon.png";
 const SupplierForm = ({ setShowSupplierForm }) => {
   const [validationMessages, setValidationMessages] = useState({
     supplier_name: "\u00A0",
@@ -77,11 +77,11 @@ const SupplierForm = ({ setShowSupplierForm }) => {
           </h2>
         </div>
         <div
-          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm"
+          className="w-fit h-fit cursor-pointer "
           onClick={() => setShowSupplierForm(false)}
         >
           <Image
-            src={closeIconWhite}
+            src={closeIcon}
             alt="close icon"
             width={30}
             height={30}

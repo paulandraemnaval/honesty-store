@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-import closeIconWhite from "@public/icons/close_icon_white.png";
+import closeIcon from "@public/icons/close_icon.png";
 import Image from "next/image";
 const CreateInventory = ({ productName, setShowInventoryForm }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -221,11 +221,11 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
           <h2 className="text-sm text-gray-600">{productName}</h2>
         </div>
         <div
-          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm"
+          className="w-fit h-fit cursor-pointer "
           onClick={() => setShowInventoryForm(false)}
         >
           <Image
-            src={closeIconWhite}
+            src={closeIcon}
             alt="close icon"
             width={30}
             height={30}
@@ -337,7 +337,7 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
           type="text"
           id="inventory_retail_price"
           name="inventory_retail_price"
-          className=" border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-8 text-mainButtonColor"
+          className=" border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-8 "
           value={retailPrice === 0 ? "" : retailPrice}
           onChange={(e) => {
             if (manualRetailPrice) {

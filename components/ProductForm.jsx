@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
 import { toast } from "react-hot-toast";
-import closeIconWhite from "@public/icons/close_icon_white.png";
+import closeIcon from "@public/icons/close_icon.png";
 const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
   const [image, setImage] = useState({
     file: null,
@@ -234,11 +234,11 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
           <h2 className="text-sm text-gray-600">Create a new product</h2>
         </div>
         <div
-          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm"
+          className="w-fit h-fit cursor-pointer "
           onClick={() => setShowProductForm(false)}
         >
           <Image
-            src={closeIconWhite}
+            src={closeIcon}
             alt="close icon"
             width={30}
             height={30}
