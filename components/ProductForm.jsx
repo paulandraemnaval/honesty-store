@@ -3,8 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
 import { toast } from "react-hot-toast";
-
-const ProductForm = ({ productID = "" }) => {
+import closeIconWhite from "@public/icons/close_icon_white.png";
+const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
   const [image, setImage] = useState({
     file: null,
     url: "",
@@ -14,10 +14,10 @@ const ProductForm = ({ productID = "" }) => {
   const [loading, setLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [categoryValid, setCategoryValid] = useState(false);
-
   const [validationMessages, setValidationMessages] = useState({
     image_input: "\u00A0",
     product_name: "\u00A0",
+    product_category: "\u00A0",
     product_sku: "\u00A0",
     product_uom: "\u00A0",
     product_reorder_point: "\u00A0",
@@ -151,6 +151,7 @@ const ProductForm = ({ productID = "" }) => {
         e.target.reset();
         setImage({ file: null, url: "" });
         setCategoryName("");
+        setCategoryValid(false);
       } else {
         toast.error("Product addition failed. Please try again.", {
           duration: 3000,
@@ -217,12 +218,39 @@ const ProductForm = ({ productID = "" }) => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center w-full h-full">
+        <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor"></span>
+      </div>
+    );
+  }
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col w-full h-fit py-2 px-1 z-0"
-    >
-      <div className="flex flex-col w-full ">
+    <>
+      <div className="w-full sm:flex hidden px-1 mb-2 py-2">
+        <div className="w-full">
+          <h1 className="text-xl font-bold mr-auto">Make new product</h1>
+          <h2 className="text-sm text-gray-600">Create a new product</h2>
+        </div>
+        <div
+          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm"
+          onClick={() => setShowProductForm(false)}
+        >
+          <Image
+            src={closeIconWhite}
+            alt="close icon"
+            width={30}
+            height={30}
+            className="self-end"
+          />
+        </div>
+      </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col w-full h-fit py-2 px-1 z-0"
+      >
         <Image
           src={image.url || product?.product_image_url || placeholderImage}
           width={100}
@@ -231,33 +259,37 @@ const ProductForm = ({ productID = "" }) => {
           alt="Product"
         />
         <label htmlFor="product_name">
-          Product Name <span className="text-red-500">*</span>
+          Product Name<span className="text-red-500">*</span>
         </label>
         <input
           id="product_name"
           type="text"
           name="product_name"
           placeholder="Product name"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300  ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           defaultValue={product?.product_name || ""}
+          disabled={loading}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_name}
         </p>
         <label htmlFor="product_category">
-          Product Category <span className="text-red-600">*</span>
+          Product Category<span className="text-red-600">*</span>
         </label>
         <CategoryInput
           setSelectedCategory={setSelectedCategory}
           categoryName={categoryName}
           setCategoryName={setCategoryName}
           setCategoryValid={setCategoryValid}
+          parentLoading={loading}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_category}
         </p>
         <label htmlFor="file">
-          Product Image <span className="text-red-600">*</span>
+          Product Image<span className="text-red-600">*</span>
         </label>
         <input
           id="file"
@@ -266,10 +298,12 @@ const ProductForm = ({ productID = "" }) => {
           name="file"
           onChange={handleImage}
         />
-        <div className="flex image_input rounded-lg" id="image_input">
+        <div className="flex rounded-lg border" id="image_input">
           <label
-            htmlFor="file"
-            className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+            htmlFor={`${loading ? "" : "file"}`}
+            className={`bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer ${
+              loading ? "cursor-not-allowed bg-mainButtonColorDisabled" : ""
+            }`}
           >
             Upload Image
           </label>
@@ -286,10 +320,13 @@ const ProductForm = ({ productID = "" }) => {
         <input
           type="text"
           name="product_sku"
-          placeholder="Product SKU"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          placeholder="e.g SKU-1234"
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           id="product_sku"
           defaultValue={product?.product_sku || ""}
+          disabled={loading}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_sku}
@@ -300,10 +337,13 @@ const ProductForm = ({ productID = "" }) => {
         <input
           type="text"
           name="product_uom"
-          placeholder="Product UOM"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          placeholder="e.g. pcs, packs, etc."
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           id="product_uom"
           defaultValue={product?.product_uom || ""}
+          disabled={loading}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_uom}
@@ -312,12 +352,19 @@ const ProductForm = ({ productID = "" }) => {
           Product Reorder Point<span className="text-red-600">*</span>
         </label>
         <input
-          type="number"
+          type="text"
           name="product_reorder_point"
-          placeholder="Product Reorder Point"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          placeholder="e.g. 10"
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           id="product_reorder_point"
           defaultValue={product?.product_reorder_point || ""}
+          disabled={loading}
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*$/) || [""];
+            if (match) e.target.value = match[0];
+          }}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_reorder_point}
@@ -326,12 +373,19 @@ const ProductForm = ({ productID = "" }) => {
           Product Weight<span className="text-red-600">*</span>
         </label>
         <input
-          type="number"
+          type="text"
           name="product_weight"
-          placeholder="Product Weight"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          placeholder="e.g. 10.5"
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           id="product_weight"
           defaultValue={product?.product_weight || ""}
+          disabled={loading}
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*\.?\d*$/) || [""];
+            if (match) e.target.value = match[0];
+          }}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_weight}
@@ -343,10 +397,13 @@ const ProductForm = ({ productID = "" }) => {
         <input
           type="text"
           name="product_weight_unit"
-          placeholder="Product Weight Unit"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          placeholder="e.g. kg, g, lbs, etc."
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           id="product_weight_unit"
           defaultValue={""}
+          disabled={loading}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_weight_unit}
@@ -357,10 +414,13 @@ const ProductForm = ({ productID = "" }) => {
         <input
           type="text"
           name="product_dimensions"
-          placeholder="Product Dimensions"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          placeholder="e.g. 10x10x10"
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+            loading ? "cursor-not-allowed" : ""
+          }`}
           id="product_dimensions"
           defaultValue={product?.product_dimension || ""}
+          disabled={loading}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_dimensions}
@@ -369,27 +429,38 @@ const ProductForm = ({ productID = "" }) => {
         <textarea
           name="product_description"
           placeholder="Product description"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
-          defaultValue={product?.product_description || ""}
-        />
-      </div>
-
-      <div className="gap-2 w-full items-start flex flex-row-reverse">
-        <button
-          type="submit"
-          className={`w-fit p-2 bg-mainButtonColor text-white rounded-md text-sm flex items-center justify-center gap-1 ${
-            loading ? "opacity-60" : ""
+          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2 ${
+            loading ? "cursor-not-allowed" : ""
           }`}
+          defaultValue={product?.product_description || ""}
           disabled={loading}
-        >
-          {loading
-            ? "Uploading..."
-            : productID
-            ? "Update Product"
-            : "Create Product"}
-        </button>
-      </div>
-    </form>
+        />
+
+        <div className="gap-2 w-full items-start flex flex-row-reverse">
+          <button
+            type="submit"
+            className={`w-fit p-2 bg-mainButtonColor text-white rounded-md text-sm flex items-center justify-center gap-1 ${
+              loading ? "opacity-60" : ""
+            }`}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                Uploading Product...
+                <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+              </>
+            ) : productID ? (
+              <>
+                Updating product...
+                <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+              </>
+            ) : (
+              "Create Product"
+            )}
+          </button>
+        </div>
+      </form>
+    </>
   );
 };
 
@@ -400,6 +471,7 @@ const CategoryInput = ({
   categoryName,
   setCategoryName,
   setCategoryValid,
+  parentLoading,
 }) => {
   const [categoryQuery, setCategoryQuery] = useState(categoryName || "");
   const [categoryQueryResults, setCategoryQueryResults] = useState([]);
@@ -465,7 +537,7 @@ const CategoryInput = ({
     <div
       className={`relative flex flex-col border rounded-lg h-fit z-0 ${
         focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
-      }`}
+      } ${parentLoading ? "cursor-not-allowed" : ""}`}
       id="product_category"
     >
       <input
@@ -476,6 +548,7 @@ const CategoryInput = ({
         onFocus={handleFocus}
         onBlur={handleBlur}
         className="border-none p-2 focus:outline-none rounded-lg"
+        disabled={parentLoading}
       />
       {focused && (
         <div>

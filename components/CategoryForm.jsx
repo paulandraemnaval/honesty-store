@@ -2,8 +2,9 @@
 import { useState } from "react";
 import image_placeholder from "@public/defaultImages/placeholder_image.png";
 import Image from "next/image";
+import closeIconWhite from "@public/icons/close_icon_white.png";
 import { toast } from "react-hot-toast";
-const CategoryForm = () => {
+const CategoryForm = ({ setShowCategoryForm }) => {
   const [image, setImage] = useState({
     file: null,
     url: "",
@@ -111,79 +112,102 @@ const CategoryForm = () => {
   };
 
   return (
-    <form
-      action=""
-      onSubmit={(e) => handleSubmit(e)}
-      className="flex flex-col px-1 py-2"
-    >
-      <Image
-        src={image.url || image_placeholder}
-        alt="categoryImage"
-        className="object-scale-down rounded-lg"
-        height={100}
-        width={100}
-      />
-      <label htmlFor="category_name" className="">
-        Category Name<span className="text-red-500 text-sm">*</span>
-      </label>
-      <input
-        type="text"
-        id="category_name"
-        name="category_name"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-      />
-      <p className="text-red-500 text-sm mb-2">
-        {validationMessages.category_name}
-      </p>
-
-      <label className="">
-        Category Image
-        <span className="text-red-500 text-sm">*</span>
-      </label>
-      <div className="flex rounded-lg" id="category_image">
-        <label
-          htmlFor="file"
-          className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+    <>
+      <div className="w-full sm:flex hidden px-1 mb-2 py-2">
+        <div className="w-full">
+          <h1 className="text-xl font-bold mr-auto">Make new category</h1>
+          <h2 className="text-sm text-gray-600">
+            Categories for products in the store
+          </h2>
+        </div>
+        <div
+          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm "
+          onClick={() => setShowCategoryForm(false)}
         >
-          Upload Image
-        </label>
-        <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate bg-white">
-          {image.file?.name || "No image selected"}
-        </p>
+          <Image
+            src={closeIconWhite}
+            alt="close icon"
+            width={30}
+            height={30}
+            className="self-end"
+          />
+        </div>
       </div>
 
-      <p className="text-red-500 text-sm mb-2">
-        {validationMessages.category_image}
-      </p>
-      <input
-        type="file"
-        id="file"
-        name="file"
-        onChange={handleImageSelect}
-        hidden
-      />
-      <label htmlFor="category_description" className="">
-        Category Description
-      </label>
-      <textarea
-        id="category_description"
-        name="category_description"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
-      />
-      <button
-        type="submit"
-        className={`bg-customerRibbonGreen text-white  rounded-lg p-2 w-fit self-end
+      <form
+        action=""
+        onSubmit={(e) => handleSubmit(e)}
+        className="flex flex-col px-1 py-2"
+      >
+        <Image
+          src={image.url || image_placeholder}
+          alt="categoryImage"
+          className="object-scale-down rounded-lg border"
+          height={100}
+          width={100}
+        />
+        <label htmlFor="category_name" className="">
+          Category Name<span className="text-red-500 text-sm">*</span>
+        </label>
+        <input
+          type="text"
+          id="category_name"
+          name="category_name"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.category_name}
+        </p>
+
+        <label className="">
+          Category Image
+          <span className="text-red-500 text-sm">*</span>
+        </label>
+        <div className="flex rounded-lg" id="category_image">
+          <label
+            htmlFor="file"
+            className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
+          >
+            Upload Image
+          </label>
+          <p className="border border-l-0  rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate bg-white">
+            {image.file?.name || "No image selected"}
+          </p>
+        </div>
+
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.category_image}
+        </p>
+        <input
+          type="file"
+          id="file"
+          name="file"
+          onChange={handleImageSelect}
+          hidden
+        />
+        <label htmlFor="category_description" className="">
+          Category Description
+        </label>
+        <textarea
+          id="category_description"
+          name="category_description"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
+        />
+        <button
+          type="submit"
+          className={`bg-customerRibbonGreen text-white  rounded-lg p-2 w-fit self-end
         ${
           loading
             ? "cursor-not-allowed bg-mainButtonColorDisabled"
             : "cursor-pointer bg-mainButtonColor"
         }
           `}
-        disabled={loading}
-      >
-        {loading ? "Creating..." : "Create Category"}
-      </button>
-    </form>
+          disabled={loading}
+        >
+          {loading ? "Creating..." : "Create Category"}
+        </button>
+      </form>
+    </>
   );
 };
 

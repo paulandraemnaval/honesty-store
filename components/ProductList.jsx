@@ -11,6 +11,9 @@ const ProductList = ({
   filter,
   searchKeyword = "",
   supplierFilter = "all",
+  setShowInventoryForm = () => {},
+  setProductName = () => {},
+  setShowProductForm = () => {},
 }) => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -207,6 +210,14 @@ const ProductList = ({
     supplierFilter,
     inventories,
   ]);
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+        <p className="text-black">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-full min-h-fit overflow-y-auto z-0 px-1">
@@ -220,23 +231,46 @@ const ProductList = ({
         {filteredProducts.length > 0 && !loading ? (
           <>
             {pathname.includes("admin") && (
-              <Link
-                className="flex flex-col justify-center gap-4 px-4 py-8"
-                href="manage/add_product"
-              >
-                <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all">
-                  <span className="text-base font-semibold break-all flex flex-col items-center justify-center text-mainButtonColor">
-                    Add product
-                    <Image
-                      src={plusIcon}
-                      alt="Add product"
-                      width={50}
-                      height={50}
-                      className="object-cover h-8 w-8"
-                    />
-                  </span>
+              <>
+                <div className="sm:flex hidden">
+                  <button
+                    className="flex flex-col justify-center gap-4 py-8 sm:px-8 px-4 w-full  items-center "
+                    onClick={() => setShowProductForm(true)}
+                  >
+                    <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all w-full ">
+                      <span className="text-base font-semibold break-all flex flex-col items-center justify-center text-mainButtonColor">
+                        Add product
+                        <Image
+                          src={plusIcon}
+                          alt="Add product"
+                          width={50}
+                          height={50}
+                          className="object-cover h-8 w-8"
+                        />
+                      </span>
+                    </div>
+                  </button>
                 </div>
-              </Link>
+                <div className="sm:hidden flex">
+                  <Link
+                    href="/admin/user/manage/add_product/"
+                    className="flex flex-col justify-center gap-4 py-8 px-4 w-full  items-center "
+                  >
+                    <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all w-full ">
+                      <span className="text-base font-semibold break-all flex flex-col items-center justify-center text-mainButtonColor">
+                        Add product
+                        <Image
+                          src={plusIcon}
+                          alt="Add product"
+                          width={50}
+                          height={50}
+                          className="object-cover h-8 w-8"
+                        />
+                      </span>
+                    </div>
+                  </Link>
+                </div>
+              </>
             )}
             {filteredProducts.map((product) => (
               <div
@@ -268,18 +302,40 @@ const ProductList = ({
                       </span>
                     )}
                     {pathname === "/admin/user/products" && (
-                      <Link
-                        href={`/admin/user/manage/create_inventory/${product.product_name}`}
-                        className=" bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
-                      >
-                        <Image
-                          src={addInventoryIcon}
-                          alt="Add inventory"
-                          width={30}
-                          height={30}
-                          className="object-cover w-fit cursor-pointer"
-                        />
-                      </Link>
+                      <>
+                        <div className="sm:flex hidden">
+                          <button
+                            className=" bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
+                            onClick={() => {
+                              setProductName(product.product_name);
+                              setShowInventoryForm(true);
+                              console.log(product.product_name);
+                            }}
+                          >
+                            <Image
+                              src={addInventoryIcon}
+                              alt="Add inventory"
+                              width={30}
+                              height={30}
+                              className="object-cover w-fit cursor-pointer"
+                            />
+                          </button>
+                        </div>
+                        <div className="sm:hidden flex">
+                          <Link
+                            className=" bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
+                            href={`/admin/user/manage/create_inventory/${product.product_name}`}
+                          >
+                            <Image
+                              src={addInventoryIcon}
+                              alt="Add inventory"
+                              width={30}
+                              height={30}
+                              className="object-cover w-fit cursor-pointer"
+                            />
+                          </Link>
+                        </div>
+                      </>
                     )}
                   </div>
                 </div>
@@ -292,7 +348,10 @@ const ProductList = ({
       <div className="w-full mt-6 flex flex-col items-center">
         {loading ||
           (isFetchingMore && (
-            <p className="text-xl text-center">Loading products...</p>
+            <div className="flex justify-center items-center h-10">
+              <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+              <p className="text-black">Loading...</p>
+            </div>
           ))}
         {!loading && filteredProducts.length === 0 && !isFetchingMore && (
           <p className="text-xl text-center">No products found.</p>

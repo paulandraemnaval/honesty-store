@@ -7,11 +7,12 @@ import upArrow from "@public/icons/up_arrow_icon.png";
 import plusIcon from "@public/icons/plus_icon.png";
 import Image from "next/image";
 import Link from "next/link";
+
 const FilterBar = ({
   setFilter,
-  filter,
   setSupplierFilter = () => {},
-  supplierFilter = "all",
+  setShowCategoryForm,
+  setShowSupplierForm,
 }) => {
   const [filters, setFilters] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -19,17 +20,21 @@ const FilterBar = ({
   const [supplierDropdownOpen, setSupplierDropdownOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSupplier, setSelectedSupplier] = useState("all");
+  const [loading, setLoading] = useState(false);
   const pathName = usePathname();
 
   useEffect(() => {
     const getCategories = async () => {
       try {
+        setLoading(true);
         const response = await fetch("/api/admin/category");
         const data = await response.json();
         setFilters(Array.isArray(data?.data) ? data.data : []);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
         setFilters([]);
+      } finally {
+        setLoading(false);
       }
     };
     getCategories();
@@ -71,13 +76,13 @@ const FilterBar = ({
       {/* Category Filter */}
       <div className="mb-4">
         {pathName.includes("admin") && (
-          <Link
-            href="/admin/user/manage/create_category/"
+          <button
             className="w-full h-10 rouded-sm font-semibold bg-gray-100  border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 border-mainButtonColor hover:bg-gray-200 rounded-sm"
+            onClick={() => setShowCategoryForm(true)}
           >
             Create Category
             <Image src={plusIcon} alt="plus" height={20} width={20} />
-          </Link>
+          </button>
         )}
         <button
           className="w-full text-left p-2 flex justify-between items-center object-cover "
@@ -93,7 +98,7 @@ const FilterBar = ({
           />
         </button>
         <div className="w-full border mb-2"></div>
-        {categoryDropdownOpen && (
+        {categoryDropdownOpen && !loading && (
           <div className="mt-2 pl-2 flex flex-col gap-2">
             <label htmlFor="category-all" className="flex items-center">
               <input
@@ -140,19 +145,27 @@ const FilterBar = ({
             ))}
           </div>
         )}
+
+        {categoryDropdownOpen && loading && (
+          <div className="flex justify-center items-center h-10">
+            <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+            <p className="text-black">Loading...</p>
+          </div>
+        )}
       </div>
 
       {/* Supplier Filter */}
 
       {pathName.includes("admin") && (
         <div className="mb-2">
-          <Link
-            href="/admin/user/manage/add_supplier/"
+          <button
+            onClick={() => setShowSupplierForm(true)}
             className="w-full h-10 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
           >
             Add Supplier
             <Image src={plusIcon} alt="plus" height={20} width={20} />
-          </Link>
+          </button>
+
           <button
             className="w-full text-left p-2 flex justify-between items-center"
             onClick={() => setSupplierDropdownOpen(!supplierDropdownOpen)}

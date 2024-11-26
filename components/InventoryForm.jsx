@@ -1,8 +1,9 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
-
-const CreateInventory = ({ productName }) => {
+import closeIconWhite from "@public/icons/close_icon_white.png";
+import Image from "next/image";
+const CreateInventory = ({ productName, setShowInventoryForm }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -16,23 +17,28 @@ const CreateInventory = ({ productName }) => {
     inventory_supplier: "\u00A0",
     inventory_wholesale_price: "\u00A0",
     inventory_profit_margin: "\u00A0",
-    inventory_retail_price: "\u00A0",
     inventory_total_units: "\u00A0",
     inventory_expiration_date: "\u00A0",
   });
   const [supplierValid, setSupplierValid] = useState(false);
 
-  const roundToTwoDecimals = (number) => {
-    return parseFloat((number * 100) / 100).toFixed(3);
+  const [manualProfitMargin, setManualProfitMargin] = useState(false);
+
+  useEffect(() => {
+    if (!manualProfitMargin && wholesalePrice !== "") {
+      setProfitMargin(parseFloat(wholesalePrice * 0.1).toFixed(2));
+    }
+  }, [wholesalePrice, manualProfitMargin]);
+
+  const validateProfitMargin = () => {
+    if (!manualProfitMargin) return true;
+    const minProfitMargin = wholesalePrice * 0.1;
+    if (!profitMargin || profitMargin < minProfitMargin) {
+      return false;
+    }
+    return true;
   };
 
-  const handleDecimalInput = (e) => {
-    const value = e.target.value;
-    const validValue = value.match(/^\d*\.?\d{0,2}$/);
-    if (!validValue) {
-      e.target.value = value.slice(0, -1);
-    }
-  };
   useEffect(() => {
     if (wholesalePrice !== "") {
       let calculatedRetailPrice;
@@ -40,11 +46,15 @@ const CreateInventory = ({ productName }) => {
         calculatedRetailPrice =
           parseFloat(wholesalePrice) + parseFloat(profitMargin);
       } else {
-        calculatedRetailPrice = parseFloat(wholesalePrice) * 1.1;
+        calculatedRetailPrice = parseFloat(wholesalePrice * 1.1).toFixed(2);
       }
-      setRetailPrice(roundToTwoDecimals(calculatedRetailPrice));
+      console.log(
+        "calculated retail price: ",
+        parseFloat(calculatedRetailPrice).toFixed(2)
+      );
+      setRetailPrice(parseFloat(calculatedRetailPrice).toFixed(2));
     }
-  }, [wholesalePrice, profitMargin]);
+  }, [wholesalePrice, profitMargin, manualRetailPrice]);
 
   useEffect(() => {
     if (productName) {
@@ -69,23 +79,21 @@ const CreateInventory = ({ productName }) => {
   }, [productName]);
 
   const validateForm = (formData) => {
+    const isProfitMarginValid = validateProfitMargin();
+
     const messages = {
       inventory_supplier: supplierValid
         ? "\u00A0"
         : "Invalid supplier. Please select a supplier from the dropdown",
+      inventory_profit_margin: isProfitMarginValid
+        ? "\u00A0"
+        : `Profit margin must be at least 10% of wholesale price: ${parseFloat(
+            wholesalePrice * 0.1
+          ).toFixed(2)}`,
       inventory_wholesale_price:
         Number(formData.get("inventory_wholesale_price")) > 0
           ? "\u00A0"
           : "Wholesale price must be greater than 0",
-      inventory_profit_margin:
-        Number(formData.get("inventory_profit_margin")) > 0 ||
-        formData.get("inventory_profit_margin") === ""
-          ? "\u00A0"
-          : "Profit margin must be greater than 0",
-      inventory_retail_price:
-        Number(formData.get("inventory_retail_price")) > 0
-          ? "\u00A0"
-          : "Retail price must be greater than 0",
       inventory_total_units:
         Number(formData.get("inventory_total_units")) > 0
           ? "\u00A0"
@@ -109,30 +117,27 @@ const CreateInventory = ({ productName }) => {
       }
     });
 
-    return Object.values(messages).every((message) => message === "\u00A0");
+    return (
+      Object.values(messages).every((message) => message === "\u00A0") &&
+      isProfitMarginValid
+    );
   };
 
   const postInventory = async (e) => {
     try {
       setLoading(true);
       const formData = new FormData(e.target);
+
       //to conform to API requirements
       formData.append("inventory_product", selectedProduct);
       formData.append("inventory_supplier", selectedSupplier);
-      formData.set(
-        "wholesale_price",
-        formatToTwoDecimals(formData.get("wholesale_price"))
-      );
-      formData.set(
-        "profit_margin",
-        formatToTwoDecimals(formData.get("profit_margin"))
-      );
-      formData.set(
-        "retail_price",
-        formatToTwoDecimals(formData.get("retail_price"))
-      );
-
       formData.append("total_units", formData.get("inventory_total_units"));
+      formData.append("retail_price", retailPrice);
+
+      formData.delete("inventory_profit_margin");
+
+      formData.append("inventory_profit_margin", profitMargin);
+      formData.append("wholesale_price", wholesalePrice);
 
       //delete redundant fields
       formData.delete("inventory_retail_price");
@@ -199,153 +204,214 @@ const CreateInventory = ({ productName }) => {
     postInventory(e);
   };
 
-  return (
-    <form
-      onSubmit={(e) => handleSubmit(e)}
-      className="flex flex-col w-full h-fit px-1"
-    >
-      <label htmlFor="inventory_supplier">
-        Supplier<span className="text-red-600">*</span>
-      </label>
-      <SupplierInput
-        setSelectedSupplier={setSelectedSupplier}
-        setSupplierQuery={setSupplierQuery}
-        supplierQuery={supplierQuery}
-        setSupplierValid={setSupplierValid}
-      />
-      <p className="text-red-600 text-sm mb-2">
-        {validationMessages.inventory_supplier}
-      </p>
-
-      <label htmlFor="wholesale_price">
-        Wholesale Price<span className="text-red-600">*</span>
-      </label>
-      <input
-        type="number"
-        id="inventory_wholesale_price"
-        name="inventory_wholesale_price"
-        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
-        value={wholesalePrice}
-        onChange={(e) => {
-          setWholesalePrice(e.target.value ? e.target.value : "");
-        }}
-        placeholder="wholesale price"
-        onInput={handleDecimalInput}
-      />
-      <p className="text-red-600 text-sm mb-2">
-        {validationMessages.inventory_wholesale_price}
-      </p>
-
-      <label htmlFor="inventory_profit_margin">
-        Profit Margin
-        <span className="text-gray-500 text-sm">
-          {`  If left blank, will automatically set to: ${roundToTwoDecimals(
-            wholesalePrice * 0.1
-          )}`}
-        </span>
-      </label>
-      <input
-        type="number"
-        id="inventory_profit_margin"
-        name="inventory_profit_margin"
-        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
-        value={profitMargin}
-        onChange={(e) => setProfitMargin(e.target.value ? e.target.value : "")}
-        placeholder="Profit Margin"
-        onInput={handleDecimalInput}
-      />
-      <p className="text-red-600 text-sm mb-2">
-        {validationMessages.inventory_profit_margin}
-      </p>
-
-      <label htmlFor="retail_price">
-        Retail Price<span className="text-red-600">*</span>
-      </label>
-      <input
-        type="number"
-        id="inventory_retail_price"
-        name="inventory_retail_price"
-        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
-        value={retailPrice ? parseFloat(retailPrice).toFixed(2) : ""}
-        onChange={(e) => {
-          if (manualRetailPrice) {
-            setRetailPrice(e.target.value);
-          }
-        }}
-        readOnly={!manualRetailPrice}
-        placeholder="retail price"
-        onInput={handleDecimalInput}
-      />
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="manual_retail_price outline-none focus:ring-mainButtonColor focus:ring-1"
-          className="h-4 w-4"
-          checked={manualRetailPrice}
-          onChange={(e) => setManualRetailPrice(e.target.checked)}
-        />
-        <label htmlFor="manual_retail_price">Set Retail Price Manually</label>
+  if (dataLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+        <p className="text-black">Loading...</p>
       </div>
+    );
+  }
 
-      <p className="text-red-600 text-sm mb-2">
-        {validationMessages.inventory_retail_price}
-      </p>
-
-      <label htmlFor="total_units">
-        Total Units<span className="text-red-600">*</span>
-      </label>
-      <input
-        type="number"
-        id="inventory_total_units"
-        name="inventory_total_units"
-        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
-        placeholder="total units"
-      />
-      <p className="text-red-600 text-sm mb-2">
-        {validationMessages.inventory_total_units}
-      </p>
-      <label htmlFor="inventory_expiration_date">
-        Expiration Date<span className="text-red-600">*</span>
-      </label>
-      <input
-        type="date"
-        id="inventory_expiration_date"
-        name="inventory_expiration_date"
-        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
-      />
-      <p className="text-red-600 text-sm mb-2">
-        {validationMessages.inventory_expiration_date}
-      </p>
-
-      <label htmlFor="inventory_description">Inventory Description</label>
-      <textarea
-        id="inventory_description"
-        name="inventory_description"
-        className="border p-2 rounded-lg mb-2 outline-none focus:ring-mainButtonColor focus:ring-1"
-        placeholder="inventory description"
-      />
-
-      <button
-        type="submit"
-        className={`text-white rounded-lg p-2 w-fit self-end ${
-          loading || dataLoading
-            ? "bg-mainButtonColorDisabled"
-            : "bg-mainButtonColor"
-        }`}
-        disabled={loading || dataLoading}
+  return (
+    <>
+      <div className="w-full sm:flex hidden px-1 mb-2">
+        <div className="w-full">
+          <h1 className="text-2xl font-bold mr-auto">Make Inventory</h1>
+          <h2 className="text-sm text-gray-600">{productName}</h2>
+        </div>
+        <div
+          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm"
+          onClick={() => setShowInventoryForm(false)}
+        >
+          <Image
+            src={closeIconWhite}
+            alt="close icon"
+            width={30}
+            height={30}
+            className="self-end"
+          />
+        </div>
+      </div>
+      <form
+        onSubmit={(e) => handleSubmit(e)}
+        className="flex flex-col w-full h-fit px-1 py-2"
       >
-        {dataLoading ? (
-          <>
-            <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
-            Loading...
-          </>
-        ) : loading ? (
-          "Creating Inventory..."
-        ) : (
-          "Create Inventory"
-        )}
-      </button>
-    </form>
+        <label htmlFor="inventory_supplier" className="ml-1">
+          Supplier<span className="text-red-600">*</span>
+        </label>
+        <SupplierInput
+          setSelectedSupplier={setSelectedSupplier}
+          setSupplierQuery={setSupplierQuery}
+          supplierQuery={supplierQuery}
+          setSupplierValid={setSupplierValid}
+        />
+        <p className="text-red-600 text-sm mb-3">
+          {validationMessages.inventory_supplier}
+        </p>
+
+        <label htmlFor="wholesale_price" className="ml-1">
+          Wholesale Price<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          id="inventory_wholesale_price"
+          name="inventory_wholesale_price"
+          className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          value={wholesalePrice === 0 ? "" : wholesalePrice}
+          onChange={(e) => {
+            setWholesalePrice(e.target.value ? e.target.value : 0);
+          }}
+          placeholder="e.g. 12.25"
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*\.?\d{0,2}$/);
+            if (!match) {
+              e.target.value = e.target.value.slice(0, -1);
+            }
+          }}
+        />
+        <p className="text-red-600 text-sm mb-3">
+          {validationMessages.inventory_wholesale_price}
+        </p>
+
+        <label htmlFor="inventory_profit_margin" className="ml-1">
+          Profit Margin
+          {manualProfitMargin ? (
+            <span className="text-red-600">*</span>
+          ) : (
+            <span className="text-mainButtonColorDisabled text-sm font-light">
+              {" "}
+              Autocomplete
+            </span>
+          )}
+        </label>
+        <input
+          type="text"
+          id="inventory_profit_margin"
+          name="inventory_profit_margin"
+          className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-2"
+          value={profitMargin === 0 ? "" : profitMargin}
+          onChange={(e) => {
+            if (manualProfitMargin) {
+              setProfitMargin(e.target.value ? e.target.value : 0);
+            }
+          }}
+          readOnly={!manualProfitMargin}
+          placeholder="e.g. 1.25"
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*\.?\d{0,2}$/);
+            if (!match) {
+              e.target.value = e.target.value.slice(0, -1);
+            }
+          }}
+          disabled={!manualProfitMargin}
+        />
+        <div className="flex items-center gap-2 px-1">
+          <input
+            type="checkbox"
+            id="manual_profit_margin"
+            name="manual_profit_margin"
+            className="h-4 w-4"
+            checked={manualProfitMargin}
+            onChange={(e) => setManualProfitMargin(e.target.checked)}
+          />
+          <label
+            htmlFor="manual_profit_margin"
+            className="text-sm text-gray-500"
+          >
+            Set Profit Margin Manually
+          </label>
+        </div>
+        <p className="text-red-600 text-sm mb-3">
+          {validationMessages.inventory_profit_margin}
+        </p>
+        <label htmlFor="retail_price" className="ml-1">
+          Retail Price{" "}
+          <span className="text-mainButtonColorDisabled text-sm font-light">
+            {" "}
+            Autocomplete
+          </span>
+        </label>
+        {/*MAKE PLACEHOLDER BLUE*/}
+        <input
+          type="text"
+          id="inventory_retail_price"
+          name="inventory_retail_price"
+          className=" border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-8 text-mainButtonColor"
+          value={retailPrice === 0 ? "" : retailPrice}
+          onChange={(e) => {
+            if (manualRetailPrice) {
+              setRetailPrice(e.target.value ? e.target.value : "");
+            }
+          }}
+          readOnly
+          placeholder="retail price"
+          disabled
+        />
+        <label htmlFor="total_units" className="ml-1">
+          Total Units<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          id="inventory_total_units"
+          name="inventory_total_units"
+          className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 "
+          placeholder="e.g. 100"
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*$/);
+            if (!match) {
+              e.target.value = e.target.value.slice(0, -1);
+            }
+          }}
+        />
+        <p className="text-red-600 text-sm mb-3">
+          {validationMessages.inventory_total_units}
+        </p>
+        <label htmlFor="inventory_expiration_date" className="ml-1">
+          Expiration Date<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="date"
+          id="inventory_expiration_date"
+          name="inventory_expiration_date"
+          className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        />
+        <p className="text-red-600 text-sm mb-3">
+          {validationMessages.inventory_expiration_date}
+        </p>
+
+        <label htmlFor="inventory_description" className="ml-1">
+          Inventory Description
+        </label>
+        <textarea
+          id="inventory_description"
+          name="inventory_description"
+          className="border p-2 rounded-lg mb-4 outline-none focus:ring-mainButtonColor focus:ring-1 min-h-[10rem]"
+          placeholder="inventory description"
+        />
+
+        <button
+          type="submit"
+          className={`text-white rounded-lg p-2 sm:w-fit w-full self-end flex items-center justify-center gap-1 ${
+            loading || dataLoading
+              ? "bg-mainButtonColorDisabled"
+              : "bg-mainButtonColor"
+          }`}
+          disabled={loading || dataLoading}
+        >
+          {loading ? (
+            <>
+              Creating Inventory...
+              <span className="spinner-border animate-spin h-5 w-5 border-2 border-mainButtonColor border-t-transparent rounded-full ">
+                {" "}
+              </span>
+            </>
+          ) : (
+            "Create Inventory"
+          )}
+        </button>
+      </form>
+    </>
   );
 };
 

@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
-
-const SupplierForm = () => {
+import Image from "next/image";
+import closeIconWhite from "@public/icons/close_icon_white.png";
+const SupplierForm = ({ setShowSupplierForm }) => {
   const [validationMessages, setValidationMessages] = useState({
     supplier_name: "\u00A0",
     supplier_contact_person: "\u00A0",
@@ -67,85 +68,108 @@ const SupplierForm = () => {
   };
 
   return (
-    <form
-      action="createSupplier"
-      onSubmit={handleCreateSupplier}
-      className="flex flex-col w-full h-fit py-2"
-    >
-      <label htmlFor="supplier_name">
-        Supplier Name<span className="text-red-500 text-sm">*</span>
-      </label>
-      <input
-        type="text"
-        id="supplier_name"
-        name="supplier_name"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-      />
-      <p className="text-red-500 text-sm mb-2">
-        {validationMessages.supplier_name}
-      </p>
+    <>
+      <div className="w-full sm:flex hidden px-2 mb-2 py-2">
+        <div className="w-full">
+          <h1 className="text-2xl font-bold mr-auto">Make new supplier</h1>
+          <h2 className="text-sm text-gray-500">
+            Make a new supplier for inventories
+          </h2>
+        </div>
+        <div
+          className="w-fit h-fit cursor-pointer bg-mainButtonColor rounded-sm"
+          onClick={() => setShowSupplierForm(false)}
+        >
+          <Image
+            src={closeIconWhite}
+            alt="close icon"
+            width={30}
+            height={30}
+            className="self-end"
+          />
+        </div>
+      </div>
 
-      <label htmlFor="supplier_contact_person">
-        Contact Person<span className="text-red-500 text-sm">*</span>
-      </label>
-      <input
-        type="text"
-        id="supplier_contact_person"
-        name="supplier_contact_person"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-      />
-      <p className="text-red-500 text-sm mb-2">
-        {validationMessages.supplier_contact_person}
-      </p>
+      <form
+        action="createSupplier"
+        onSubmit={handleCreateSupplier}
+        className="flex flex-col w-full h-fit py-1 px-1"
+      >
+        <label htmlFor="supplier_name">
+          Supplier Name<span className="text-red-500 text-sm">*</span>
+        </label>
+        <input
+          type="text"
+          id="supplier_name"
+          name="supplier_name"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.supplier_name}
+        </p>
 
-      <label htmlFor="supplier_contact_number">
-        Contact<span className="text-red-500 text-sm">*</span>
-      </label>
-      <input
-        type="text"
-        id="supplier_contact_number"
-        name="supplier_contact_number"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-      />
-      <p className="text-red-500 text-sm mb-2">
-        {validationMessages.supplier_contact_number}
-      </p>
+        <label htmlFor="supplier_contact_person">
+          Contact Person<span className="text-red-500 text-sm">*</span>
+        </label>
+        <input
+          type="text"
+          id="supplier_contact_person"
+          name="supplier_contact_person"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.supplier_contact_person}
+        </p>
 
-      <label htmlFor="supplier_email_address">
-        Email Address<span className="text-red-500 text-sm">*</span>
-      </label>
-      <input
-        type="email"
-        id="supplier_email_address"
-        name="supplier_email_address"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-      />
-      <p className="text-red-500 text-sm mb-2">
-        {validationMessages.supplier_email_address}
-      </p>
+        <label htmlFor="supplier_contact_number">
+          Contact<span className="text-red-500 text-sm">*</span>
+        </label>
+        <input
+          type="text"
+          id="supplier_contact_number"
+          name="supplier_contact_number"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.supplier_contact_number}
+        </p>
 
-      <label htmlFor="supplier_notes">Supplier Notes</label>
-      <textarea
-        id="supplier_notes"
-        name="supplier_notes"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
-      />
+        <label htmlFor="supplier_email_address">
+          Email Address<span className="text-red-500 text-sm">*</span>
+        </label>
+        <input
+          type="email"
+          id="supplier_email_address"
+          name="supplier_email_address"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.supplier_email_address}
+        </p>
 
-      <div className="w-full flex flex-row-reverse">
-        <button
-          type="submit"
-          className={` text-white rounded-lg p-2 w-fit flex-end 
+        <label htmlFor="supplier_notes">Supplier Notes</label>
+        <textarea
+          id="supplier_notes"
+          name="supplier_notes"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
+        />
+
+        <div className="w-full flex flex-row-reverse">
+          <button
+            type="submit"
+            className={` text-white rounded-lg p-2 w-fit flex-end 
           ${
             loading
               ? "cursor-not-allowed bg-mainButtonColorDisabled"
               : "cursor-pointer bg-mainButtonColor"
           }
             `}
-        >
-          {loading ? "Creating..." : "Create Supplier"}
-        </button>
-      </div>
-    </form>
+          >
+            {loading ? "Creating..." : "Create Supplier"}
+          </button>
+        </div>
+      </form>
+    </>
   );
 };
 

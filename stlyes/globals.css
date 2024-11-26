@@ -38,3 +38,14 @@
   border-width: 2px;
   border-color: #ffffff transparent transparent transparent;
 }
+
+.spinner-border-blue {
+  display: inline-block;
+  border-radius: 50%;
+  border-width: 2px;
+  @apply border-t-mainButtonColor border-l-0 border-r-0 border-b-0;
+}
+
+.placeholder-blue::placeholder {
+  color: #4285f4;
+}
