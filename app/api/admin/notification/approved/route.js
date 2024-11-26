@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+//create notif for rejected/approved requests
 export async function POST(request) {
   try {
     const {

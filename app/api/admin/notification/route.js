@@ -2,6 +2,7 @@ import { db } from "@utils/firebase";
 import { collection, getDocs, doc, query } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+//get notifs by 5
 export async function PATCH(request) {
   const { lastVisible } = await request.json();
   try {

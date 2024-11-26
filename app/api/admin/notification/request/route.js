@@ -2,6 +2,7 @@ import { db, getLoggedInUser } from "@utils/firebase";
 import { collection, Timestamp, doc, setDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+//create notif for access request
 export async function POST(request) {
   try {
     const { notification_title, notification_body } = await request.json();
