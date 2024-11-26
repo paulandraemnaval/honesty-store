@@ -146,12 +146,16 @@ export async function POST(request) {
 
     audit_gross_income = roundToTwoDecimals(audit_gross_income);
     audit_total_expense = roundToTwoDecimals(audit_total_expense);
+    const audit_net_income = roundToTwoDecimals(
+      audit_gross_income - audit_total_expense
+    );
 
     await setDoc(auditDoc, {
       audit_id: auditDoc.id,
       account_id: user.account_id,
       audit_gross_income,
       audit_total_expense,
+      audit_net_income,
       audit_timestamp: Timestamp.now(),
       audit_last_updated: Timestamp.now(),
       audit_soft_deleted: false,
