@@ -59,7 +59,7 @@ const MobileFilter = ({
   return (
     <>
       <div
-        className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-md font-semibold text-white z-20"
+        className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-md font-semibold text-white"
         onClick={() => setIsExpanded((prev) => !prev)}
       >
         <span>Filter</span>
@@ -69,7 +69,7 @@ const MobileFilter = ({
         <div
           className={`${
             renderedIn === "customer" ? "h-[100vh]" : "h-[calc(100vh-9rem)]"
-          } w-[100vw] fixed top-[5rem] right-0 bg-[rgba(120,120,120,0.75)] flex flex-col items-end`}
+          } w-[100vw] fixed top-[5rem] right-0 bg-[rgba(120,120,120,0.75)] flex flex-col items-end z-20`}
         >
           <div className="w-[70vw] flex flex-col bg-white h-full">
             {/* Header */}

@@ -32,19 +32,16 @@ const AuthForm = () => {
         });
         console.log(data.message);
         setIsCompleted(true);
-        router.push("/admin/user/");
+        router.replace("/admin/user/");
         console.log("Login successful.");
       } else {
-        toast.error(
-          `Login failed. Please try again. Status: ${request.status}`,
-          {
-            duration: 3000,
-            style: {
-              fontSize: "1.2rem",
-              padding: "16px",
-            },
-          }
-        );
+        toast.error(`Login failed. Please try again later`, {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
         console.log(data.message);
       }
     } catch (err) {

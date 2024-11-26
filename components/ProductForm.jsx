@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
 import { toast } from "react-hot-toast";
+
 const ProductForm = ({ productID = "" }) => {
   const [image, setImage] = useState({
     file: null,
@@ -10,9 +11,21 @@ const ProductForm = ({ productID = "" }) => {
   });
   const [selectedCategory, setSelectedCategory] = useState("");
   const [product, setProduct] = useState({});
-  const [loading, setLoading] = useState(false); // Add loading state
+  const [loading, setLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("");
-  const [categoryValid, setCategoryValid] = useState(true);
+  const [categoryValid, setCategoryValid] = useState(false);
+
+  const [validationMessages, setValidationMessages] = useState({
+    image_input: "\u00A0",
+    product_name: "\u00A0",
+    product_sku: "\u00A0",
+    product_uom: "\u00A0",
+    product_reorder_point: "\u00A0",
+    product_weight: "\u00A0",
+    product_weight_unit: "\u00A0",
+    product_dimensions: "\u00A0",
+  });
+
   const handleImage = (e) => {
     if (e.target.files.length === 0) return;
     setImage({
@@ -21,13 +34,11 @@ const ProductForm = ({ productID = "" }) => {
     });
   };
 
-  // Fetch product details when productID is provided
   useEffect(() => {
     if (productID) {
       const fetchProductData = async () => {
         try {
           setLoading(true);
-
           const response = await fetch(`/api/admin/products/${productID}`);
           const productData = await response.json();
           setProduct(productData?.data);
@@ -56,12 +67,74 @@ const ProductForm = ({ productID = "" }) => {
     }
   }, [productID]);
 
+  const validateForm = (formData) => {
+    const messages = {
+      image_input:
+        image.file || product?.product_image_url
+          ? "\u00A0"
+          : "Please select an image.",
+      product_name: formData.get("product_name").trim()
+        ? "\u00A0"
+        : "Product name is required.",
+      product_category: categoryValid
+        ? "\u00A0"
+        : "Invalid Category. Please select from the dropdown.",
+      product_sku: formData.get("product_sku").trim()
+        ? "\u00A0"
+        : "Product SKU is required.",
+      product_uom: formData.get("product_uom").trim()
+        ? "\u00A0"
+        : "Product UOM is required.",
+      product_reorder_point:
+        Number(formData.get("product_reorder_point")) > 0
+          ? "\u00A0"
+          : "Reorder point must be greater than 0.",
+      product_weight:
+        Number(formData.get("product_weight")) > 0
+          ? "\u00A0"
+          : "Weight must be greater than 0.",
+      product_weight_unit: formData.get("product_weight_unit").trim()
+        ? "\u00A0"
+        : "Weight unit is required.",
+      product_dimensions: formData.get("product_dimensions").trim()
+        ? "\u00A0"
+        : "Dimensions are required.",
+    };
+
+    setValidationMessages(messages);
+
+    Object.keys(messages).forEach((id) => {
+      const input = document.getElementById(id);
+      if (input) {
+        if (messages[id] !== "\u00A0") {
+          input.classList.add("border-red-500");
+          input.classList.remove("border-gray-300");
+        } else {
+          input.classList.remove("border-red-500");
+          input.classList.add("border-gray-300");
+        }
+      }
+    });
+
+    return (
+      Object.values(messages).every((msg) => msg === "\u00A0") && categoryValid
+    );
+  };
+
   const postProduct = async (e) => {
     e.preventDefault();
 
     const formData = new FormData(e.target);
     formData.append("file", image.file);
     formData.append("product_category", selectedCategory);
+
+    const weight =
+      "" +
+      formData.get("product_weight") +
+      " " +
+      formData.get("product_weight_unit");
+    formData.delete("product_weight_unit");
+    formData.set("product_weight", weight);
 
     setLoading(true);
     try {
@@ -71,22 +144,17 @@ const ProductForm = ({ productID = "" }) => {
       });
 
       if (res.ok) {
-        toast.success("Login successful!", {
+        toast.success("Product added successfully!", {
           duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
+          style: { fontSize: "1.2rem", padding: "16px" },
         });
         e.target.reset();
         setImage({ file: null, url: "" });
+        setCategoryName("");
       } else {
-        toast.error("Login failed. Please try again.", {
+        toast.error("Product addition failed. Please try again.", {
           duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
+          style: { fontSize: "1.2rem", padding: "16px" },
         });
       }
     } catch (err) {
@@ -101,11 +169,9 @@ const ProductForm = ({ productID = "" }) => {
 
     const formData = new FormData(e.target);
     if (image.file) formData.append("file", image.file);
-
     formData.append("url", product?.product_image_url);
     formData.append("product_category", selectedCategory);
 
-    console.log("FORMDATA FILE: ", formData.get("file"));
     setLoading(true);
     try {
       const res = await fetch(`/api/admin/products/${productID}`, {
@@ -114,171 +180,216 @@ const ProductForm = ({ productID = "" }) => {
       });
 
       if (res.ok) {
-        toast.success("Product Update Successful!", {
+        toast.success("Product update successful!", {
           duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
-          iconTheme: {
-            primary: "#4285F4",
-            secondary: "white",
-          },
+          style: { fontSize: "1.2rem", padding: "16px" },
         });
       } else {
-        toast.error("Login failed. Please try again.", {
+        toast.error("Product update failed. Please try again.", {
           duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
+          style: { fontSize: "1.2rem", padding: "16px" },
         });
       }
     } catch (err) {
+      toast.error("Error occurred while updating product.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <>
-      <form
-        onSubmit={(e) => {
-          if (productID) {
-            patchProduct(e);
-          } else {
-            postProduct(e);
-          }
-        }}
-        className="flex flex-col w-full gap-2 h-fit py-2 px-1 z-0"
-      >
-        <div className="flex flex-col gap-2 w-full">
-          <Image
-            src={image.url || product?.product_image_url || placeholderImage}
-            width={100}
-            height={100}
-            className="object-scale-down max-h-[100px] max-w-[100px] rounded-lg"
-            alt="Product"
-          />
-          <label htmlFor="product_name">Product Name</label>
-          <input
-            type="text"
-            name="product_name"
-            placeholder="Product name"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            required
-            defaultValue={product?.product_name || ""}
-          />
-          <label htmlFor="product_category">Product Category</label>
-          <CategoryInput
-            setSelectedCategory={setSelectedCategory}
-            categoryName={categoryName}
-            setCategoryName={setCategoryName}
-            setCategoryValid={setCategoryValid}
-          />
-          <label htmlFor="file">Product Image</label>
-          <input
-            id="file"
-            type="file"
-            className="hidden"
-            name="file"
-            onChange={handleImage}
-          />
-          <div className="flex">
-            <label
-              htmlFor="file"
-              className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
-            >
-              Upload Image
-            </label>
-            <p className="border border-l-0 w-0 rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate bg-white">
-              {product?.product_image_url || image.url || "No image selected"}
-            </p>
-          </div>
-          <label htmlFor="product_description">Product Description</label>
-          <textarea
-            name="product_description"
-            placeholder="Product description"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            required
-            defaultValue={product?.product_description || ""}
-          />
-          <label htmlFor="product_sku">Product SKU</label>
-          <input
-            type="text"
-            name="product_sku"
-            placeholder="Product SKU"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            id="product_sku"
-            required
-            defaultValue={product?.product_sku || ""}
-          />
-          <label htmlFor="product_uom">Product UOM</label>
-          <input
-            type="text"
-            name="product_uom"
-            placeholder="Product UOM"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            id="product_uom"
-            required
-            defaultValue={product?.product_uom || ""}
-          />
-          <label htmlFor="product_reorder_point">Product Reorder Point</label>
-          <input
-            type="number"
-            name="product_reorder_point"
-            placeholder="Product Reorder Point"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            id="product_reorder_point"
-            required
-            defaultValue={product?.product_reorder_point || ""}
-          />
-          <label htmlFor="product_weight">Product Weight</label>
-          <input
-            type="number"
-            name="product_weight"
-            placeholder="Product Weight"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            id="product_weight"
-            required
-            defaultValue={product?.product_weight || ""}
-          />
-          <label htmlFor="product_dimension">Product Dimensions</label>
-          <input
-            type="text"
-            name="product_dimensions"
-            placeholder="Product Dimensions"
-            className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-            id="product_dimensions"
-            required
-            defaultValue={product?.product_dimension || ""}
-          />
-        </div>
+  const handleSubmit = (e) => {
+    e.preventDefault();
 
-        <div className="gap-2 w-full items-start flex flex-row-reverse">
-          <button
-            type="submit"
-            className={`w-fit p-2 bg-mainButtonColor text-white rounded-md flex items-center justify-center ${
-              loading || !categoryValid
-                ? "opacity-70 cursor-not-allowed"
-                : "hover:opacity-90"
-            }`}
-            disabled={loading || !categoryValid}
+    const formData = new FormData(e.target);
+
+    if (!validateForm(formData)) {
+      toast.error("Please check the inputs and try again.", {
+        duration: 3000,
+        style: { fontSize: "1.2rem", padding: "16px" },
+      });
+      return;
+    }
+
+    if (productID) {
+      patchProduct(e);
+    } else {
+      postProduct(e);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col w-full h-fit py-2 px-1 z-0"
+    >
+      <div className="flex flex-col w-full ">
+        <Image
+          src={image.url || product?.product_image_url || placeholderImage}
+          width={100}
+          height={100}
+          className="object-scale-down max-h-[100px] max-w-[100px] rounded-lg"
+          alt="Product"
+        />
+        <label htmlFor="product_name">
+          Product Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          id="product_name"
+          type="text"
+          name="product_name"
+          placeholder="Product name"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          defaultValue={product?.product_name || ""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_name}
+        </p>
+        <label htmlFor="product_category">
+          Product Category <span className="text-red-600">*</span>
+        </label>
+        <CategoryInput
+          setSelectedCategory={setSelectedCategory}
+          categoryName={categoryName}
+          setCategoryName={setCategoryName}
+          setCategoryValid={setCategoryValid}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_category}
+        </p>
+        <label htmlFor="file">
+          Product Image <span className="text-red-600">*</span>
+        </label>
+        <input
+          id="file"
+          type="file"
+          className="hidden"
+          name="file"
+          onChange={handleImage}
+        />
+        <div className="flex image_input rounded-lg" id="image_input">
+          <label
+            htmlFor="file"
+            className="bg-mainButtonColor text-white p-2.5 rounded-tl-lg rounded-bl-lg h-full w-fit cursor-pointer"
           >
-            {loading ? (
-              <>
-                <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
-                Processing...
-              </>
-            ) : productID ? (
-              "Update Product"
-            ) : (
-              "Add Product"
-            )}
-          </button>
+            Upload Image
+          </label>
+          <p className="border border-l-0 w-0 rounded-tr-lg rounded-br-lg items-center p-2 flex-1 truncate bg-white">
+            {product?.product_image_url || image.url || "No image selected"}
+          </p>
         </div>
-      </form>
-    </>
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.image_input}
+        </p>
+        <label htmlFor="product_sku">
+          Product SKU<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          name="product_sku"
+          placeholder="Product SKU"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          id="product_sku"
+          defaultValue={product?.product_sku || ""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_sku}
+        </p>
+        <label htmlFor="product_uom">
+          Product UOM<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          name="product_uom"
+          placeholder="Product UOM"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          id="product_uom"
+          defaultValue={product?.product_uom || ""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_uom}
+        </p>
+        <label htmlFor="product_reorder_point">
+          Product Reorder Point<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="number"
+          name="product_reorder_point"
+          placeholder="Product Reorder Point"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          id="product_reorder_point"
+          defaultValue={product?.product_reorder_point || ""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_reorder_point}
+        </p>
+        <label htmlFor="product_weight">
+          Product Weight<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="number"
+          name="product_weight"
+          placeholder="Product Weight"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          id="product_weight"
+          defaultValue={product?.product_weight || ""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_weight}
+        </p>
+        <label htmlFor="">
+          Product Weight Unit
+          <span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          name="product_weight_unit"
+          placeholder="Product Weight Unit"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          id="product_weight_unit"
+          defaultValue={""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_weight_unit}
+        </p>
+        <label htmlFor="product_dimension">
+          Product Dimensions<span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          name="product_dimensions"
+          placeholder="Product Dimensions"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          id="product_dimensions"
+          defaultValue={product?.product_dimension || ""}
+        />
+        <p className="text-red-500 text-sm mb-2">
+          {validationMessages.product_dimensions}
+        </p>
+        <label htmlFor="product_description">Product Description</label>
+        <textarea
+          name="product_description"
+          placeholder="Product description"
+          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
+          defaultValue={product?.product_description || ""}
+        />
+      </div>
+
+      <div className="gap-2 w-full items-start flex flex-row-reverse">
+        <button
+          type="submit"
+          className={`w-fit p-2 bg-mainButtonColor text-white rounded-md text-sm flex items-center justify-center gap-1 ${
+            loading ? "opacity-60" : ""
+          }`}
+          disabled={loading}
+        >
+          {loading
+            ? "Uploading..."
+            : productID
+            ? "Update Product"
+            : "Create Product"}
+        </button>
+      </div>
+    </form>
   );
 };
 
@@ -343,11 +454,11 @@ const CategoryInput = ({
   };
 
   const handleCategorySelect = (category) => {
-    setCategoryQuery(category.category_name); // Update input value
-    setCategoryName(category.category_name); // Update the display value
-    setSelectedCategory(category.category_id); // Set the selected category ID
-    setCategoryValid(true); // Mark the category as valid
-    setFocused(false); // Close the dropdown
+    setCategoryQuery(category.category_name);
+    setCategoryName(category.category_name);
+    setSelectedCategory(category.category_id);
+    setCategoryValid(true);
+    setFocused(false);
   };
 
   return (
@@ -355,6 +466,7 @@ const CategoryInput = ({
       className={`relative flex flex-col border rounded-lg h-fit z-0 ${
         focused ? "ring-mainButtonColor ring-1" : "border-gray-300"
       }`}
+      id="product_category"
     >
       <input
         type="text"
