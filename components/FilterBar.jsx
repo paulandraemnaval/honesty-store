@@ -146,10 +146,13 @@ const FilterBar = ({
 
       {pathName.includes("admin") && (
         <div className="mb-2">
-          <button className="w-full h-10 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm">
+          <Link
+            href="/admin/user/manage/add_supplier/"
+            className="w-full h-10 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
+          >
             Add Supplier
             <Image src={plusIcon} alt="plus" height={20} width={20} />
-          </button>
+          </Link>
           <button
             className="w-full text-left p-2 flex justify-between items-center"
             onClick={() => setSupplierDropdownOpen(!supplierDropdownOpen)}
