@@ -140,8 +140,6 @@ export async function POST(request) {
       "inventory_expiration_date"
     );
 
-    console.log(wholesale_price, retail_price, inventory_profit_margin);
-
     const date = new Date(inventory_expiration_date);
     inventory_expiration_date = Timestamp.fromDate(date);
 

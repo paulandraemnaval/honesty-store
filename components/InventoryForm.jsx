@@ -8,9 +8,9 @@ const CreateInventory = ({ productName }) => {
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
   const [supplierQuery, setSupplierQuery] = useState("");
-  const [wholesalePrice, setWholesalePrice] = useState(0);
-  const [profitMargin, setProfitMargin] = useState(0);
-  const [retailPrice, setRetailPrice] = useState(0);
+  const [wholesalePrice, setWholesalePrice] = useState("");
+  const [profitMargin, setProfitMargin] = useState("");
+  const [retailPrice, setRetailPrice] = useState("");
   const [manualRetailPrice, setManualRetailPrice] = useState(false);
   const [validationMessages, setValidationMessages] = useState({
     inventory_supplier: "\u00A0",
@@ -20,6 +20,32 @@ const CreateInventory = ({ productName }) => {
     inventory_total_units: "\u00A0",
     inventory_expiration_date: "\u00A0",
   });
+  const [supplierValid, setSupplierValid] = useState(false);
+
+  const roundToTwoDecimals = (number) => {
+    return parseFloat((number * 100) / 100).toFixed(3);
+  };
+
+  const handleDecimalInput = (e) => {
+    const value = e.target.value;
+    const validValue = value.match(/^\d*\.?\d{0,2}$/);
+    if (!validValue) {
+      e.target.value = value.slice(0, -1);
+    }
+  };
+  useEffect(() => {
+    if (wholesalePrice !== "") {
+      let calculatedRetailPrice;
+      if (profitMargin !== "") {
+        calculatedRetailPrice =
+          parseFloat(wholesalePrice) + parseFloat(profitMargin);
+      } else {
+        calculatedRetailPrice = parseFloat(wholesalePrice) * 1.1;
+      }
+      setRetailPrice(roundToTwoDecimals(calculatedRetailPrice));
+    }
+  }, [wholesalePrice, profitMargin]);
+
   useEffect(() => {
     if (productName) {
       const fetchProduct = async () => {
@@ -42,21 +68,18 @@ const CreateInventory = ({ productName }) => {
     }
   }, [productName]);
 
-  useEffect(() => {
-    if (!manualRetailPrice) {
-      setRetailPrice(wholesalePrice + profitMargin);
-    }
-  }, [wholesalePrice, profitMargin, manualRetailPrice]);
-
   const validateForm = (formData) => {
     const messages = {
-      inventory_supplier: selectedSupplier ? "\u00A0" : "Supplier is required",
+      inventory_supplier: supplierValid
+        ? "\u00A0"
+        : "Invalid supplier. Please select a supplier from the dropdown",
       inventory_wholesale_price:
         Number(formData.get("inventory_wholesale_price")) > 0
           ? "\u00A0"
           : "Wholesale price must be greater than 0",
       inventory_profit_margin:
-        Number(formData.get("inventory_profit_margin")) > 0
+        Number(formData.get("inventory_profit_margin")) > 0 ||
+        formData.get("inventory_profit_margin") === ""
           ? "\u00A0"
           : "Profit margin must be greater than 0",
       inventory_retail_price:
@@ -78,7 +101,7 @@ const CreateInventory = ({ productName }) => {
     Object.keys(messages).forEach((id) => {
       const input = document.getElementById(id);
       if (input) {
-        if (messages[id]) {
+        if (messages[id] !== "\u00A0") {
           input.classList.add("border-red-500", "border");
         } else {
           input.classList.remove("border-red-500");
@@ -86,7 +109,7 @@ const CreateInventory = ({ productName }) => {
       }
     });
 
-    return Object.values(messages).every((message) => message === "");
+    return Object.values(messages).every((message) => message === "\u00A0");
   };
 
   const postInventory = async (e) => {
@@ -96,8 +119,19 @@ const CreateInventory = ({ productName }) => {
       //to conform to API requirements
       formData.append("inventory_product", selectedProduct);
       formData.append("inventory_supplier", selectedSupplier);
-      formData.append("retail_price", retailPrice);
-      formData.append("wholesale_price", wholesalePrice);
+      formData.set(
+        "wholesale_price",
+        formatToTwoDecimals(formData.get("wholesale_price"))
+      );
+      formData.set(
+        "profit_margin",
+        formatToTwoDecimals(formData.get("profit_margin"))
+      );
+      formData.set(
+        "retail_price",
+        formatToTwoDecimals(formData.get("retail_price"))
+      );
+
       formData.append("total_units", formData.get("inventory_total_units"));
 
       //delete redundant fields
@@ -123,10 +157,12 @@ const CreateInventory = ({ productName }) => {
         });
         e.target.reset();
         setSupplierQuery("");
-        setWholesalePrice(0);
-        setProfitMargin(0);
-        setRetailPrice(0);
+        setWholesalePrice("");
+        setProfitMargin("");
+        setRetailPrice("");
         setManualRetailPrice(false);
+        setSupplierValid(false);
+        setSupplierQuery("");
       } else {
         toast.error("Failed to create inventory. Please try again later.", {
           duration: 3000,
@@ -175,38 +211,48 @@ const CreateInventory = ({ productName }) => {
         setSelectedSupplier={setSelectedSupplier}
         setSupplierQuery={setSupplierQuery}
         supplierQuery={supplierQuery}
+        setSupplierValid={setSupplierValid}
       />
       <p className="text-red-600 text-sm mb-2">
         {validationMessages.inventory_supplier}
       </p>
 
       <label htmlFor="wholesale_price">
-        Wholesale Price <span className="text-red-600">*</span>
+        Wholesale Price<span className="text-red-600">*</span>
       </label>
       <input
         type="number"
         id="inventory_wholesale_price"
         name="inventory_wholesale_price"
-        className="border p-2 rounded-lg"
+        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         value={wholesalePrice}
-        onChange={(e) => setWholesalePrice(parseFloat(e.target.value) || "")}
+        onChange={(e) => {
+          setWholesalePrice(e.target.value ? e.target.value : "");
+        }}
         placeholder="wholesale price"
+        onInput={handleDecimalInput}
       />
       <p className="text-red-600 text-sm mb-2">
         {validationMessages.inventory_wholesale_price}
       </p>
 
       <label htmlFor="inventory_profit_margin">
-        Profit Margin<span className="text-red-600">*</span>
+        Profit Margin
+        <span className="text-gray-500 text-sm">
+          {`  If left blank, will automatically set to: ${roundToTwoDecimals(
+            wholesalePrice * 0.1
+          )}`}
+        </span>
       </label>
       <input
         type="number"
         id="inventory_profit_margin"
         name="inventory_profit_margin"
-        className="border p-2 rounded-lg"
+        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         value={profitMargin}
-        onChange={(e) => setProfitMargin(parseFloat(e.target.value) || "")}
-        placeholder="profit margin"
+        onChange={(e) => setProfitMargin(e.target.value ? e.target.value : "")}
+        placeholder="Profit Margin"
+        onInput={handleDecimalInput}
       />
       <p className="text-red-600 text-sm mb-2">
         {validationMessages.inventory_profit_margin}
@@ -219,20 +265,21 @@ const CreateInventory = ({ productName }) => {
         type="number"
         id="inventory_retail_price"
         name="inventory_retail_price"
-        className="border p-2 rounded-lg"
-        value={retailPrice}
-        onChange={(e) =>
-          manualRetailPrice
-            ? setRetailPrice(parseFloat(e.target.value) || "")
-            : null
-        }
+        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+        value={retailPrice ? parseFloat(retailPrice).toFixed(2) : ""}
+        onChange={(e) => {
+          if (manualRetailPrice) {
+            setRetailPrice(e.target.value);
+          }
+        }}
         readOnly={!manualRetailPrice}
         placeholder="retail price"
+        onInput={handleDecimalInput}
       />
       <div className="flex items-center gap-2">
         <input
           type="checkbox"
-          id="manual_retail_price"
+          id="manual_retail_price outline-none focus:ring-mainButtonColor focus:ring-1"
           className="h-4 w-4"
           checked={manualRetailPrice}
           onChange={(e) => setManualRetailPrice(e.target.checked)}
@@ -251,7 +298,7 @@ const CreateInventory = ({ productName }) => {
         type="number"
         id="inventory_total_units"
         name="inventory_total_units"
-        className="border p-2 rounded-lg"
+        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
         placeholder="total units"
       />
       <p className="text-red-600 text-sm mb-2">
@@ -264,7 +311,7 @@ const CreateInventory = ({ productName }) => {
         type="date"
         id="inventory_expiration_date"
         name="inventory_expiration_date"
-        className="border p-2 rounded-lg"
+        className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
       />
       <p className="text-red-600 text-sm mb-2">
         {validationMessages.inventory_expiration_date}
@@ -274,7 +321,7 @@ const CreateInventory = ({ productName }) => {
       <textarea
         id="inventory_description"
         name="inventory_description"
-        className="border p-2 rounded-lg mb-2"
+        className="border p-2 rounded-lg mb-2 outline-none focus:ring-mainButtonColor focus:ring-1"
         placeholder="inventory description"
       />
 
@@ -287,7 +334,16 @@ const CreateInventory = ({ productName }) => {
         }`}
         disabled={loading || dataLoading}
       >
-        {loading ? "Creating Inventory..." : "Create Inventory"}
+        {dataLoading ? (
+          <>
+            <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+            Loading...
+          </>
+        ) : loading ? (
+          "Creating Inventory..."
+        ) : (
+          "Create Inventory"
+        )}
       </button>
     </form>
   );
@@ -299,6 +355,7 @@ const SupplierInput = ({
   setSelectedSupplier,
   supplierQuery,
   setSupplierQuery,
+  setSupplierValid,
 }) => {
   const [supplierQueryResults, setSupplierQueryResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -327,6 +384,7 @@ const SupplierInput = ({
 
   const handleInputChange = (e) => {
     const value = e.target.value;
+    setSupplierValid(false);
     setSupplierQuery(value);
     setSupplierQueryResults([]);
     setLoading(true);
@@ -381,6 +439,7 @@ const SupplierInput = ({
                     e.stopPropagation();
                     setSupplierQuery(supplier.supplier_name);
                     setSelectedSupplier(supplier.supplier_id);
+                    setSupplierValid(true);
                     setFocused(false);
                   }}
                   className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
