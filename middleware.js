@@ -24,6 +24,9 @@ export default async function middleware(req) {
 
   const encryptedSession = cookies().get("session")?.value;
 
+  console.log("Middleware running in:", process.env.NODE_ENV); // Log environment
+  console.log("Session Cookie (Encrypted):", encryptedSession);
+
   const sessionData = await decrypt(encryptedSession);
 
   // if (!sessionData) {
