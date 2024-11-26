@@ -134,7 +134,7 @@ export async function POST(request) {
         user.account_id,
         "Report",
         reportDoc.id,
-        "Add new report"
+        "CREATE"
       );
 
       return NextResponse.json(

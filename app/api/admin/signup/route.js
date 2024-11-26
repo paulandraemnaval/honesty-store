@@ -37,7 +37,7 @@ export async function POST(request) {
 
     //get image url
     let imageURL = null;
-    if (file) {
+    if (file || file !== "") {
       imageURL = await getImageURL(file, accountDoc.id, "profile");
       if (!imageURL) {
         console.log("Failed to generate image URL");

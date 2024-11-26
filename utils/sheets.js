@@ -18,10 +18,9 @@ import {
   getDocs,
   query,
   getDoc,
-  updateDoc,
-  startAfter,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+import { sheets } from "googleapis/build/src/apis/sheets";
 
 // Initialize auth - see https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication
 const serviceAccountAuth = new JWT({
@@ -37,9 +36,13 @@ export const report = new GoogleSpreadsheet(
   serviceAccountAuth
 );
 
-export const generateReport = async () => {
+export const generateReport = async (reportId) => {
   try {
+    const reportDoc = doc(db, "Report", reportId);
+    const reportSnapshot = await getDoc(reportDoc);
+    const reportDb = reportSnapshot.data();
     await report.loadInfo();
+
     const sheet = await report.addSheet({
       title: "startDate - endDate",
       headerRowIndex: 2,
@@ -54,6 +57,18 @@ export const generateReport = async () => {
       ],
     });
 
+    let rowInd = 1;
+    await sheet.loadCells(`A${rowInd + 1}:G${rowInd + 1}`);
+
+    for (let col = 0; col < 7; col++) {
+      const cell = sheet.getCell(rowInd, col);
+      cell.horizontalAlignment = "CENTER";
+      cell.textFormat = { bold: true };
+      cell.backgroundColor = { red: 0.8549, green: 0.9176, blue: 0.8275 };
+    }
+
+    await sheet.saveUpdatedCells();
+
     let range = {
       startRowIndex: 0, // 0-indexed, first row
       endRowIndex: 1, // 1-indexed, second row (exclusive)
@@ -62,59 +77,250 @@ export const generateReport = async () => {
     };
 
     await sheet.mergeCells(range, "MERGE_ALL");
-    await sheet.loadCells("A1:G1");
-    const title = sheet.getCellByA1("A1:G1");
-    title.value = "Audit Summary";
-    title.textFormat = { bold: true };
-    title.backgroundColor = { red: 0.2, green: 0.6, blue: 0.8 };
+    await sheet.loadCells(`A${rowInd}:G${rowInd}`);
+    const title1 = sheet.getCellByA1("A1:G1");
+    title1.value = "Audit Summary";
+    title1.textFormat = { bold: true };
+    title1.backgroundColor = { red: 0.2, green: 0.6, blue: 0.8 };
     await sheet.saveUpdatedCells();
 
-    for (let i = 0; i < 2; i++) {
-      await sheet.addRow({
-        Year: 2024,
-        Month: "October",
-        Day: 24,
-        Time: 132,
-        Expenses: 123,
-        Income: 12,
-        Profit: 123,
-      });
+    const audits = [];
+
+    const auditReportRef = collection(db, "AuditReport");
+    let q = query(auditReportRef, where("report_id", "==", reportId));
+    let querySnapshot = await getDocs(q);
+    const auditReports = querySnapshot.docs.map((doc) => doc.data());
+
+    let promises = auditReports.map(async (docu) => {
+      const auditRef = doc(db, "Audit", docu.audit_id);
+      querySnapshot = await getDoc(auditRef);
+      const audit = querySnapshot.data();
+      const date = audit.audit_timestamp.toDate();
+      const editAudit = [
+        date.getFullYear(),
+        date.toLocaleString("default", { month: "long" }),
+        date.getDate(),
+        date.toLocaleTimeString(),
+        audit.audit_total_expense,
+        audit.audit_gross_income,
+        audit.audit_net_profit,
+      ];
+      audits.push(editAudit);
+    });
+
+    await Promise.all(promises);
+
+    for (let i = 0; i < audits.length; i++) {
+      rowInd++;
+      await sheet.loadCells(`A${rowInd + 1}:G${rowInd + 1}`);
+      for (let col = 0; col < 7; col++) {
+        const cell = sheet.getCell(rowInd, col);
+        cell.value = audits[i][col];
+        cell.horizontalAlignment = "CENTER";
+        if (col === 4 || col === 5 || col === 6) {
+          cell.numberFormat = {
+            type: "CURRENCY",
+            pattern: "₱#,##0.00",
+          };
+        }
+      }
     }
 
-    await sheet.addRow(["", "", "", "Sum", "", "", ""]);
-    await sheet.addRow(["Cash in-flow"]);
-    await sheet.addRow(["Cash out-flow"]);
-    await sheet.addRow(["Total"]);
+    await sheet.saveUpdatedCells();
 
-    range = {};
-    const total = sheet.getCellsInRange();
+    let profit;
+    rowInd++;
+    await sheet.loadCells(`A${rowInd + 1}:G${rowInd + 1}`);
+    for (let col = 0; col < 7; col++) {
+      const cell = sheet.getCell(rowInd, col);
+      if (col == 3) {
+        cell.value = "Sum";
+        cell.backgroundColor = { red: 0.8118, green: 0.8863, blue: 0.9529 };
+      } else if (col == 4) {
+        cell.formula = `=SUM(E3:E${rowInd})`;
+        cell.backgroundColor = { red: 0.8118, green: 0.8863, blue: 0.9529 };
+      } else if (col == 5) {
+        cell.formula = `=SUM(F3:F${rowInd})`;
+        cell.backgroundColor = { red: 0.8118, green: 0.8863, blue: 0.9529 };
+      } else if (col == 6) {
+        cell.formula = `=SUM(G3:G${rowInd})`;
+        cell.backgroundColor = { red: 0.8118, green: 0.8863, blue: 0.9529 };
+        profit = cell;
+      }
 
-    // const audits = [];
+      if (col === 4 || col === 5 || col === 6) {
+        cell.numberFormat = {
+          type: "CURRENCY",
+          pattern: "₱#,##0.00",
+        };
+      }
+      cell.horizontalAlignment = "CENTER";
+      cell.textFormat = { bold: true };
+    }
+    await sheet.saveUpdatedCells();
 
-    // const auditReportRef = collection(db, "AuditReport");
-    // let q = query(auditReportRef, where("report_id", "==", reportId));
-    // let querySnapshot = await getDocs(q);
-    // const auditReports = querySnapshot.docs.map((doc) => doc.data());
+    const newRows = [
+      ["Cash-in flow", reportDb.report_cash_inflow],
+      ["Cash-out flow", reportDb.report_cash_outflow],
+      ["Total"],
+    ];
 
-    // let promises = auditReports.map(async (doc) => {
-    //   const auditRef = collection(db, "Audit", doc.audit_id);
-    //   querySnapshot = await getDoc(auditRef);
-    //   const audit = querySnapshot.data();
-    //   audits.push(audit);
+    for (let i = 0; i < newRows.length; i++) {
+      rowInd++;
+      await sheet.loadCells(`A${rowInd + 1}:B${rowInd + 1}`);
+      for (let col = 0; col < 2; col++) {
+        const cell = sheet.getCell(rowInd, col);
+        cell.value = newRows[i][col];
+        cell.horizontalAlignment = "CENTER";
+        cell.backgroundColor = { red: 0.8118, green: 0.8863, blue: 0.9529 };
+        cell.textFormat = { bold: true };
+      }
+    }
 
-    //   const date = new Date(audit.audit_timestamp);
+    const total = sheet.getCell(rowInd, 1);
+    const cashIn = sheet.getCell(rowInd - 2, 1);
+    const cashOut = sheet.getCell(rowInd - 1, 1);
+    cashIn.numberFormat = cashOut.numberFormat = {
+      type: "CURRENCY",
+      pattern: "₱#,##0.00",
+    };
+    total.formula = `=${profit.a1Address}+${cashIn.a1Address}-${cashOut.a1Address}`;
 
-    //   await sheet.addRow({
-    //     Year: date.getFullYear(),
-    //     Month: date.toLocaleString("default", { month: "long" }),
-    //     Day: date.getDate(),
-    //     Time: date.toLocaleTimeString(),
-    //     Expenses: audit.audit_total_expense,
-    //     Income: audit.audit_gross_income,
-    //     Profit: audit.audit_net_profit,
-    //   });
-    // });
-    // await Promise.all(promises);
+    await sheet.saveUpdatedCells();
+
+    rowInd += 3;
+    range = {
+      startRowIndex: rowInd,
+      endRowIndex: rowInd + 1,
+      startColumnIndex: 0, // 0-indexed, first column (A)
+      endColumnIndex: 12, // 7-indexed, eighth column (H, exclusive)
+    };
+
+    await sheet.mergeCells(range, "MERGE_ALL");
+    await sheet.loadCells();
+    const title2 = sheet.getCellByA1(`A${rowInd + 1}:L${rowInd + 1}`);
+    title2.value = "Inventory Summary";
+    title2.textFormat = { bold: true };
+    title2.backgroundColor = { red: 0.2, green: 0.6, blue: 0.8 };
+
+    await sheet.saveUpdatedCells();
+
+    rowInd++;
+    await sheet.loadCells(`A${rowInd}:L${rowInd}`);
+
+    const newRowValues = [
+      "Year",
+      "Month",
+      "Day",
+      "Time",
+      "Product",
+      "Inv ID",
+      "Remaining Units",
+      "Wholesale",
+      "Retail",
+      "Expense",
+      "Income",
+      "Profit",
+    ];
+
+    for (let col = 0; col < newRowValues.length; col++) {
+      const cell = sheet.getCell(rowInd, col); // Get the cell at the specified row and column
+      cell.value = newRowValues[col]; // Set the value
+      cell.horizontalAlignment = "CENTER";
+      cell.textFormat = { bold: true };
+      cell.backgroundColor = { red: 0.8549, green: 0.9176, blue: 0.8275 };
+    }
+
+    await sheet.saveUpdatedCells();
+
+    await inventorySummary(
+      reportDb.report_start_date,
+      reportDb.report_end_date,
+      rowInd,
+      sheet
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const inventorySummary = async (startDate, endDate, rowInd, sheet) => {
+  try {
+    const cycleCountRef = collection(db, "CycleCount");
+    const q = query(
+      cycleCountRef,
+      where("cycle_count_timestamp", ">=", startDate),
+      where("cycle_count_timestamp", "<=", endDate)
+    );
+    const cycleSnapshot = await getDocs(q);
+    const cycleCounts = cycleSnapshot.docs.map((doc) => doc.data());
+
+    const filteredCycleCounts = cycleCounts.reduce((acc, cycleCount) => {
+      const inventoryId = cycleCount.inventory_id;
+      if (!acc[inventoryId]) {
+        acc[inventoryId] = cycleCount;
+      } else {
+        acc[inventoryId].cycle_count_profit += cycleCount.cycle_count_profit;
+        acc[inventoryId].cycle_count_income += cycleCount.cycle_count_income;
+      }
+      return acc;
+    }, {});
+    const result = Object.values(filteredCycleCounts);
+
+    const data = [];
+
+    const promises = result.map(async (cycle) => {
+      const inventoryDoc = doc(db, "Inventory", cycle.inventory_id);
+      const inventorySnapshot = await getDoc(inventoryDoc);
+      if (!inventorySnapshot.exists()) {
+        console.log("Inventory not found for ID:", cycle.inventory_id);
+        return;
+      }
+
+      const inventory = inventorySnapshot.data();
+      const productRef = doc(db, "Product", inventory.product_id);
+      const productSnapshot = await getDoc(productRef);
+      if (!productSnapshot.exists()) {
+        console.log("Product not found for ID:", inventory.product_id);
+        return;
+      }
+      const product_name = productSnapshot.data().product_name;
+      const date = inventory.inventory_timestamp.toDate();
+      const expense = cycle.cycle_count_income - cycle.cycle_count_profit;
+      const combine = [
+        date.getFullYear(),
+        date.toLocaleString("default", { month: "long" }),
+        date.getDate(),
+        date.toLocaleTimeString(),
+        product_name,
+        cycle.inventory_id,
+        inventory.inventory_total_units,
+        inventory.inventory_wholesale_price,
+        inventory.inventory_retail_price,
+        expense,
+        cycle.cycle_count_income,
+        cycle.cycle_count_profit,
+      ];
+      data.push(combine);
+    });
+
+    await Promise.all(promises);
+
+    for (let i = 0; i < data.length; i++) {
+      rowInd++;
+      await sheet.loadCells(`A${rowInd}:L${rowInd}`);
+      for (let col = 0; col < 12; col++) {
+        const cell = sheet.getCell(rowInd, col);
+        cell.value = data[i][col];
+        cell.horizontalAlignment = "CENTER";
+        if (col === 7 || col === 8 || col === 9 || col === 10 || col === 11) {
+          cell.numberFormat = {
+            type: "CURRENCY",
+            pattern: "₱#,##0.00",
+          };
+        }
+      }
+    }
   } catch (error) {
     console.log(error);
   }

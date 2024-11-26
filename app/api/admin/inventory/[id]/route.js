@@ -60,7 +60,7 @@ export async function PATCH(request, { params }) {
       inventory_description,
       inventory_profit_margin,
       inventory_expiration_date,
-      inventory_last_updated: Timestamp.now().toDate(),
+      inventory_last_updated: Timestamp.now(),
     });
 
     const user = await getLoggedInUser();

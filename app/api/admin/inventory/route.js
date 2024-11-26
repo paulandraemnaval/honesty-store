@@ -143,34 +143,6 @@ export async function POST(request) {
     const date = new Date(inventory_expiration_date);
     inventory_expiration_date = Timestamp.fromDate(date);
 
-    if (isNaN(inventory_profit_margin) || inventory_profit_margin === "") {
-      inventory_profit_margin = calculateProfitMargin(
-        retail_price,
-        wholesale_price
-      );
-
-      if (!isProfitMarginAboveThreshold(inventory_profit_margin, 10)) {
-        return NextResponse.json(
-          { message: "Profit margin is below the threshold of 10%" },
-          { status: 400 }
-        );
-      }
-    } else {
-      if (
-        !isProfitMarginAboveThreshold(
-          calculateProfitMargin(retail_price, wholesale_price),
-          inventory_profit_margin
-        )
-      ) {
-        return NextResponse.json(
-          {
-            message: `Profit margin is below the threshold of ${inventory_profit_margin}%`,
-          },
-          { status: 400 }
-        );
-      }
-    }
-
     await setDoc(inventoryDoc, {
       inventory_id: inventoryDoc.id,
       product_id: inventory_product,
@@ -191,7 +163,7 @@ export async function POST(request) {
       user.account_id,
       "Inventory",
       inventoryDoc.id,
-      "Added a new inventory"
+      "CREATE"
     );
 
     return NextResponse.json(

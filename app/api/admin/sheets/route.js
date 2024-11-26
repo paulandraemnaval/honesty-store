@@ -3,7 +3,7 @@ import { generateReport } from "@utils/sheets";
 
 export async function GET() {
   try {
-    await generateReport();
+    await generateReport("DaV9FrB95Qen2soYssp4");
     return NextResponse.json(
       { message: "Report generated successfully" },
       { status: 200 }
