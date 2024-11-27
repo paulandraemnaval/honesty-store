@@ -12,10 +12,6 @@ export async function encrypt(payload) {
 }
 
 export async function decrypt(session) {
-  console.log("---------------------");
-  console.log("FROM SESSION.JS. session:", session);
-  console.log("Secret session: ", process.env.SESSION_SECRET);
-
   try {
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ["HS256"],

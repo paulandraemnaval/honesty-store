@@ -34,7 +34,7 @@ async function createSession(userId, path) {
   const encryptedSession = await encrypt({ sessionId, expiresAt });
   cookies().set("session", encryptedSession, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
     expires: expiresAt,
     sameSite: "lax",
     path: "/",
