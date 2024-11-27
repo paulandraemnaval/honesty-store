@@ -15,7 +15,7 @@ import ButtonLoading from "./ButtonLoading";
 const MobileFilter = ({
   setSelectedCategory = () => {},
   selectedCategory = "all",
-  setSupplierFilter = () => {},
+  setSelectedSupplier = () => {},
   supplierFilter = "all",
   renderedIn,
 }) => {
@@ -69,7 +69,7 @@ const MobileFilter = ({
 
   const handleApplyFilters = () => {
     setSelectedCategory(localCategory);
-    setSupplierFilter(localSupplier);
+    setSelectedSupplier(localSupplier);
     setIsExpanded(false);
   };
 

@@ -101,7 +101,7 @@ const productspage = () => {
           <div className="sm:hidden block mb-4">
             <MobileFilter
               setSelectedCategory={setSelectedCategory}
-              selectedCategory={selectedCategory}
+              setSelectedSupplier={setSelectedSupplier}
               renderedIn={"admin"}
             />
           </div>
