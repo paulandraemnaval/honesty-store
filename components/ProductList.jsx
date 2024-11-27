@@ -367,7 +367,7 @@ const ProductList = ({
                       ></Image>
                     </div>
                   )}
-                  <div className="flex justify-center sm:h-[10rem] h-[5rem] ">
+                  <div className="flex justify-center sm:h-[10rem] h-[6rem] ">
                     <Image
                       src={product.product_image_url || PlaceholderImage}
                       alt={product.product_name}
