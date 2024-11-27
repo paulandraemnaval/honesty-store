@@ -26,9 +26,6 @@ export default async function middleware(req) {
 
   const sessionData = await decrypt(encryptedSession);
 
-  // if (!sessionData) {
-  //   console.warn("No session data found.");
-  // }
   const isSessionValid =
     sessionData && new Date(sessionData.expiresAt) > new Date();
 
@@ -36,16 +33,6 @@ export default async function middleware(req) {
     return NextResponse.redirect(new URL("/admin", req.nextUrl));
   }
 
-  console.log("---------------------");
-  console.log("Request URL:", req.nextUrl.href);
-  console.log("encryptedSession:", encryptedSession);
-
-  console.log("Path:", path);
-  console.log("Protected Route:", isProtectedRoute);
-  console.log("Public Route:", isPublicRoute);
-  console.log("Session Data:", sessionData);
-  console.log("Session Valid:", isSessionValid);
-  console.log("---------------------");
   if (
     isPublicRoute &&
     isSessionValid &&
@@ -58,5 +45,7 @@ export default async function middleware(req) {
 }
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+  ],
 };

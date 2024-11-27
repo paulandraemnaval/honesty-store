@@ -1,22 +1,8 @@
-import {
-  db,
-  createLog,
-  getLoggedInUser,
-  checkCollectionExists,
-  getLastReportEndDate,
-} from "@utils/firebase";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-  doc,
-  setDoc,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
+import { db } from "@utils/firebase";
+import { collection, getDocs, doc, query } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+//get notifs by 5
 export async function PATCH(request) {
   const { lastVisible } = await request.json();
   try {
@@ -45,38 +31,6 @@ export async function PATCH(request) {
   } catch (error) {
     return NextResponse.json(
       { message: "Failed to fetch products: " + error.message },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request) {
-  try {
-    const { notification_title, notification_body } = await request.json();
-
-    const notifRef = collection(db, "Notification");
-    const notifDoc = await getDoc(notifRef);
-
-    const user = await getLoggedInUser();
-
-    await setDoc(notifDoc, {
-      notification_id: notifDoc.id,
-      account_id: user.account_id,
-      notification_title,
-      notification_body,
-      notification_type: 1,
-      notification_is_read: false,
-      notification_timestamp: Timestamp.now(),
-      notification_soft_deleted: false,
-    });
-
-    return NextResponse.json(
-      { message: "Notification successfully created." },
-      { status: 200 }
-    );
-  } catch (error) {
-    return NextResponse.json(
-      { message: "Failed to create notification", error: error },
       { status: 500 }
     );
   }
