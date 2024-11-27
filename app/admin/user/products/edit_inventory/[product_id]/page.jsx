@@ -7,7 +7,7 @@ const page = ({ params }) => {
       <div className="w-full border mb-2"></div>
 
       <div className="overflow-y-auto flex-1 py-2">
-        <ProductInventories productId={params.product_id} />
+        <ProductInventories productID={params.product_id} />
       </div>
     </div>
   );

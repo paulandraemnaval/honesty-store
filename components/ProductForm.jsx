@@ -1,9 +1,11 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
 import { toast } from "react-hot-toast";
 import closeIcon from "@public/icons/close_icon.png";
+import Loading from "@components/Loading";
+import ButtonLoading from "./ButtonLoading";
 const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
   const [image, setImage] = useState({
     file: null,
@@ -12,6 +14,7 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
   const [selectedCategory, setSelectedCategory] = useState("");
   const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [categoryValid, setCategoryValid] = useState(false);
   const [validationMessages, setValidationMessages] = useState({
@@ -35,36 +38,36 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
   };
 
   useEffect(() => {
-    if (productID) {
-      const fetchProductData = async () => {
-        try {
-          setLoading(true);
-          const response = await fetch(`/api/admin/products/${productID}`);
-          const productData = await response.json();
-          setProduct(productData?.data);
-          if (productData?.data?.product_category) {
-            const categoryResponse = await fetch(
-              `/api/admin/category/${productData.data.product_category}`
-            );
-            const categoryData = await categoryResponse.json();
-            setCategoryName(categoryData?.data?.category_name);
-            setSelectedCategory(productData?.data?.product_category);
-            setImage({
-              file: null,
-              url: productData?.data?.product_image_url || "",
-            });
-          }
-        } catch (err) {
-          console.log(err);
-          setProduct({});
-          setCategoryName("");
-        } finally {
-          setLoading(false);
+    if (!productID) return;
+    const fetchProductData = async () => {
+      try {
+        setDataLoading(true);
+        const response = await fetch(`/api/admin/products/${productID}`);
+        const productData = await response.json();
+        setProduct(productData?.data);
+        if (productData?.data?.product_category) {
+          const categoryResponse = await fetch(
+            `/api/admin/category/${productData.data.product_category}`
+          );
+          const categoryData = await categoryResponse.json();
+          setCategoryName(categoryData?.data?.category_name);
+          setSelectedCategory(productData?.data?.product_category);
+          setCategoryValid(true);
+          setImage({
+            file: null,
+            url: productData?.data?.product_image_url || "",
+          });
         }
-      };
+      } catch (err) {
+        console.log(err);
+        setProduct({});
+        setCategoryName("");
+      } finally {
+        setDataLoading(false);
+      }
+    };
 
-      fetchProductData();
-    }
+    fetchProductData();
   }, [productID]);
 
   const validateForm = (formData) => {
@@ -128,11 +131,9 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
     formData.append("file", image.file);
     formData.append("product_category", selectedCategory);
 
-    const weight =
-      "" +
-      formData.get("product_weight") +
-      " " +
-      formData.get("product_weight_unit");
+    const weight = `${formData.get("product_weight")} ${formData.get(
+      `product_weight_unit`
+    )}`;
     formData.delete("product_weight_unit");
     formData.set("product_weight", weight);
 
@@ -172,6 +173,12 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
     if (image.file) formData.append("file", image.file);
     formData.append("url", product?.product_image_url);
     formData.append("product_category", selectedCategory);
+
+    const weight = `${formData.get("product_weight")} ${formData.get(
+      "product_weight_unit"
+    )}`;
+    formData.delete("product_weight_unit");
+    formData.set("product_weight", weight);
 
     setLoading(true);
     try {
@@ -218,20 +225,39 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center w-full h-full">
-        <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor"></span>
-      </div>
-    );
+  const getHeaderText = () => {
+    if (productID) return `Edit ${product?.product_name || ""}`;
+    return "Create a new product";
+  };
+
+  const getSubHeaderText = () => {
+    if (productID) return "Edit product details";
+    return "Fill in the details to create a new product";
+  };
+
+  const parseWeight = (productWeight) => {
+    const match = productWeight.match(/^(\d+(\.\d+)?)([a-zA-Z]+)$/);
+
+    if (!match) {
+      return { weight: null, unit: null };
+    }
+
+    return {
+      weight: parseFloat(match[1]),
+      unit: match[3],
+    };
+  };
+
+  if (dataLoading) {
+    return <Loading />;
   }
 
   return (
     <>
       <div className="w-full sm:flex hidden px-1 mb-2 py-2">
         <div className="w-full">
-          <h1 className="text-xl font-bold mr-auto">Make new product</h1>
-          <h2 className="text-sm text-gray-600">Create a new product</h2>
+          <h1 className="text-xl font-bold mr-auto">{getHeaderText()}</h1>
+          <h2 className="text-sm text-gray-600">{getSubHeaderText()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "
@@ -429,7 +455,7 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
         <textarea
           name="product_description"
           placeholder="Product description"
-          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2 ${
+          className={`h-40 px-2 py-4  rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-4 ${
             loading ? "cursor-not-allowed" : ""
           }`}
           defaultValue={product?.product_description || ""}
@@ -445,17 +471,11 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
             disabled={loading}
           >
             {loading ? (
-              <>
-                Uploading Product...
-                <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
-              </>
+              <ButtonLoading>Processing...</ButtonLoading>
             ) : productID ? (
-              <>
-                Updating product...
-                <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
-              </>
+              "Update Product"
             ) : (
-              "Create Product"
+              "Add Product"
             )}
           </button>
         </div>

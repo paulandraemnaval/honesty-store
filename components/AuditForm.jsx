@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
+
+//TODO: IMPLEMENT SEARCH
+
 const AuditForm = () => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);

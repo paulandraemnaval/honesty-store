@@ -9,6 +9,7 @@ import plusIcon from "@public/icons/plus_icon.png";
 import addInventoryIcon from "@public/icons/add_inventory_icon.png";
 import editIcon from "@public/icons/edit_icon.png";
 import editIconWhite from "@public/icons/edit_icon_white.png";
+import Loading from "@components/Loading";
 const ProductList = ({
   filter,
   searchKeyword = "",
@@ -16,6 +17,9 @@ const ProductList = ({
   setShowInventoryForm = () => {},
   setProductName = () => {},
   setShowProductForm = () => {},
+  setEditingProductID = () => {},
+  editingProductID = "",
+  setShowProductInventories = () => {},
 }) => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -23,7 +27,6 @@ const ProductList = ({
   const [lastVisible, setLastVisible] = useState("");
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [stopFetching, setStopFetching] = useState(false);
-  const [showEditing, setShowEditing] = useState(false);
   const pathname = usePathname();
   const sentinelRef = useRef(null);
 
@@ -214,16 +217,11 @@ const ProductList = ({
     inventories,
   ]);
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
-        <p className="text-black">Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
-    <div className="w-full h-full min-h-fit overflow-y-auto z-0 px-1">
+    <div className="w-full h-full min-h-fit overflow-y-auto z-0 px-1 py-2">
       <div
         className={`grid gap-3 w-full grid-cols-2 ${
           filteredProducts.length > 4
@@ -240,7 +238,7 @@ const ProductList = ({
                     className="flex flex-col justify-center gap-4 py-8 sm:px-8 px-4 w-full  items-center "
                     onClick={() => setShowProductForm(true)}
                   >
-                    <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all w-full ">
+                    <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all w-full">
                       <span className="text-base font-semibold break-all flex flex-col items-center justify-center text-mainButtonColor">
                         Add product
                         <Image
@@ -280,12 +278,15 @@ const ProductList = ({
                 key={product.product_id}
                 className={`bg-white p-4 rounded-smxl shadow-lg relative border-2  `}
               >
-                {showEditing && (
-                  <div className="absolute top-0 right-0  flex flex-col bg-[rgba(120,120,120,0.50)] w-full  h-full">
-                    <div className="bg-mainButtonColor px-4 py-4 w-full h-fit flex flex-col gap-2">
+                {editingProductID === product.product_id && (
+                  <div className="absolute top-0 right-0 flex  w-full flex-row h-full sm:p-2 p-0 bg-[rgba(120,120,120,0.15)]">
+                    <div className="bg-mainButtonColor p-2 w-fit h-fit sm:flex hidden flex-col gap-2 rounded-lg ml-auto">
                       <div
-                        className="self-end  object-cover p-1 rounded-md flex ring-1 ring-white "
-                        onClick={() => setShowEditing(false)}
+                        className="self-end   object-cover p-1 rounded-md flex ring-1 ring-white mb-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingProductID("");
+                        }}
                       >
                         <Image
                           src={editIconWhite}
@@ -296,29 +297,77 @@ const ProductList = ({
                         ></Image>
                       </div>
 
-                      <div className="w-full text-white cursor-pointer">
+                      <div
+                        className="w-full text-white cursor-pointer bg-mainButtonColor p-1 rounded-md hover:bg-darkButtonHover "
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowProductForm(true);
+                        }}
+                      >
                         Edit product
                       </div>
-                      <div className="w-full text-white cursor-pointer">
-                        Edit inventories of product
+                      <div
+                        className="w-full text-white cursor-pointer bg-mainButtonColor p-1 rounded-md hover:bg-darkButtonHover "
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowProductInventories(true);
+                        }}
+                      >
+                        Edit inventories
                       </div>
+                    </div>
+
+                    {/* MOBILE DROPDOWN */}
+
+                    <div
+                      className="bg-mainButtonColor p-2 w-full h-fit flex sm:hidden flex-col gap-2  ml-auto"
+                      onClick={() => {
+                        setEditingProductID("");
+                      }}
+                    >
+                      <div className="self-end mr-2 mt-2 object-cover p-1 rounded-md flex ring-1 ring-white mb-2">
+                        <Image
+                          src={editIconWhite}
+                          alt="Edit product"
+                          width={20}
+                          height={20}
+                          className="object-cover w-6 h-6 cursor-pointer"
+                        ></Image>
+                      </div>
+
+                      <Link
+                        className="w-full text-white cursor-pointer bg-mainButtonColor p-1 rounded-md hover:bg-darkButtonHover "
+                        href={`/admin/user/products/edit_product/${product.product_id}`}
+                      >
+                        Edit product
+                      </Link>
+                      <Link
+                        href={`/admin/user/products/edit_inventory/${product.product_id}`}
+                        className="w-full text-white cursor-pointer bg-mainButtonColor p-1 rounded-md hover:bg-darkButtonHover "
+                      >
+                        Edit inventories
+                      </Link>
                     </div>
                   </div>
                 )}
-                <div className="flex flex-col justify-center gap-4 z-20">
-                  <div
-                    className="self-end  object-cover p-1 rounded-md flex"
-                    onClick={() => setShowEditing(true)}
-                  >
-                    <Image
-                      src={editIcon}
-                      alt="Edit product"
-                      width={20}
-                      height={20}
-                      className="object-cover w-6 h-6 cursor-pointer"
-                    ></Image>
-                  </div>
-                  <div className="flex justify-center h-[7rem]">
+                <div className="flex flex-col justify-center z-20">
+                  {pathname.includes("admin") && (
+                    <div
+                      className="self-end object-cover p-1 rounded-md flex"
+                      onClick={() => {
+                        setEditingProductID(product.product_id);
+                      }}
+                    >
+                      <Image
+                        src={editIcon}
+                        alt="Edit product"
+                        width={20}
+                        height={20}
+                        className="object-cover w-6 h-6 cursor-pointer"
+                      ></Image>
+                    </div>
+                  )}
+                  <div className="flex justify-center sm:h-[10rem] h-[5rem] ">
                     <Image
                       src={product.product_image_url || PlaceholderImage}
                       alt={product.product_name}
@@ -389,7 +438,7 @@ const ProductList = ({
         {loading ||
           (isFetchingMore && (
             <div className="flex justify-center items-center h-10">
-              <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+              <span className="spinner-border-blue animate-spin w-8 h-8 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
               <p className="text-black">Loading...</p>
             </div>
           ))}

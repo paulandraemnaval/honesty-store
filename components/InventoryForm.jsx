@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from "react";
 import { toast } from "react-hot-toast";
 import closeIcon from "@public/icons/close_icon.png";
 import Image from "next/image";
+import Loading from "./Loading";
+import ButtonLoading from "./ButtonLoading";
 const CreateInventory = ({ productName, setShowInventoryForm }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
@@ -57,25 +59,23 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
   }, [wholesalePrice, profitMargin, manualRetailPrice]);
 
   useEffect(() => {
-    if (productName) {
-      const fetchProduct = async () => {
-        try {
-          setDataLoading(true);
-          const response = await fetch(
-            `/api/admin/query?product=${productName}`
-          );
-          const data = await response.json();
-          setSelectedProduct(
-            Array.isArray(data?.data) ? data.data[0].product_id : null
-          );
-        } catch (error) {
-          console.error("Failed to fetch product: ", error);
-        } finally {
-          setDataLoading(false);
-        }
-      };
-      fetchProduct();
-    }
+    if (!productName) return;
+    const fetchProduct = async () => {
+      try {
+        setDataLoading(true);
+        const response = await fetch(`/api/admin/query?product=${productName}`);
+        const data = await response.json();
+        setSelectedProduct(
+          Array.isArray(data?.data) ? data.data[0].product_id : null
+        );
+      } catch (error) {
+        console.error("Failed to fetch product: ", error);
+        setSelectedProduct(null);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    fetchProduct();
   }, [productName]);
 
   const validateForm = (formData) => {
@@ -205,12 +205,7 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
   };
 
   if (dataLoading) {
-    return (
-      <div className="flex justify-center items-center h-96">
-        <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
-        <p className="text-black">Loading...</p>
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -386,7 +381,7 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
         <textarea
           id="inventory_description"
           name="inventory_description"
-          className="border p-2 rounded-lg mb-4 outline-none focus:ring-mainButtonColor focus:ring-1 min-h-[10rem]"
+          className="h-40 border px-2 py-4 rounded-lg mb-4 outline-none focus:ring-mainButtonColor focus:ring-1"
           placeholder="inventory description"
         />
 
@@ -400,12 +395,7 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
           disabled={loading || dataLoading}
         >
           {loading ? (
-            <>
-              Creating Inventory...
-              <span className="spinner-border animate-spin h-5 w-5 border-2 border-mainButtonColor border-t-transparent rounded-full ">
-                {" "}
-              </span>
-            </>
+            <ButtonLoading>Processing...</ButtonLoading>
           ) : (
             "Create Inventory"
           )}

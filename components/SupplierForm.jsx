@@ -1,16 +1,40 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import closeIcon from "@public/icons/close_icon.png";
-const SupplierForm = ({ setShowSupplierForm }) => {
+import { toast } from "react-hot-toast";
+import ButtonLoading from "./ButtonLoading";
+import Loading from "./Loading";
+const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
   const [validationMessages, setValidationMessages] = useState({
     supplier_name: "\u00A0",
     supplier_contact_person: "\u00A0",
     supplier_contact_number: "\u00A0",
     supplier_email_address: "\u00A0",
   });
-
   const [loading, setLoading] = useState(false);
+  const [supplier, setSupplier] = useState(null);
+  const [dataLoading, setDataLoading] = useState(false);
+
+  const getSupplier = async () => {
+    try {
+      setDataLoading(true);
+      const response = await fetch(`/api/admin/supplier/${supplierID}`);
+      const data = await response.json();
+      setSupplier(data ? data?.data : null);
+    } catch (err) {
+      console.error("Failed to fetch supplier:", err);
+      setSupplier(null);
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!supplierID) return;
+    getSupplier();
+  }, [supplierID]);
+
   const validateForm = (formdata) => {
     const messages = {
       supplier_name: formdata.get("supplier_name").trim()
@@ -47,25 +71,82 @@ const SupplierForm = ({ setShowSupplierForm }) => {
     return Object.values(messages).every((msg) => msg === "\u00A0");
   };
 
-  const handleCreateSupplier = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const formdata = new FormData(e.target);
+    if (!validateForm(formdata)) return;
 
-    if (!validateForm(formdata)) {
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/admin/supplier", {
-        method: "POST",
-        body: formdata,
-      });
-      const data = await response.json();
-      console.log(data);
-    } catch (err) {
-      console.log(err.message);
+    if (supplierID) {
+      patchSupplier(e);
+    } else {
+      postSupplier(e);
     }
   };
+
+  const postSupplier = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const response = await fetch("/api/admin/supplier", {
+        method: "POST",
+        body: new FormData(e.target),
+      });
+      const data = await response.json();
+      if (data?.success) {
+        toast.success("Supplier has been created successfully!", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+        e.target.reset();
+        setSupplier(null);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      console.error("Failed to create supplier:", err);
+      toast.error("Failed to create supplier. Please try again later.", {
+        duration: 3000,
+        style: { fontSize: "1.2rem", padding: "16px" },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const patchSupplier = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/admin/supplier/${supplierID}`, {
+        method: "PATCH",
+        body: new FormData(e.target),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("Supplier has been updated successfully!", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+      } else {
+        toast.error("Failed to update supplier. Please try again later.", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+      }
+    } catch (err) {
+      console.error("Failed to update supplier:", err);
+      toast.error("Failed to update supplier. Please try again later.", {
+        duration: 3000,
+        style: { fontSize: "1.2rem", padding: "16px" },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (dataLoading) {
+    return <Loading />;
+  }
 
   return (
     <>
@@ -92,7 +173,7 @@ const SupplierForm = ({ setShowSupplierForm }) => {
 
       <form
         action="createSupplier"
-        onSubmit={handleCreateSupplier}
+        onSubmit={handleSubmit}
         className="flex flex-col w-full h-fit py-1 px-1"
       >
         <label htmlFor="supplier_name">
@@ -103,6 +184,7 @@ const SupplierForm = ({ setShowSupplierForm }) => {
           id="supplier_name"
           name="supplier_name"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          value={supplier?.supplier_name || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_name}
@@ -116,6 +198,7 @@ const SupplierForm = ({ setShowSupplierForm }) => {
           id="supplier_contact_person"
           name="supplier_contact_person"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          value={supplier?.supplier_contact_person || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_contact_person}
@@ -129,6 +212,7 @@ const SupplierForm = ({ setShowSupplierForm }) => {
           id="supplier_contact_number"
           name="supplier_contact_number"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          value={supplier?.supplier_contact_number || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_contact_number}
@@ -142,6 +226,7 @@ const SupplierForm = ({ setShowSupplierForm }) => {
           id="supplier_email_address"
           name="supplier_email_address"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
+          value={supplier?.supplier_email_address || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_email_address}
@@ -151,21 +236,27 @@ const SupplierForm = ({ setShowSupplierForm }) => {
         <textarea
           id="supplier_notes"
           name="supplier_notes"
-          className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-2"
+          className="h-40 px-2 py-4 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-4"
+          value={supplier?.supplier_notes || ""}
         />
 
         <div className="w-full flex flex-row-reverse">
           <button
             type="submit"
-            className={` text-white rounded-lg p-2 w-fit flex-end 
-          ${
-            loading
-              ? "cursor-not-allowed bg-mainButtonColorDisabled"
-              : "cursor-pointer bg-mainButtonColor"
-          }
-            `}
+            className={` text-white rounded-lg p-2 w-fit flex-end ${
+              loading
+                ? "cursor-not-allowed bg-mainButtonColorDisabled"
+                : "cursor-pointer bg-mainButtonColor"
+            }`}
+            disabled={loading}
           >
-            {loading ? "Creating..." : "Create Supplier"}
+            {loading ? (
+              <ButtonLoading>Processing...</ButtonLoading>
+            ) : supplierID ? (
+              "Update Supplier"
+            ) : (
+              "Create Supplier"
+            )}
           </button>
         </div>
       </form>
