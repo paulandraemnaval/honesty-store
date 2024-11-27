@@ -7,6 +7,8 @@ import PlaceholderImage from "@public/defaultImages/placeholder_image.png";
 import Link from "@node_modules/next/link";
 import plusIcon from "@public/icons/plus_icon.png";
 import addInventoryIcon from "@public/icons/add_inventory_icon.png";
+import editIcon from "@public/icons/edit_icon.png";
+import editIconWhite from "@public/icons/edit_icon_white.png";
 const ProductList = ({
   filter,
   searchKeyword = "",
@@ -21,6 +23,7 @@ const ProductList = ({
   const [lastVisible, setLastVisible] = useState("");
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [stopFetching, setStopFetching] = useState(false);
+  const [showEditing, setShowEditing] = useState(false);
   const pathname = usePathname();
   const sentinelRef = useRef(null);
 
@@ -277,7 +280,44 @@ const ProductList = ({
                 key={product.product_id}
                 className={`bg-white p-4 rounded-smxl shadow-lg relative border-2  `}
               >
+                {showEditing && (
+                  <div className="absolute top-0 right-0  flex flex-col bg-[rgba(120,120,120,0.50)] w-full  h-full">
+                    <div className="bg-mainButtonColor px-4 py-4 w-full h-fit flex flex-col gap-2">
+                      <div
+                        className="self-end  object-cover p-1 rounded-md flex ring-1 ring-white "
+                        onClick={() => setShowEditing(false)}
+                      >
+                        <Image
+                          src={editIconWhite}
+                          alt="Edit product"
+                          width={20}
+                          height={20}
+                          className="object-cover w-6 h-6 cursor-pointer"
+                        ></Image>
+                      </div>
+
+                      <div className="w-full text-white cursor-pointer">
+                        Edit product
+                      </div>
+                      <div className="w-full text-white cursor-pointer">
+                        Edit inventories of product
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col justify-center gap-4 z-20">
+                  <div
+                    className="self-end  object-cover p-1 rounded-md flex"
+                    onClick={() => setShowEditing(true)}
+                  >
+                    <Image
+                      src={editIcon}
+                      alt="Edit product"
+                      width={20}
+                      height={20}
+                      className="object-cover w-6 h-6 cursor-pointer"
+                    ></Image>
+                  </div>
                   <div className="flex justify-center h-[7rem]">
                     <Image
                       src={product.product_image_url || PlaceholderImage}
@@ -295,7 +335,7 @@ const ProductList = ({
                       {getPrice(product.product_id)}
                     </span>
                   </div>
-                  <div className="flex justify-center items-center">
+                  <div className="flex justify-center items-center gap-2">
                     {pathname === "/admin/user/products" && (
                       <span className="text-sm text-gray-600 w-full">
                         {getStock(product.product_id)}
