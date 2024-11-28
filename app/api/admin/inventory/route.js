@@ -14,6 +14,7 @@ import {
   query,
   where,
   orderBy,
+  getDoc,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import {
@@ -54,7 +55,7 @@ export async function GET(request) {
         const q = query(
           inventoryRef,
           where("inventory_total_units", ">", 0),
-          orderBy("inventory_timestamp")
+          orderBy("inventory_total_units", "desc")
         );
         snapshot = await getDocs(q);
         inventories = snapshot.docs.map((doc) => doc.data());
@@ -76,7 +77,7 @@ export async function GET(request) {
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
           where("inventory_total_units", ">", 0),
-          orderBy("inventory_timestamp")
+          orderBy("inventory_total_units", "desc")
         );
         snapshot = await getDocs(q);
 
@@ -96,18 +97,36 @@ export async function GET(request) {
           !acc[productId] ||
           acc[productId].inventory_timestamp > inventory.inventory_timestamp
         ) {
-          acc[productId] = inventory;
+          acc[productId] = { inventory };
         }
         return acc;
       }, {});
 
       const result = Object.values(oldInventories);
+
+      const invProds = [];
+      const promises = result.map(async (item) => {
+        const productRef = doc(db, "Product", item.inventory.product_id);
+
+        const snapshot = await getDoc(productRef);
+        if (snapshot.exists()) {
+          const product = snapshot.data();
+          invProds.push({ inventory: item.inventory, product });
+        } else {
+          console.log(
+            `No product found for inventory with product_id: ${item.product_id}`
+          );
+        }
+      });
+
+      await Promise.all(promises);
+
       return NextResponse.json(
         {
           message: reportExist
             ? "Inventories found since the last report"
             : "All inventories",
-          inventories: result,
+          inventories: invProds,
         },
         { status: 200 }
       );
