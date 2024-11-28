@@ -212,8 +212,10 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
     <>
       <div className="w-full sm:flex hidden px-1 mb-2">
         <div className="w-full">
-          <h1 className="text-2xl font-bold mr-auto">Make Inventory</h1>
-          <h2 className="text-sm text-gray-600">{productName}</h2>
+          <h1 className="text-2xl font-bold mr-auto">
+            Make Inventory for {productName}
+          </h1>
+          <h2 className="text-sm text-gray-600">replenish stocks</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "

@@ -12,6 +12,8 @@ import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
 import ButtonLoading from "./ButtonLoading";
 
+//TODO: add indicator how many filters are active
+
 const MobileFilter = ({
   setSelectedCategory = () => {},
   selectedCategory = "all",
@@ -75,19 +77,21 @@ const MobileFilter = ({
 
   return (
     <>
-      <div
-        className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-md font-semibold text-white"
-        onClick={() => setIsExpanded((prev) => !prev)}
-      >
-        <span>Filter</span>
-        <Image src={FilterIcon} height={20} width={20} alt="filter_icon" />
+      <div className="flex">
+        <div
+          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-md font-semibold text-white"
+          onClick={() => setIsExpanded((prev) => !prev)}
+        >
+          <span>Filter</span>
+          <Image src={FilterIcon} height={20} width={20} alt="filter_icon" />
+        </div>
       </div>
       {isExpanded && (
         <div
           className={`${
             pathname.includes("admin")
               ? "h-[calc(100vh-9.5rem)] top-[5rem]"
-              : "h-[100vh] top-[4rem]"
+              : "h-[calc(100vh-4rem)] top-[4rem]"
           } w-[100vw] fixed  right-0 bg-[rgba(120,120,120,0.75)] flex flex-col items-end z-10 `}
         >
           <div className="w-[85vw] flex flex-col bg-white h-full overflow-y-auto">
@@ -109,9 +113,7 @@ const MobileFilter = ({
 
             {/* Categories */}
             <div className="flex px-4 flex-col gap-2">
-              <div className="flex gap-2">
-                <span className="mt-auto mr-auto">By Category</span>
-              </div>
+              <span className="mt-auto mr-auto">By Category</span>
               <div className="grid gap-1 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
                 {pathname.includes("admin") && (
                   <Link
@@ -181,9 +183,7 @@ const MobileFilter = ({
             {/* Suppliers */}
             {pathname.includes("admin") && (
               <div className="flex px-4 flex-col gap-2 mt-4">
-                <div className="flex gap-2">
-                  <span className="mt-auto mr-auto">By Supplier</span>
-                </div>
+                <span className="mt-auto mr-auto">By Supplier</span>
                 <div className="grid gap-1 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
                   <Link
                     href={"/admin/user/manage/add_supplier/"}
@@ -249,7 +249,7 @@ const MobileFilter = ({
             )}
 
             {/* Apply Button */}
-            <div className="w-full px-4 py-2 mt-auto flex flex-row-reverse z-0">
+            <div className="w-full px-4 py-2 mt-auto flex flex-row-reverse z-50">
               <button
                 className="bg-mainButtonColor text-white p-2 rounded-md"
                 onClick={handleApplyFilters}

@@ -115,9 +115,9 @@ const productspage = () => {
           <Suspense fallback={<Loading />}>
             {!showInventoryForm && !showProductForm && (
               <ProductList
-                filter={selectedCategory}
+                selectedCategory={selectedCategory}
                 searchKeyword={searchKeyword}
-                supplierFilter={selectedSupplier}
+                selectedSupplier={selectedSupplier}
                 setShowInventoryForm={setShowInventoryForm}
                 setProductName={setProductName}
                 setShowProductForm={setShowProductForm}

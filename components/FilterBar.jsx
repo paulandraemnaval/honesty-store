@@ -9,6 +9,9 @@ import editIcon from "@public/icons/edit_icon.png";
 import Image from "next/image";
 import Link from "next/link";
 import Loading from "@components/Loading";
+
+//TODO: add indicator how many filters are active
+
 const FilterBar = ({
   setSelectedCategory = () => {},
   setSelectedSupplier = () => {},

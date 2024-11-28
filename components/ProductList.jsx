@@ -10,15 +10,19 @@ import addInventoryIcon from "@public/icons/add_inventory_icon.png";
 import editIcon from "@public/icons/edit_icon.png";
 import editIconWhite from "@public/icons/edit_icon_white.png";
 import Loading from "@components/Loading";
+
+//TODO: display if an inventory of a product is expired
+
 const ProductList = ({
-  filter,
+  selectedCategory = "all",
+  selectedSupplier = "all",
   searchKeyword = "",
-  supplierFilter = "all",
+  editingProductID = "",
+
   setShowInventoryForm = () => {},
   setProductName = () => {},
   setShowProductForm = () => {},
   setEditingProductID = () => {},
-  editingProductID = "",
   setShowProductInventories = () => {},
 }) => {
   const [inventories, setInventories] = useState([]);
@@ -118,25 +122,16 @@ const ProductList = ({
   const productData = useMemo(() => {
     const map = new Map();
     products.forEach((product) => {
-      const productInventories = inventories
-        .filter(
-          (inventory) =>
-            inventory.product_id === product.product_id &&
-            !inventory.inventory_soft_deleted &&
-            inventory.inventory_total_units > 0
-        )
-        .sort(
-          (a, b) =>
-            new Date(a.inventory_timestamp) - new Date(b.inventory_timestamp)
-        );
+      const productInventory = inventories.find(
+        (inventory) => product.product_id === inventory.product_id
+      );
 
-      if (productInventories.length > 0) {
-        const oldestInventory = productInventories[0];
+      if (productInventory) {
         map.set(product.product_id, {
           product_name: product.product_name,
           product_image_url: product.product_image_url,
-          retail_price: `₱${oldestInventory.inventory_retail_price}`,
-          total_units: `${oldestInventory.inventory_total_units} units`,
+          retail_price: `₱${productInventory.inventory_retail_price}`,
+          total_units: `${productInventory.inventory_total_units} units`,
         });
       }
     });
@@ -151,7 +146,11 @@ const ProductList = ({
 
   const filteredProducts = useMemo(() => {
     const productsWithInventory = products
+
+      //check if a product has an inventory
       .filter((product) => productData.has(product.product_id))
+
+      //most units first
       .sort((a, b) => {
         const aUnits = parseInt(
           productData.get(a.product_id)?.total_units || "0",
@@ -169,19 +168,20 @@ const ProductList = ({
     );
 
     const filterProducts = (productList) =>
-      filter
+      selectedCategory
         ? productList.filter((product) => {
             const matchesCategory =
-              product.product_category === filter || filter === "all";
+              product.product_category === selectedCategory ||
+              selectedCategory === "all";
             const matchesKeyword = product.product_name
               .toLowerCase()
               .includes(searchKeyword.toLowerCase());
             const hasMatchingSupplier =
-              supplierFilter === "all" ||
+              selectedSupplier === "all" ||
               inventories.some(
                 (inventory) =>
                   inventory.product_id === product.product_id &&
-                  inventory.supplier_id === supplierFilter
+                  inventory.supplier_id === selectedSupplier
               );
             return matchesCategory && matchesKeyword && hasMatchingSupplier;
           })
@@ -190,11 +190,11 @@ const ProductList = ({
               .toLowerCase()
               .includes(searchKeyword.toLowerCase());
             const hasMatchingSupplier =
-              supplierFilter === "all" ||
+              selectedSupplier === "all" ||
               inventories.some(
                 (inventory) =>
                   inventory.product_id === product.product_id &&
-                  inventory.inventory_supplier === supplierFilter
+                  inventory.inventory_supplier === selectedSupplier
               );
             return matchesKeyword && hasMatchingSupplier;
           });
@@ -205,15 +205,14 @@ const ProductList = ({
     if (pathname === "/admin/user/products") {
       return [...filteredWithInventory, ...filteredWithoutInventory];
     }
-
     return filteredWithInventory;
   }, [
-    filter,
+    selectedSupplier,
+    selectedCategory,
+    searchKeyword,
     products,
     productData,
     pathname,
-    searchKeyword,
-    supplierFilter,
     inventories,
   ]);
   if (loading) {
@@ -224,7 +223,7 @@ const ProductList = ({
     <div className="w-full h-full min-h-fit overflow-y-auto z-0 px-1 py-2">
       <div
         className={`grid gap-3 w-full grid-cols-2 ${
-          filteredProducts.length > 4
+          filteredProducts.length > 3
             ? "md:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]"
             : "md:grid-cols-[repeat(auto-fit,14rem)]"
         }`}

@@ -53,7 +53,7 @@ const Navbar = () => {
     {
       href: "/admin/user/products",
       icon:
-        pathName === "/admin/user/products"
+        pathName.includes("edit_product") || pathName.includes("products")
           ? productsIconSelected
           : productsIcon,
       label: "Products",
@@ -63,9 +63,6 @@ const Navbar = () => {
   const manageLinks = [
     { href: "/admin/user/manage/create_audit", label: "Audits" },
     { href: "/admin/user/manage/create_report", label: "Reports" },
-
-    { href: "/admin/user/manage/add_supplier", label: "Suppliers" },
-    { href: "/admin/user/manage/create_category", label: "Categories" },
   ];
 
   const manageAccountsLinks = [
@@ -105,7 +102,7 @@ const Navbar = () => {
           <div
             key={href}
             className={`flex w-full  p-2 hover:bg-mainButtonColor hover:text-white rounded-sm transition duration-100 ${
-              pathName === href ? "bg-mainButtonColor text-white" : ""
+              href === pathName ? "bg-mainButtonColor" : ""
             }`}
           >
             <Image
@@ -194,14 +191,18 @@ const Navbar = () => {
       {/*--------------------------------mobile nav----------------------------------------*/}
       <div className="sm:hidden fixed bottom-0 w-full z-10 bg-white">
         <div className="relative">
-          {/* Main Navigation */}
           <div className="flex w-full py-2 px-2 justify-between">
             {links.map(({ href, icon, label }) => (
               <Link
                 key={href}
                 href={href}
                 className={`p-4 flex flex-1 items-center justify-center rounded-md ${
-                  href === pathName ? "bg-mainButtonColor" : ""
+                  href.includes("products") &&
+                  pathName.includes("products/edit_")
+                    ? "bg-mainButtonColor"
+                    : href === pathName
+                    ? "bg-mainButtonColor"
+                    : ""
                 }`}
               >
                 <Image
@@ -215,20 +216,14 @@ const Navbar = () => {
 
             {/* Manage Dropdown Trigger */}
             <div
-              className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md ${
-                pathName.includes("manage/") ? "bg-mainButtonColor" : ""
-              }`}
+              className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md `}
               onClick={() => {
                 setShowManage((prev) => !prev);
                 setShowManageAccounts(false);
               }}
             >
               <Image
-                src={
-                  pathName.includes("manage/")
-                    ? managementIconSelected
-                    : managementIcon
-                }
+                src={managementIcon}
                 alt="manage_icon"
                 height={20}
                 width={25}
