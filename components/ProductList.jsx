@@ -87,7 +87,9 @@ const ProductList = ({
     )
       return;
     setIsFetchingMoreProductsWithInventories(true);
+
     try {
+      console.log("lastVisible", lastVisible);
       const response = await fetch("/api/admin/inventory", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -229,8 +231,7 @@ const ProductList = ({
 
       <div className="w-full mt-6 flex flex-col items-center">
         {loading ||
-          ((isFetchingMoreProductsWithInventories ||
-            isFetchingMoreProducts) && (
+          (isFetchingMoreProductsWithInventories && (
             <div className="flex justify-center items-center h-10">
               <span className="spinner-border-blue animate-spin w-8 h-8 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
               <p className="text-black">Loading...</p>
