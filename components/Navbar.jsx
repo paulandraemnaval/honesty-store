@@ -198,7 +198,7 @@ const Navbar = () => {
                 href={href}
                 className={`p-4 flex flex-1 items-center justify-center rounded-md ${
                   href.includes("products") &&
-                  pathName.includes("products/edit_")
+                  pathName.includes("/edit_" || "/create_")
                     ? "bg-mainButtonColor"
                     : href === pathName
                     ? "bg-mainButtonColor"

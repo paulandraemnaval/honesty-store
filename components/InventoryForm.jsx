@@ -43,18 +43,19 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
 
   useEffect(() => {
     if (wholesalePrice !== "") {
-      let calculatedRetailPrice;
-      if (profitMargin !== "") {
-        calculatedRetailPrice =
-          parseFloat(wholesalePrice) + parseFloat(profitMargin);
-      } else {
-        calculatedRetailPrice = parseFloat(wholesalePrice * 1.1).toFixed(2);
+      if (manualRetailPrice) {
+        setProfitMargin(
+          parseFloat(
+            ((retailPrice - wholesalePrice) / wholesalePrice) * 100
+          ).toFixed(2)
+        );
+      } else if (manualProfitMargin) {
+        setRetailPrice(
+          parseFloat(wholesalePrice * (1 + profitMargin / 100)).toFixed(2)
+        );
+      } else if (!manualProfitMargin && !manualRetailPrice) {
+        setRetailPrice(parseFloat(wholesalePrice * 1.1).toFixed(2));
       }
-      console.log(
-        "calculated retail price: ",
-        parseFloat(calculatedRetailPrice).toFixed(2)
-      );
-      setRetailPrice(parseFloat(calculatedRetailPrice).toFixed(2));
     }
   }, [wholesalePrice, profitMargin, manualRetailPrice]);
 
@@ -286,19 +287,45 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
           type="text"
           id="inventory_profit_margin"
           name="inventory_profit_margin"
-          className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-2"
-          value={profitMargin === 0 ? "" : profitMargin}
-          onChange={(e) => {
-            if (manualProfitMargin) {
-              setProfitMargin(e.target.value ? e.target.value : 0);
-            }
-          }}
+          className={`border p-2 rounded-lg outline-none mb-2 ${
+            manualProfitMargin
+              ? "focus:ring-mainButtonColor focus:ring-1"
+              : "bg-gray-100 text-gray-500"
+          }`}
+          value={
+            manualProfitMargin
+              ? profitMargin
+              : manualRetailPrice
+              ? `${(
+                  ((retailPrice - wholesalePrice) / wholesalePrice) *
+                  100
+                ).toFixed(2)}%`
+              : "10%"
+          }
           readOnly={!manualProfitMargin}
-          placeholder="e.g. 1.25"
+          placeholder={
+            manualProfitMargin ? "Enter profit margin (%)" : "Autocalculated"
+          }
           onInput={(e) => {
-            const match = e.target.value.match(/^\d*\.?\d{0,2}$/);
+            const match = e.target.value.match(/^\d*\.?\d{0,2}%?$/);
             if (!match) {
               e.target.value = e.target.value.slice(0, -1);
+            }
+          }}
+          onBlur={(e) => {
+            const value = e.target.value.trim();
+            // Re-add the '%' symbol on blur
+            if (value && !value.endsWith("%")) {
+              e.target.value = `${value}%`;
+            }
+          }}
+          onFocus={(e) => {
+            e.target.value = e.target.value.replace(/%/g, "");
+          }}
+          onChange={(e) => {
+            const valueWithoutPercent = e.target.value.replace(/%/g, "");
+            if (/^\d*\.?\d{0,2}$/.test(valueWithoutPercent)) {
+              setProfitMargin(valueWithoutPercent); // Update state.
             }
           }}
           disabled={!manualProfitMargin}
@@ -310,7 +337,12 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
             name="manual_profit_margin"
             className="h-4 w-4"
             checked={manualProfitMargin}
-            onChange={(e) => setManualProfitMargin(e.target.checked)}
+            onChange={(e) => {
+              setManualProfitMargin(e.target.checked);
+              if (manualRetailPrice) {
+                setManualRetailPrice(false);
+              }
+            }}
           />
           <label
             htmlFor="manual_profit_margin"
@@ -322,29 +354,63 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
         <p className="text-red-600 text-sm mb-3">
           {validationMessages.inventory_profit_margin}
         </p>
+
         <label htmlFor="retail_price" className="ml-1">
           Retail Price{" "}
-          <span className="text-mainButtonColorDisabled text-sm font-light">
+          <span
+            className={` text-sm font-light ${
+              !manualRetailPrice
+                ? "text-mainButtonColorDisabled"
+                : "text-red-500"
+            }`}
+          >
             {" "}
-            Autocomplete
+            {!manualRetailPrice ? "Autocomplete" : "*"}
           </span>
         </label>
-        {/*MAKE PLACEHOLDER BLUE*/}
+
         <input
           type="text"
           id="inventory_retail_price"
           name="inventory_retail_price"
-          className=" border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-8 "
+          className=" border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 mb-2"
           value={retailPrice === 0 ? "" : retailPrice}
           onChange={(e) => {
             if (manualRetailPrice) {
               setRetailPrice(e.target.value ? e.target.value : "");
             }
           }}
-          readOnly
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*\.?\d{0,2}$/);
+            if (!match) {
+              e.target.value = e.target.value.slice(0, -1);
+            }
+          }}
           placeholder="retail price"
-          disabled
+          disabled={!manualRetailPrice}
         />
+        <div className="flex gap-2 ml-1 mb-8">
+          <input
+            type="checkbox"
+            id="manual_retail_price"
+            name="manutal_retail_price"
+            className="h-4 w-4"
+            checked={manualRetailPrice}
+            onChange={(e) => {
+              setManualRetailPrice(e.target.checked);
+              if (manualProfitMargin) {
+                setManualProfitMargin(false);
+              }
+            }}
+          />
+          <label
+            htmlFor="manual_retail_price"
+            className="text-sm text-gray-500"
+          >
+            Set Retail Price Manually
+          </label>
+        </div>
+
         <label htmlFor="total_units" className="ml-1">
           Total Units<span className="text-red-600">*</span>
         </label>
