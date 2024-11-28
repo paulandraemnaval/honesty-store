@@ -184,7 +184,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
           id="supplier_name"
           name="supplier_name"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-          value={supplier?.supplier_name || ""}
+          defaultValue={supplier?.supplier_name || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_name}
@@ -198,7 +198,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
           id="supplier_contact_person"
           name="supplier_contact_person"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-          value={supplier?.supplier_contact_person || ""}
+          defaultValue={supplier?.supplier_contact_person || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_contact_person}
@@ -212,7 +212,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
           id="supplier_contact_number"
           name="supplier_contact_number"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-          value={supplier?.supplier_contact_number || ""}
+          defaultValue={supplier?.supplier_contact_number || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_contact_number}
@@ -226,7 +226,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
           id="supplier_email_address"
           name="supplier_email_address"
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
-          value={supplier?.supplier_email_address || ""}
+          defaultValue={supplier?.supplier_email_address || ""}
         />
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.supplier_email_address}
@@ -237,7 +237,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
           id="supplier_notes"
           name="supplier_notes"
           className="h-40 px-2 py-4 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-4"
-          value={supplier?.supplier_notes || ""}
+          defaultValue={supplier?.supplier_notes || ""}
         />
 
         <div className="w-full flex flex-row-reverse">

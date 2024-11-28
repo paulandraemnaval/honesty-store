@@ -12,6 +12,7 @@ import managementIcon from "@public/icons/manage_icon.png";
 import managementIconSelected from "@public/icons/manage_icon_selected.png";
 import accountManagementIcon from "@public/icons/accounts_icon.png";
 import accountManagementIconSelected from "@public/icons/accounts_icon_selected.png";
+import Loading from "./Loading";
 const Navbar = () => {
   const pathName = usePathname();
   const [user, setUser] = useState({});
@@ -44,6 +45,25 @@ const Navbar = () => {
     if (user?.account_role === "4") return "Secretary";
   };
 
+  const mobilelinks = [
+    {
+      href: "/admin/user",
+      icon: pathName === "/admin/user" ? homeIconSelected : homeIcon,
+      label: "Dashboard",
+    },
+    {
+      href: "/admin/user/products",
+      icon:
+        pathName.includes("product") ||
+        pathName.includes("category") ||
+        pathName.includes("supplier") ||
+        pathName.includes("inventory")
+          ? productsIconSelected
+          : productsIcon,
+      label: "Products",
+    },
+  ];
+
   const links = [
     {
       href: "/admin/user",
@@ -53,9 +73,7 @@ const Navbar = () => {
     {
       href: "/admin/user/products",
       icon:
-        pathName.includes("edit_product") ||
-        pathName.includes("products") ||
-        pathName.includes("manage")
+        pathName === "/admin/user/products"
           ? productsIconSelected
           : productsIcon,
       label: "Products",
@@ -83,28 +101,35 @@ const Navbar = () => {
           Honesty Store
         </p>
         <div className="flex flex-col items-center justify-center w-full px-6 py-2  border-gray-300 mt-4">
-          <div className="w-full flex justify-center items-center ">
-            <Image
-              src={user?.account_profile_url || defaultProfileImage}
-              alt="profile_image"
-              height={60}
-              width={60}
-              className=" rounded-full object-cover"
-            />
-          </div>
-          <p className="text-left font-semibold">
-            {loading ? "loading..." : user?.account_name}
-          </p>
-          <p className="text-left font-thin">
-            {loading ? "loading..." : getUserRole()}
-          </p>
+          {loading ? (
+            <Loading />
+          ) : (
+            <>
+              {" "}
+              <div className="w-full flex justify-center items-center ">
+                <Image
+                  src={user?.account_profile_url || defaultProfileImage}
+                  alt="profile_image"
+                  height={60}
+                  width={60}
+                  className=" rounded-full object-cover"
+                />
+              </div>
+              <p className="text-left font-semibold">
+                {loading ? "loading..." : user?.account_name}
+              </p>
+              <p className="text-left font-thin">
+                {loading ? "loading..." : getUserRole()}
+              </p>
+            </>
+          )}
         </div>
 
         {links.map(({ href, icon, label }) => (
           <div
             key={href}
             className={`flex w-full  p-2 hover:bg-mainButtonColor hover:text-white rounded-sm transition duration-100 ${
-              href === pathName ? "bg-mainButtonColor" : ""
+              href === pathName ? "bg-mainButtonColor text-white" : ""
             }`}
           >
             <Image
@@ -120,7 +145,7 @@ const Navbar = () => {
           </div>
         ))}
 
-        {/* Manage Dropdown */}
+        {/* Manage Button */}
         <div className={`w-full`}>
           <div
             className={`w-full flex  p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm 
@@ -152,7 +177,7 @@ const Navbar = () => {
             ))}
         </div>
 
-        {/* Manage Accounts Dropdown */}
+        {/* Manage Accounts Button */}
         {user?.account_role === "1" && (
           <div className={`w-full`}>
             <div
@@ -194,18 +219,25 @@ const Navbar = () => {
       <div className="sm:hidden fixed bottom-0 w-full z-10 bg-white">
         <div className="relative">
           <div className="flex w-full py-2 px-2 justify-between">
-            {links.map(({ href, icon, label }) => (
+            {mobilelinks.map(({ href, icon, label }) => (
               <Link
                 key={href}
                 href={href}
                 className={`p-4 flex flex-1 items-center justify-center rounded-md ${
                   href.includes("products") &&
-                  (pathName.includes("/edit_") || pathName.includes("manage"))
+                  (pathName.includes("product") ||
+                    pathName.includes("supplier") ||
+                    pathName.includes("category") ||
+                    pathName.includes("inventory"))
                     ? "bg-mainButtonColor"
                     : href === pathName
                     ? "bg-mainButtonColor"
                     : ""
                 }`}
+                onClick={() => {
+                  setShowManage(false);
+                  setShowManageAccounts(false);
+                }}
               >
                 <Image
                   src={icon}
@@ -218,7 +250,15 @@ const Navbar = () => {
 
             {/* Manage Dropdown Trigger */}
             <div
-              className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md `}
+              className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md 
+              ${
+                pathName.includes("create_audit") ||
+                pathName.includes("create_report") ||
+                pathName.includes("manage_account")
+                  ? "bg-mainButtonColor"
+                  : ""
+              }
+                `}
               onClick={() => {
                 setShowManage((prev) => !prev);
                 setShowManageAccounts(false);
@@ -236,7 +276,7 @@ const Navbar = () => {
             {user?.account_role === "1" && (
               <div
                 className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md ${
-                  pathName.includes("manage_account")
+                  pathName === "/admin/user/manage_accounts/create"
                     ? "bg-mainButtonColor"
                     : ""
                 }`}

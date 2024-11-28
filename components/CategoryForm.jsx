@@ -226,7 +226,7 @@ const CategoryForm = ({ setShowCategoryForm = () => {}, categoryID = "" }) => {
           type="text"
           id="category_name"
           name="category_name"
-          value={category ? category.category_name : ""}
+          defaultValue={category ? category.category_name : ""}
           className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300"
         />
         <p className="text-red-500 text-sm mb-2">
@@ -268,7 +268,7 @@ const CategoryForm = ({ setShowCategoryForm = () => {}, categoryID = "" }) => {
           id="category_description"
           name="category_description"
           className="h-40 px-2 py-4 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 mb-4"
-          value={category ? category.category_description : ""}
+          defaultValue={category ? category.category_description : ""}
         />
         <button
           type="submit"
