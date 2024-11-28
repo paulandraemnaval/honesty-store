@@ -10,6 +10,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { exportSheetToXLSX } from "./export";
+import { formatDate, formatDateToLong } from "./formatDate";
 
 // Initialize auth - see https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication
 export const serviceAccountAuth = new JWT({
@@ -34,11 +35,17 @@ export const generateReport = async (reportId) => {
   try {
     const reportDoc = doc(db, "Report", reportId);
     const reportSnapshot = await getDoc(reportDoc);
+    if (!reportSnapshot.exists()) {
+      console.log("No report is found in the database");
+      return;
+    }
     const reportDb = reportSnapshot.data();
     await report2.loadInfo();
 
     const sheet = await report2.addSheet({
-      title: "startDate - endDate",
+      title: `${formatDateToLong(
+        reportDb.report_start_date
+      )} - ${formatDateToLong(reportDb.report_end_date)}`,
       headerRowIndex: 2,
       headerValues: [
         "Year",
