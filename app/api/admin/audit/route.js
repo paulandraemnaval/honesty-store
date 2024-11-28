@@ -1,9 +1,4 @@
-import {
-  db,
-  createLog,
-  getLoggedInUser,
-  checkCollectionExists,
-} from "@utils/firebase";
+import { db, createLog, getLoggedInUser } from "@utils/firebase";
 import {
   collection,
   getDoc,

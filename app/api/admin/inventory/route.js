@@ -229,7 +229,6 @@ export async function PATCH(request) {
           limit(5),
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
-          where("inventory_total_units", ">", 0),
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
@@ -237,7 +236,6 @@ export async function PATCH(request) {
         inventoryQuery = query(
           inventoryRef,
           limit(5),
-          where("inventory_total_units", ">", 0),
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
@@ -246,7 +244,6 @@ export async function PATCH(request) {
       inventoryQuery = query(
         inventoryRef,
         limit(5),
-        where("inventory_total_units", ">", 0),
         orderBy("inventory_total_units", "desc")
       );
     }
