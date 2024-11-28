@@ -53,7 +53,9 @@ const Navbar = () => {
     {
       href: "/admin/user/products",
       icon:
-        pathName.includes("edit_product") || pathName.includes("products")
+        pathName.includes("edit_product") ||
+        pathName.includes("products") ||
+        pathName.includes("manage")
           ? productsIconSelected
           : productsIcon,
       label: "Products",
@@ -198,7 +200,7 @@ const Navbar = () => {
                 href={href}
                 className={`p-4 flex flex-1 items-center justify-center rounded-md ${
                   href.includes("products") &&
-                  pathName.includes("/edit_" || "/create_")
+                  (pathName.includes("/edit_") || pathName.includes("manage"))
                     ? "bg-mainButtonColor"
                     : href === pathName
                     ? "bg-mainButtonColor"
