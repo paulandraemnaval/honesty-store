@@ -15,12 +15,10 @@ import {
   where,
   orderBy,
   getDoc,
+  startAfter,
+  limit,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
-import {
-  calculateProfitMargin,
-  isProfitMarginAboveThreshold,
-} from "@utils/calculations";
 
 export async function GET(request) {
   let inventories = [];
@@ -200,6 +198,111 @@ export async function POST(request) {
 
     return NextResponse.json(
       { error: "Failed to create inventory" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(request) {
+  const { lastVisible } = await request.json();
+  console.log("last Visible:", lastVisible);
+
+  try {
+    const inventoryRef = collection(db, "Inventory");
+    let inventoryQuery;
+    const reportExist = await checkCollectionExists("Report");
+
+    if (lastVisible) {
+      const lastDocSnapshot = await getDoc(doc(db, "Inventory", lastVisible));
+      if (!lastDocSnapshot.exists()) {
+        return NextResponse.json(
+          { message: "Invalid lastVisible document ID." },
+          { status: 400 }
+        );
+      }
+
+      if (reportExist) {
+        const lastReport = await getLastReportEndDate();
+        const currentDate = new Date();
+        inventoryQuery = query(
+          inventoryRef,
+          limit(5),
+          where("inventory_last_updated", ">=", lastReport),
+          where("inventory_last_updated", "<=", currentDate),
+          where("inventory_total_units", ">", 0),
+          orderBy("inventory_total_units", "desc"),
+          startAfter(lastDocSnapshot)
+        );
+      } else {
+        inventoryQuery = query(
+          inventoryRef,
+          limit(5),
+          where("inventory_total_units", ">", 0),
+          orderBy("inventory_total_units", "desc"),
+          startAfter(lastDocSnapshot)
+        );
+      }
+    } else {
+      inventoryQuery = query(
+        inventoryRef,
+        limit(5),
+        where("inventory_total_units", ">", 0),
+        orderBy("inventory_total_units", "desc")
+      );
+    }
+    const snapshot = await getDocs(inventoryQuery);
+    if (snapshot.empty) {
+      return NextResponse.json(
+        { message: "No inventories found since the last report." },
+        { status: 404 }
+      );
+    }
+
+    const inventories = snapshot.docs.map((doc) => doc.data());
+    //console.log("Inventories: ", inventories);
+
+    const oldInventories = inventories.reduce((acc, inventory) => {
+      const productId = inventory.product_id;
+      if (
+        !acc[productId] ||
+        acc[productId].inventory_timestamp > inventory.inventory_timestamp
+      ) {
+        acc[productId] = { inventory };
+      }
+      return acc;
+    }, {});
+
+    const result = Object.values(oldInventories);
+
+    const invProds = [];
+    const promises = result.map(async (item) => {
+      const productRef = doc(db, "Product", item.inventory.product_id);
+
+      const snapshot = await getDoc(productRef);
+      if (snapshot.exists()) {
+        const product = snapshot.data();
+        invProds.push({ inventory: item.inventory, product });
+      } else {
+        console.log(
+          `No product found for inventory with product_id: ${item.product_id}`
+        );
+      }
+    });
+
+    await Promise.all(promises);
+
+    return NextResponse.json(
+      {
+        message: reportExist
+          ? "Inventories found since the last report"
+          : "All inventories",
+        inventories: invProds,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json(
+      { message: "Failed to fetch inventories: " + error.message },
       { status: 500 }
     );
   }

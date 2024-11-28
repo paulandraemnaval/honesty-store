@@ -1,25 +1,6 @@
-import {
-  db,
-  createLog,
-  getLoggedInUser,
-  checkCollectionExists,
-  getLastReportEndDate,
-} from "@utils/firebase";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-  doc,
-  setDoc,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
+import { db } from "@utils/firebase";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { NextResponse } from "next/server";
-import {
-  calculateProfitMargin,
-  isProfitMarginAboveThreshold,
-} from "@utils/calculations";
 
 export async function GET(request) {
   const url = new URL(request.url);
