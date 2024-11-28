@@ -1,49 +1,132 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense, lazy, useEffect } from "react";
 import FilterBar from "@components/FilterBar";
-import ProductList from "@components/ProductList";
 import SearchInput from "@components/SearchInput";
 import MobileFilter from "@components/MobileFilter";
+import Loading from "@components/Loading";
+
+const ProductList = lazy(() => import("@components/ProductList"));
+const InventoryForm = lazy(() => import("@components/InventoryForm"));
+const ProductForm = lazy(() => import("@components/ProductForm"));
+const CategoryForm = lazy(() => import("@components/CategoryForm"));
+const SupplierForm = lazy(() => import("@components/SupplierForm"));
+const ProductInventories = lazy(() => import("@components/ProductInventories"));
+
 const productspage = () => {
-  const [filter, setFilter] = useState("all");
+  //these states store IDS of the selected category and supplier
+
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [supplierFilter, setSupplierFilter] = useState("all");
+
+  //edit states
+  const [productName, setProductName] = useState("");
+  const [editingProductID, setEditingProductID] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedSupplier, setSelectedSupplier] = useState("all");
+
+  const [showInventoryForm, setShowInventoryForm] = useState(false);
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [showSupplierForm, setShowSupplierForm] = useState(false);
+  const [showProductInventories, setShowProductInventories] = useState(false);
+
+  const showPopover =
+    showInventoryForm ||
+    showProductForm ||
+    showCategoryForm ||
+    showSupplierForm ||
+    showProductInventories;
+
   return (
-    <div className="w-full px-4 flex sm:h-[calc(100vh-6rem)] h-[calc(100vh-9rem)] mt-2">
+    <div className="w-full px-4 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
+      {showPopover && (
+        <div className="absolute w-full h-full z-50 border top-0 left-0 bg-[rgba(0,0,0,0.25)]">
+          <div className="z-50 sm:w-[calc(100vw-30rem)] w-[calc(100vw)] sm:h-[calc(100vh-10rem)] h-[calc(100vh-6rem)]  rounded-md shadow-md absolute self-center sm:top-[50%] top-0 sm:left-[50%] left-0 smLtransform sm:-translate-x-1/2 sm:-translate-y-1/2 bg-white overflow-y-auto py-6 px-6">
+            <Suspense fallback={<Loading />}>
+              {showInventoryForm && (
+                <InventoryForm
+                  setShowInventoryForm={setShowInventoryForm}
+                  productName={productName}
+                />
+              )}
+
+              {showProductForm && (
+                <ProductForm
+                  productID={editingProductID}
+                  setShowProductForm={setShowProductForm}
+                />
+              )}
+
+              {showCategoryForm && (
+                <CategoryForm
+                  setShowCategoryForm={setShowCategoryForm}
+                  categoryID={selectedCategory}
+                />
+              )}
+
+              {showSupplierForm && (
+                <SupplierForm setShowSupplierForm={setShowSupplierForm} />
+              )}
+
+              {showProductInventories && (
+                <ProductInventories
+                  setShowProductInventories={setShowProductInventories}
+                  productID={editingProductID}
+                />
+              )}
+            </Suspense>
+          </div>
+        </div>
+      )}
+
       <div className="sm:flex hidden pr-2">
         <FilterBar
-          setFilter={setFilter}
-          filter={filter}
-          setSupplierFilter={setSupplierFilter}
-          supplierFilter={supplierFilter}
+          setSelectedCategory={setSelectedCategory}
+          setSelectedSupplier={setSelectedSupplier}
+          setShowCategoryForm={setShowCategoryForm}
+          setShowSupplierForm={setShowSupplierForm}
+          selectedCategory={selectedCategory}
+          selectedSupplier={selectedSupplier}
         />
       </div>
 
-      <div className="flex flex-col w-full gap-4 pt-2">
+      <div className="flex flex-col w-full pt-4">
         <div className="flex gap-1">
-          <div className="flex-1">
+          <div className="flex-1 mb-4">
             <SearchInput
               searchKeyword={searchKeyword}
               setSearchKeyword={setSearchKeyword}
             />
           </div>
-          <div className="sm:hidden block">
+          <div className="sm:hidden block mb-4">
             <MobileFilter
-              setFilter={setFilter}
-              filter={filter}
+              setSelectedCategory={setSelectedCategory}
+              setSelectedSupplier={setSelectedSupplier}
               renderedIn={"admin"}
             />
           </div>
         </div>
 
-        <div className="w-full border border-gray-300"></div>
-        <div className="overflow-y-auto flex-1">
-          <ProductList
-            filter={filter}
-            searchKeyword={searchKeyword}
-            supplierFilter={supplierFilter}
-          />
+        {/* Divider */}
+        <div className="w-full border border-mainButtonColorDisabled"></div>
+        {/* Divider */}
+
+        <div className="overflow-y-auto flex-1 ">
+          <Suspense fallback={<Loading />}>
+            {!showInventoryForm && !showProductForm && (
+              <ProductList
+                selectedCategory={selectedCategory}
+                searchKeyword={searchKeyword}
+                selectedSupplier={selectedSupplier}
+                setShowInventoryForm={setShowInventoryForm}
+                setProductName={setProductName}
+                setShowProductForm={setShowProductForm}
+                setEditingProductID={setEditingProductID}
+                editingProductID={editingProductID}
+                setShowProductInventories={setShowProductInventories}
+              />
+            )}
+          </Suspense>
         </div>
       </div>
     </div>

@@ -1,3 +1,4 @@
+import ButtonLoading from "./ButtonLoading";
 const SignInForm = ({ handleSignIn, isProcessing, isCompleted }) => {
   return (
     <form
@@ -46,12 +47,7 @@ const SignInForm = ({ handleSignIn, isProcessing, isCompleted }) => {
           disabled={isProcessing || isCompleted}
         >
           {isProcessing ? (
-            <>
-              <span className="spinner-border animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
-              Processing...
-            </>
-          ) : isCompleted ? (
-            "Success"
+            <ButtonLoading>Signing In...</ButtonLoading>
           ) : (
             "Sign In"
           )}

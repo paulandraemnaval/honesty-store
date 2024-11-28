@@ -2,6 +2,9 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
+
+//TODO: IMPLEMENT SEARCH
+
 const AuditForm = () => {
   const [inventories, setInventories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -127,7 +130,10 @@ const AuditForm = () => {
         }}
       >
         {loading ? (
-          <p>Loading...</p>
+          <div className="flex justify-center items-center h-96">
+            <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+            <p className="text-black">Loading...</p>
+          </div>
         ) : filteredInventories.length > 0 ? (
           filteredInventories.map((inventory) => (
             <AuditFormField
