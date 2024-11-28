@@ -211,6 +211,7 @@ export async function PATCH(request) {
     const inventoryRef = collection(db, "Inventory");
     let inventoryQuery;
     const reportExist = await checkCollectionExists("Report");
+    let fullQuery;
 
     if (lastVisible) {
       const lastDocSnapshot = await getDoc(doc(db, "Inventory", lastVisible));
@@ -226,7 +227,14 @@ export async function PATCH(request) {
         const currentDate = new Date();
         inventoryQuery = query(
           inventoryRef,
-          limit(5),
+          limit(20),
+          where("inventory_last_updated", ">=", lastReport),
+          where("inventory_last_updated", "<=", currentDate),
+          orderBy("inventory_total_units", "desc"),
+          startAfter(lastDocSnapshot)
+        );
+        fullQuery = query(
+          inventoryRef,
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
           orderBy("inventory_total_units", "desc"),
@@ -235,7 +243,12 @@ export async function PATCH(request) {
       } else {
         inventoryQuery = query(
           inventoryRef,
-          limit(5),
+          limit(20),
+          orderBy("inventory_total_units", "desc"),
+          startAfter(lastDocSnapshot)
+        );
+        fullQuery = query(
+          inventoryRef,
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
@@ -243,9 +256,10 @@ export async function PATCH(request) {
     } else {
       inventoryQuery = query(
         inventoryRef,
-        limit(5),
+        limit(20),
         orderBy("inventory_total_units", "desc")
       );
+      fullQuery = query(inventoryRef, orderBy("inventory_total_units", "desc"));
     }
     const snapshot = await getDocs(inventoryQuery);
     if (snapshot.empty) {
@@ -256,7 +270,6 @@ export async function PATCH(request) {
     }
 
     const inventories = snapshot.docs.map((doc) => doc.data());
-    //console.log("Inventories: ", inventories);
 
     const oldInventories = inventories.reduce((acc, inventory) => {
       const productId = inventory.product_id;
@@ -288,16 +301,44 @@ export async function PATCH(request) {
 
     await Promise.all(promises);
 
+    const productRef = collection(db, "Product");
+    const q = query(productRef, where("product_soft_deleted", "==", false));
+    const prodSnap = await getDocs(q);
+    if (prodSnap.empty) {
+      return NextResponse.json(
+        { message: "No products found" },
+        { status: 404 }
+      );
+    }
+    const products = prodSnap.docs.map((doc) => doc.data());
+    const invSnap = await getDocs(fullQuery);
+    if (invSnap.empty) {
+      return NextResponse.json(
+        { message: "No inventories found" },
+        { status: 404 }
+      );
+    }
+    const invents = invSnap.docs.map((doc) => doc.data());
+    const invProdIds = new Set(invents.map((inv) => inv.product_id));
+
+    const noInvProds = products.filter(
+      (product) => !invProdIds.has(product.product_id)
+    );
+    console.log(noInvProds);
+
     return NextResponse.json(
       {
         message: reportExist
           ? "Inventories found since the last report"
           : "All inventories",
         inventories: invProds,
+        noInventory: noInvProds,
       },
       { status: 200 }
     );
   } catch (error) {
+    console.log(error);
+
     return NextResponse.json(
       { message: "Failed to fetch inventories: " + error.message },
       { status: 500 }
