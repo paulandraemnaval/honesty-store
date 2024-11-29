@@ -273,11 +273,14 @@ export async function PATCH(request) {
 
     const oldInventories = inventories.reduce((acc, inventory) => {
       const productId = inventory.product_id;
+
       if (
-        !acc[productId] ||
-        acc[productId].inventory_timestamp > inventory.inventory_timestamp
+        inventory.inventory_timestamp && // Ensure timestamp exists
+        (!acc[productId] ||
+          acc[productId].inventory_timestamp.toDate() >
+            inventory.inventory_timestamp.toDate())
       ) {
-        acc[productId] = { inventory };
+        acc[productId] = inventory;
       }
       return acc;
     }, {});
@@ -286,12 +289,12 @@ export async function PATCH(request) {
 
     const invProds = [];
     const promises = result.map(async (item) => {
-      const productRef = doc(db, "Product", item.inventory.product_id);
+      const productRef = doc(db, "Product", item.product_id);
 
       const snapshot = await getDoc(productRef);
       if (snapshot.exists()) {
         const product = snapshot.data();
-        invProds.push({ inventory: item.inventory, product });
+        invProds.push({ inventory: item, product });
       } else {
         console.log(
           `No product found for inventory with product_id: ${item.product_id}`
@@ -300,6 +303,7 @@ export async function PATCH(request) {
     });
 
     await Promise.all(promises);
+    console.log(invProds);
 
     const productRef = collection(db, "Product");
     const q = query(productRef, where("product_soft_deleted", "==", false));
