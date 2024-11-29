@@ -17,15 +17,17 @@ const FilterBar = ({
   setSelectedSupplier = () => {},
   setShowCategoryForm = () => {},
   setShowSupplierForm = () => {},
-  selectedCategory = "all",
-  selectedSupplier = "all",
+  setSortUnitsAsc = () => {},
+  setSortPriceAsc = () => {},
 }) => {
-  const [catetories, setCatetories] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [supplierDropdownOpen, setSupplierDropdownOpen] = useState(false);
   const [localCategory, setLocalCategory] = useState("all");
   const [localSupplier, setLocalSupplier] = useState("all");
+  const [localSortUnitsAsc, setLocalSortUnitsAsc] = useState(null);
+  const [localSortPriceAsc, setLocalSortPriceAsc] = useState(null);
   const [loading, setLoading] = useState(false);
   const pathName = usePathname();
 
@@ -35,10 +37,10 @@ const FilterBar = ({
         setLoading(true);
         const response = await fetch("/api/admin/category");
         const data = await response.json();
-        setCatetories(Array.isArray(data?.data) ? data.data : []);
+        setCategories(Array.isArray(data?.data) ? data.data : []);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
-        setCatetories([]);
+        setCategories([]);
       } finally {
         setLoading(false);
       }
@@ -65,12 +67,15 @@ const FilterBar = ({
   const handleApplyFilters = () => {
     setSelectedCategory(localCategory);
     setSelectedSupplier(localSupplier);
+    setSortUnitsAsc(localSortUnitsAsc);
+    setSortPriceAsc(localSortPriceAsc);
+    console.log("localAscPrice:", localSortPriceAsc);
+    console.log("localAscUnits:", localSortUnitsAsc);
   };
 
   return (
     <div className="flex flex-col w-fit gap-2 flex-1 h-full min-w-[14rem] overflow-y-auto overflow-x-hidden p-4 border-r-2 border-gray-300 custom-scrollbar">
       <span className="text-xl">Filters</span>
-
       {/* Category Filter */}
       <div className="mb-4">
         {pathName.includes("admin") && (
@@ -86,7 +91,7 @@ const FilterBar = ({
         )}
         <button
           className="w-full text-left p-2 flex justify-between items-center object-cover "
-          onClick={() => setCategoryDropdownOpen(!categoryDropdownOpen)}
+          onClick={() => setCategoryDropdownOpen((prev) => !prev)}
         >
           By Category
           <Image
@@ -119,7 +124,7 @@ const FilterBar = ({
               All
             </label>
 
-            {catetories.map((category) => (
+            {categories.map((category) => (
               <label
                 key={category.category_id}
                 className="flex items-center"
@@ -158,7 +163,14 @@ const FilterBar = ({
             ))}
           </div>
         )}
-
+        {!categoryDropdownOpen && (
+          <div className="w-full px-2 text-mainButtonColor font-thin">
+            {localCategory === "all"
+              ? "All"
+              : categories.find((cat) => cat.category_id === localCategory)
+                  ?.category_name}
+          </div>
+        )}
         {categoryDropdownOpen && loading && (
           <div className="flex justify-center items-center h-10">
             <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
@@ -168,103 +180,233 @@ const FilterBar = ({
       </div>
 
       {/* Supplier Filter */}
-
       {pathName.includes("admin") && (
-        <div className="mb-2">
-          <div className="flex w-full">
+        <>
+          <div className="mb-2">
+            <div className="flex w-full">
+              <button
+                onClick={() => setShowSupplierForm(true)}
+                className="w-[70%] text-sm h-8 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
+              >
+                Add Supplier
+                <Image src={plusIcon} alt="plus" height={20} width={20} />
+              </button>
+            </div>
             <button
-              onClick={() => setShowSupplierForm(true)}
-              className="w-[70%] text-sm h-8 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
+              className="w-full text-left p-2 flex justify-between items-center"
+              onClick={() => setSupplierDropdownOpen((prev) => !prev)}
             >
-              Add Supplier
-              <Image src={plusIcon} alt="plus" height={20} width={20} />
+              By Supplier
+              <Image
+                src={supplierDropdownOpen ? upArrow : downArrow}
+                alt="arrow"
+                height={15}
+                width={15}
+              />
             </button>
-          </div>
-          <button
-            className="w-full text-left p-2 flex justify-between items-center"
-            onClick={() => setSupplierDropdownOpen(!supplierDropdownOpen)}
-          >
-            By Supplier
-            <Image
-              src={supplierDropdownOpen ? upArrow : downArrow}
-              alt="arrow"
-              height={15}
-              width={15}
-            />
-          </button>
-          <div className="w-full border mb-2"></div>
-          {supplierDropdownOpen && (
-            <div className="mt-2 pl-2 flex flex-col gap-2">
-              <label htmlFor="supplier-all" className="flex items-center">
-                <input
-                  type="radio"
-                  value="all"
-                  checked={localSupplier === "all"}
-                  onChange={() => setLocalSupplier("all")}
-                  className="hidden"
-                  id="supplier-all"
-                />
-                <span
-                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                    localSupplier === "all"
-                      ? "bg-mainButtonColor"
-                      : "border-gray-400"
-                  }`}
-                />
-                All
-              </label>
-              {suppliers.map((supplier) => (
-                <label
-                  key={supplier.supplier_id}
-                  className="flex items-center"
-                  htmlFor={supplier.supplier_id}
-                >
+            <div className="w-full border mb-2"></div>
+            {supplierDropdownOpen && (
+              <div className="mt-2 pl-2 flex flex-col gap-2">
+                <label htmlFor="supplier-all" className="flex items-center">
                   <input
                     type="radio"
-                    value={supplier.supplier_id}
-                    checked={localSupplier === supplier.supplier_id}
-                    onChange={() => setLocalSupplier(supplier.supplier_id)}
+                    value="all"
+                    checked={localSupplier === "all"}
+                    onChange={() => setLocalSupplier("all")}
                     className="hidden"
-                    id={supplier.supplier_id}
+                    id="supplier-all"
                   />
                   <span
                     className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                      localSupplier === supplier.supplier_id
+                      localSupplier === "all"
                         ? "bg-mainButtonColor"
                         : "border-gray-400"
                     }`}
                   />
-                  <span className="mr-auto max-w-[70%]">
-                    {supplier.supplier_name}
-                  </span>
-                  {pathName.includes("admin") &&
-                    localSupplier === supplier.supplier_id && (
-                      <Image
-                        src={editIcon}
-                        alt="edit"
-                        height={20}
-                        width={20}
-                        className="cursor-pointer"
-                        onClick={() => setShowSupplierForm(true)}
-                      />
-                    )}
+                  All
                 </label>
-              ))}
-              {supplierDropdownOpen && loading && (
-                <div className="flex justify-center items-center h-10">
-                  <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
-                  <p className="text-black">Loading...</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                {suppliers.map((supplier) => (
+                  <label
+                    key={supplier.supplier_id}
+                    className="flex items-center"
+                    htmlFor={supplier.supplier_id}
+                  >
+                    <input
+                      type="radio"
+                      value={supplier.supplier_id}
+                      checked={localSupplier === supplier.supplier_id}
+                      onChange={() => setLocalSupplier(supplier.supplier_id)}
+                      className="hidden"
+                      id={supplier.supplier_id}
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSupplier === supplier.supplier_id
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    <span className="mr-auto max-w-[70%]">
+                      {supplier.supplier_name}
+                    </span>
+                    {pathName.includes("admin") &&
+                      localSupplier === supplier.supplier_id && (
+                        <Image
+                          src={editIcon}
+                          alt="edit"
+                          height={20}
+                          width={20}
+                          className="cursor-pointer"
+                          onClick={() => setShowSupplierForm(true)}
+                        />
+                      )}
+                  </label>
+                ))}
+                {supplierDropdownOpen && loading && (
+                  <div className="flex justify-center items-center h-10">
+                    <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
+                    <p className="text-black">Loading...</p>
+                  </div>
+                )}
+              </div>
+            )}
+            {!supplierDropdownOpen && (
+              <div className="px-2 w-full text-mainButtonColor font-thin">
+                {localSupplier === "all"
+                  ? "All"
+                  : suppliers.find((sup) => sup.supplier_id === localSupplier)
+                      ?.supplier_name}
+              </div>
+            )}
+          </div>
+          <div className="mb-2">
+            <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+              By Units
+            </span>
+            <div className="w-full border mb-2"></div>
 
+            <div className="w-full px-2">
+              <label
+                htmlFor="units_ascending"
+                className="flex items-center flex-1 mb-2"
+              >
+                <input
+                  type="checkbox"
+                  id="units_ascending"
+                  checked={localSortUnitsAsc === true}
+                  onChange={() => {
+                    const newSortUnitsAsc =
+                      localSortUnitsAsc === true ? null : true;
+                    setLocalSortUnitsAsc(newSortUnitsAsc);
+                    if (newSortUnitsAsc === true) setLocalSortPriceAsc(null);
+                  }}
+                  className="hidden"
+                />
+                <span
+                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                    localSortUnitsAsc === true
+                      ? "bg-mainButtonColor"
+                      : "border-gray-400"
+                  }`}
+                />
+                Ascending
+              </label>
+              <label
+                htmlFor="units_descending"
+                className="flex items-center flex-1"
+              >
+                <input
+                  type="checkbox"
+                  id="units_descending"
+                  checked={localSortUnitsAsc === false}
+                  onChange={() => {
+                    const newSortUnitsAsc =
+                      localSortUnitsAsc === false ? null : false;
+                    setLocalSortUnitsAsc(newSortUnitsAsc);
+                    if (newSortUnitsAsc === false) setLocalSortPriceAsc(null);
+                  }}
+                  className="hidden"
+                />
+                <span
+                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                    localSortUnitsAsc === false
+                      ? "bg-mainButtonColor"
+                      : "border-gray-400"
+                  }`}
+                />
+                Descending
+              </label>
+            </div>
+          </div>
+        </>
+      )}
+      <div className="mb-2">
+        <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+          By Price
+        </span>
+        <div className="w-full border mb-2"></div>
+
+        <div className="w-full px-2">
+          <label
+            htmlFor="price_ascending"
+            className="flex items-center flex-1 mb-2"
+          >
+            <input
+              type="checkbox"
+              id="price_ascending"
+              checked={localSortPriceAsc === true}
+              onChange={() => {
+                const newSortPriceAsc =
+                  localSortPriceAsc === true ? null : true;
+                setLocalSortPriceAsc(newSortPriceAsc);
+                if (newSortPriceAsc === true) setLocalSortUnitsAsc(null);
+              }}
+              className="hidden"
+            />
+            <span
+              className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                localSortPriceAsc === true
+                  ? "bg-mainButtonColor"
+                  : "border-gray-400"
+              }`}
+            />
+            Ascending
+          </label>
+          <label
+            htmlFor="price_descending"
+            className="flex items-center flex-1"
+          >
+            <input
+              type="checkbox"
+              id="price_descending"
+              checked={localSortPriceAsc === false}
+              onChange={() => {
+                const newSortPriceAsc =
+                  localSortPriceAsc === false ? null : false;
+                setLocalSortPriceAsc(newSortPriceAsc);
+                if (newSortPriceAsc === false) setLocalSortUnitsAsc(null);
+              }}
+              className="hidden"
+            />
+            <span
+              className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                localSortPriceAsc === false
+                  ? "bg-mainButtonColor"
+                  : "border-gray-400"
+              }`}
+            />
+            Descending
+          </label>
+        </div>
+      </div>
       {/* Apply Button */}
       <button
         className="bg-mainButtonColor text-white p-2 rounded-md mt-auto"
-        onClick={handleApplyFilters}
+        onClick={() => {
+          handleApplyFilters();
+          console.log("localAscPrice:", localSortPriceAsc);
+          console.log("localAscUnits:", localSortUnitsAsc);
+        }}
       >
         Apply Filters
       </button>

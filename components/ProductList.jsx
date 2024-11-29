@@ -11,6 +11,8 @@ import AddProductCard from "./AddProductCard";
 const ProductList = ({
   selectedCategory = "all",
   selectedSupplier = "all",
+  sortPriceAsc = false,
+  sortUnitsAsc = false,
   searchKeyword = "",
   editingProductID = "",
 
@@ -20,6 +22,10 @@ const ProductList = ({
   setEditingProductID = () => {},
   setShowProductInventories = () => {},
 }) => {
+  useEffect(() => {
+    console.log("sortPriceAsc PL", sortPriceAsc);
+    console.log("sortUnitsAsc PL", sortUnitsAsc);
+  }, [sortPriceAsc, sortUnitsAsc]);
   const [productsWithInventories, setProductsWithInventories] = useState([]);
 
   const [
@@ -37,6 +43,11 @@ const ProductList = ({
   const [productsWithNoInventories, setProductsWithNoInventories] = useState(
     []
   );
+
+  const [filteredProducts, setFilteredProducts] = useState({
+    withInventories: [],
+    withoutInventories: [],
+  });
 
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
@@ -74,6 +85,8 @@ const ProductList = ({
         setLastVisible(
           data?.inventories[data.inventories.length - 1]?.inventory.inventory_id
         );
+
+        console.log("data", data);
 
         setProductsWithNoInventories(data?.noInventory);
       } catch (error) {
@@ -128,11 +141,9 @@ const ProductList = ({
       setIsFetchingMoreProductsWithInventories(false);
     }
   };
-
-  // Memoize the filtered products
-  const filteredProductsWithInventories = useMemo(() => {
-    const filterProductsWithInventories = (inventories) => {
-      return inventories.filter((inv) => {
+  useEffect(() => {
+    const withInventories = productsWithInventories
+      .filter((inv) => {
         const product = inv.product;
         const inventory = inv.inventory;
 
@@ -149,42 +160,62 @@ const ProductList = ({
           .includes(searchKeyword.toLowerCase());
 
         return isCategoryMatch && isSupplierMatch && isKeywordMatch;
-      });
-    };
+      })
+      .sort((a, b) => {
+        // Sorting logic for price and units
+        if (sortPriceAsc !== null || sortUnitsAsc !== null) {
+          if (sortPriceAsc === true) {
+            return (
+              a.inventory.inventory_retail_price -
+              b.inventory.inventory_retail_price
+            );
+          } else if (sortPriceAsc === false) {
+            return (
+              b.inventory.inventory_retail_price -
+              a.inventory.inventory_retail_price
+            );
+          }
 
-    return filterProductsWithInventories(productsWithInventories);
+          if (sortUnitsAsc === true) {
+            return (
+              a.inventory.inventory_total_units -
+              b.inventory.inventory_total_units
+            );
+          } else if (sortUnitsAsc === false) {
+            return (
+              b.inventory.inventory_total_units -
+              a.inventory.inventory_total_units
+            );
+          }
+        }
+        return 0;
+      });
+
+    const withoutInventories = productsWithNoInventories.filter((product) => {
+      const isCategoryMatch =
+        selectedCategory === "all" ||
+        product.product_category === selectedCategory;
+
+      const isKeywordMatch = product.product_name
+        .toLowerCase()
+        .includes(searchKeyword.toLowerCase());
+
+      return isCategoryMatch && isKeywordMatch;
+    });
+
+    setFilteredProducts({
+      withInventories,
+      withoutInventories,
+    });
   }, [
-    selectedSupplier,
     selectedCategory,
+    selectedSupplier,
     searchKeyword,
-    pathname,
     productsWithInventories,
+    productsWithNoInventories,
+    sortPriceAsc,
+    sortUnitsAsc,
   ]);
-
-  const filteredProductsWithNoInventories = useMemo(() => {
-    console.log("selectedSupplier", selectedSupplier);
-    const filterProductsWithoutInventories = (products) => {
-      return products.filter((product) => {
-        const isSupplierMatch = selectedSupplier === "all" ? true : false;
-
-        const isCategoryMatch =
-          selectedCategory === "all" ||
-          product.product_category === selectedCategory;
-
-        const isKeywordMatch =
-          product.product_name
-            .toLowerCase()
-            .includes(searchKeyword.toLowerCase()) ||
-          product.product_description
-            .toLowerCase()
-            .includes(searchKeyword.toLowerCase());
-
-        return isCategoryMatch && isKeywordMatch && isSupplierMatch;
-      });
-    };
-
-    return filterProductsWithoutInventories(productsWithNoInventories);
-  }, [selectedCategory, searchKeyword, pathname, productsWithNoInventories]);
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -230,15 +261,16 @@ const ProductList = ({
         {pathname.includes("admin") && (
           <AddProductCard setShowProductForm={setShowProductForm} />
         )}
-        {filteredProductsWithInventories.length > 0 && !loading
-          ? filteredProductsWithInventories.map((invwprd) => (
+        {filteredProducts.withInventories.length > 0 && !loading
+          ? filteredProducts.withInventories.map((prdwinv) => (
               <ProductCard
-                key={invwprd.product_id}
+                key={prdwinv.inventory.inventory_id}
+                cardkey={prdwinv.product_id}
                 pathName={pathname}
                 editingProductID={editingProductID}
-                productPrice={`${invwprd.inventory.inventory_retail_price}₱`}
-                productStock={`${invwprd.inventory.inventory_total_units} units`}
-                product={invwprd.product}
+                productPrice={`₱${prdwinv.inventory.inventory_retail_price}`}
+                productStock={`${prdwinv.inventory.inventory_total_units} units`}
+                product={prdwinv.product}
                 setShowInventoryForm={setShowInventoryForm}
                 setProductName={setProductName}
                 setShowProductForm={setShowProductForm}
@@ -247,12 +279,14 @@ const ProductList = ({
               />
             ))
           : null}
-        {filteredProductsWithNoInventories.length > 0 &&
+        {filteredProducts.withoutInventories.length > 0 &&
+          pathname.includes("admin") &&
           stopFetchingProductsWithInventories &&
           !loading &&
-          filteredProductsWithNoInventories.map((product) => (
+          filteredProducts.withoutInventories.map((product) => (
             <ProductCard
               key={product.product_id}
+              cardkey={product.product_id}
               pathName={pathname}
               editingProductID={editingProductID}
               productPrice={`No Price`}
@@ -276,8 +310,8 @@ const ProductList = ({
             </div>
           ))}
         {!loading &&
-          !filteredProductsWithInventories &&
-          !filteredProductsWithNoInventories && (
+          !filteredProducts.withInventories &&
+          !filteredProducts.withoutInventories && (
             <p className="text-xl text-center">No products found.</p>
           )}
       </div>

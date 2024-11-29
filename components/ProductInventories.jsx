@@ -79,10 +79,10 @@ const ProductInventories = ({
         </div>
       </div>
 
-      <div className="flex flex-col w-full gap-2 h-fit px-1">
+      <div>
         {productInventories.length === 0 && <div>No inventories found</div>}
         {productInventories.length > 0 && (
-          <div>
+          <div className="h-full cursor-pointer flex flex-col">
             {productInventories.map((inventory) => {
               const timestamp = new Date(
                 inventory.inventory_timestamp.seconds * 1000
@@ -107,36 +107,41 @@ const ProductInventories = ({
               });
 
               return (
-                <div
-                  key={inventory.inventory_id}
-                  className="w-full border rounded-sm px-2 py-3 flex flex-col bg-white"
-                >
-                  <div className="flex items-center px-2">
-                    <span className="font-semibold sm:inline-block hidden">
-                      Inventory created at:{" "}
-                    </span>
-                    <span className="sm:ml-4 ml-0 mr-auto ">{timestamp}</span>
-                    <span className="ml_auto font-light text-sm text-gray-400">
-                      {inventory.inventory_id}
-                    </span>
-                    <button
-                      onClick={() => toggleExpand(inventory.inventory_id)}
-                      className="ml-4 flex items-center"
-                    >
-                      <Image
-                        src={
-                          expandedStates[inventory.inventory_id]
-                            ? upArrow
-                            : downArrow
-                        }
-                        alt="Toggle details"
-                        width={20}
-                        height={20}
-                      />
-                    </button>
+                <>
+                  <div
+                    key={inventory.inventory_id}
+                    className={`${
+                      expandedStates[inventory.inventory_id] ? "mb-0" : "mb-2"
+                    } w-full border rounded-sm px-2 py-3 flex flex-col bg-white hover:bg-gray-100 duration-100 ease-in-out transition-colors`}
+                    onClick={() => toggleExpand(inventory.inventory_id)}
+                  >
+                    <div className="flex items-center px-2">
+                      <span className="font-semibold sm:inline-block hidden">
+                        Inventory created at:{" "}
+                      </span>
+                      <span className="sm:ml-4 ml-0 mr-auto ">{timestamp}</span>
+                      <span className="ml_auto font-light text-sm text-gray-400">
+                        {inventory.inventory_id}
+                      </span>
+                      <button
+                        onClick={() => toggleExpand(inventory.inventory_id)}
+                        className="ml-4 flex items-center"
+                      >
+                        <Image
+                          src={
+                            expandedStates[inventory.inventory_id]
+                              ? upArrow
+                              : downArrow
+                          }
+                          alt="Toggle details"
+                          width={20}
+                          height={20}
+                        />
+                      </button>
+                    </div>
                   </div>
                   {expandedStates[inventory.inventory_id] && (
-                    <div className="mt-2">
+                    <div className="p-2 bg-backgroundMain mb-2">
                       <ul className="flex gap-2 flex-col">
                         <li>
                           <h1 className="font-semibold">Date Info</h1>
@@ -183,7 +188,7 @@ const ProductInventories = ({
                       </ul>
                     </div>
                   )}
-                </div>
+                </>
               );
             })}
           </div>

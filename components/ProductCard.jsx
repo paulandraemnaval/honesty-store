@@ -7,7 +7,7 @@ import editIcon from "@public/icons/edit_icon.png";
 import editIconWhite from "@public/icons/edit_icon_white.png";
 
 const ProductCard = ({
-  key = "",
+  cardkey = "",
   pathName = "",
   editingProductID = "",
   productPrice = "",
@@ -23,7 +23,7 @@ const ProductCard = ({
 
   return (
     <div
-      key={key}
+      key={cardkey}
       className={`relative p-4 rounded-smxl shadow-lg border-2 ${
         hasNoInventory ? "bg-gray-100" : "bg-white"
       }`}

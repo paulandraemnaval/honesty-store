@@ -23,6 +23,8 @@ const productspage = () => {
   const [editingProductID, setEditingProductID] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSupplier, setSelectedSupplier] = useState("all");
+  const [sortUnitsAsc, setSortUnitsAsc] = useState(null); //null for deselected, true for ascending, false for descending
+  const [sortPriceAsc, setSortPriceAsc] = useState(null);
 
   const [showInventoryForm, setShowInventoryForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -85,8 +87,8 @@ const productspage = () => {
           setSelectedSupplier={setSelectedSupplier}
           setShowCategoryForm={setShowCategoryForm}
           setShowSupplierForm={setShowSupplierForm}
-          selectedCategory={selectedCategory}
-          selectedSupplier={selectedSupplier}
+          setSortUnitsAsc={setSortUnitsAsc}
+          setSortPriceAsc={setSortPriceAsc}
         />
       </div>
 
@@ -116,13 +118,15 @@ const productspage = () => {
             {!showInventoryForm && !showProductForm && (
               <ProductList
                 selectedCategory={selectedCategory}
-                searchKeyword={searchKeyword}
                 selectedSupplier={selectedSupplier}
+                sortPriceAsc={sortPriceAsc}
+                sortUnitsAsc={sortUnitsAsc}
+                searchKeyword={searchKeyword}
+                editingProductID={editingProductID}
                 setShowInventoryForm={setShowInventoryForm}
                 setProductName={setProductName}
                 setShowProductForm={setShowProductForm}
                 setEditingProductID={setEditingProductID}
-                editingProductID={editingProductID}
                 setShowProductInventories={setShowProductInventories}
               />
             )}
