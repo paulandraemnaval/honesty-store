@@ -10,7 +10,7 @@ import MobileFilter from "@components/MobileFilter";
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [sortPriceAsc, setSortPriceAsc] = useState(false);
+  const [sortPriceAsc, setSortPriceAsc] = useState(null);
   return (
     <>
       <header className="flex justify-center items-center p-4 bg-gradient-to-r from-gradientStart to-gradientEnd">

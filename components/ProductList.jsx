@@ -11,8 +11,8 @@ import AddProductCard from "./AddProductCard";
 const ProductList = ({
   selectedCategory = "all",
   selectedSupplier = "all",
-  sortPriceAsc = false,
-  sortUnitsAsc = false,
+  sortPriceAsc = null,
+  sortUnitsAsc = null,
   searchKeyword = "",
   editingProductID = "",
 
