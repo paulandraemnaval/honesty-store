@@ -31,12 +31,24 @@ const ProductCard = ({
     const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24)); // Calculate days difference
     const diffInWeeks = Math.floor(diffInDays / 7); // Calculate weeks difference
     const diffInMonths = Math.floor(diffInDays / 30); // Approximate months difference
+    const diffInYears = Math.floor(diffInMonths / 12); // Calculate years difference
 
-    // More than 2 months away
-    if (diffInMonths > 2) return `Expires in: >2 months`;
+    // More than 1 year away
+    if (diffInYears > 1) return `Expires in: >1 year`;
 
-    // About 1 month away
-    if (diffInMonths === 2) return `Expires in: ~2 months`;
+    // Between 11 and 1 months away
+    if (diffInMonths >= 11) return `Expires in: ${diffInMonths} months`;
+
+    // 10 months to 1 month away
+    if (diffInMonths === 10) return `Expires in: ~10 months`;
+
+    if (diffInMonths === 9) return `Expires in: ~9 months`;
+    if (diffInMonths === 8) return `Expires in: ~8 months`;
+    if (diffInMonths === 7) return `Expires in: ~7 months`;
+    if (diffInMonths === 6) return `Expires in: ~6 months`;
+    if (diffInMonths === 5) return `Expires in: ~5 months`;
+    if (diffInMonths === 4) return `Expires in: ~4 months`;
+    if (diffInMonths === 3) return `Expires in: ~3 months`;
 
     // Between 2 and 4 weeks
     if (diffInWeeks >= 2) return `Expires in: ${diffInWeeks} weeks`;
