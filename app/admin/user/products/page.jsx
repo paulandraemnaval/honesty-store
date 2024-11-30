@@ -25,6 +25,7 @@ const productspage = () => {
   const [selectedSupplier, setSelectedSupplier] = useState("all");
   const [sortUnitsAsc, setSortUnitsAsc] = useState(null); //null for deselected, true for ascending, false for descending
   const [sortPriceAsc, setSortPriceAsc] = useState(null);
+  const [sortExpirationAsc, setSortExpirationAsc] = useState(null);
 
   const [showInventoryForm, setShowInventoryForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
@@ -40,7 +41,7 @@ const productspage = () => {
     showProductInventories;
 
   return (
-    <div className="w-full px-4 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
+    <div className="w-full px-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
       {showPopover && (
         <div className="absolute w-full h-full z-50 border top-0 left-0 bg-[rgba(0,0,0,0.25)]">
           <div className="z-50 sm:w-[calc(100vw-30rem)] w-[calc(100vw)] sm:h-[calc(100vh-10rem)] h-[calc(100vh-6rem)]  rounded-md shadow-md absolute self-center sm:top-[50%] top-0 sm:left-[50%] left-0 smLtransform sm:-translate-x-1/2 sm:-translate-y-1/2 bg-white overflow-y-auto py-6 px-6">
@@ -89,6 +90,7 @@ const productspage = () => {
           setShowSupplierForm={setShowSupplierForm}
           setSortUnitsAsc={setSortUnitsAsc}
           setSortPriceAsc={setSortPriceAsc}
+          setSortExpirationAsc={setSortExpirationAsc}
         />
       </div>
 
@@ -104,7 +106,9 @@ const productspage = () => {
             <MobileFilter
               setSelectedCategory={setSelectedCategory}
               setSelectedSupplier={setSelectedSupplier}
-              renderedIn={"admin"}
+              setSortUnitsAsc={setSortUnitsAsc}
+              setSortPriceAsc={setSortPriceAsc}
+              setSortExpirationAsc={setSortExpirationAsc}
             />
           </div>
         </div>
@@ -121,6 +125,7 @@ const productspage = () => {
                 selectedSupplier={selectedSupplier}
                 sortPriceAsc={sortPriceAsc}
                 sortUnitsAsc={sortUnitsAsc}
+                sortExpirationAsc={sortExpirationAsc}
                 searchKeyword={searchKeyword}
                 editingProductID={editingProductID}
                 setShowInventoryForm={setShowInventoryForm}

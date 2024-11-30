@@ -19,6 +19,7 @@ const FilterBar = ({
   setShowSupplierForm = () => {},
   setSortUnitsAsc = () => {},
   setSortPriceAsc = () => {},
+  setSortExpirationAsc = () => {},
 }) => {
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -28,6 +29,7 @@ const FilterBar = ({
   const [localSupplier, setLocalSupplier] = useState("all");
   const [localSortUnitsAsc, setLocalSortUnitsAsc] = useState(null);
   const [localSortPriceAsc, setLocalSortPriceAsc] = useState(null);
+  const [localSortExpAsc, setLocalSortExpAsc] = useState(null);
   const [loading, setLoading] = useState(false);
   const pathName = usePathname();
 
@@ -69,13 +71,12 @@ const FilterBar = ({
     setSelectedSupplier(localSupplier);
     setSortUnitsAsc(localSortUnitsAsc);
     setSortPriceAsc(localSortPriceAsc);
-    console.log("localAscPrice:", localSortPriceAsc);
-    console.log("localAscUnits:", localSortUnitsAsc);
+    setSortExpirationAsc(localSortExpAsc);
   };
 
   return (
-    <div className="flex flex-col w-fit gap-2 flex-1 h-full min-w-[14rem] overflow-y-auto overflow-x-hidden p-4 border-r-2 border-gray-300 custom-scrollbar">
-      <span className="text-xl">Filters</span>
+    <div className="flex flex-col w-fit gap-2 flex-1 h-full min-w-[14rem] overflow-y-auto overflow-x-hidden p-4 border-r border-gray-300 custom-scrollbar">
+      <span className="text-xl mb-2">Filters</span>
       {/* Category Filter */}
       <div className="mb-4">
         {pathName.includes("admin") && (
@@ -279,6 +280,8 @@ const FilterBar = ({
               </div>
             )}
           </div>
+
+          {/* --------------------------------ASC/DESC----------------------------------- */}
           <div className="mb-2">
             <span className="w-full text-left px-2 flex justify-between items-center object-cover">
               By Units
@@ -298,7 +301,10 @@ const FilterBar = ({
                     const newSortUnitsAsc =
                       localSortUnitsAsc === true ? null : true;
                     setLocalSortUnitsAsc(newSortUnitsAsc);
-                    if (newSortUnitsAsc === true) setLocalSortPriceAsc(null);
+                    if (newSortUnitsAsc === true) {
+                      setLocalSortPriceAsc(null);
+                      setLocalSortExpAsc(null);
+                    }
                   }}
                   className="hidden"
                 />
@@ -323,13 +329,83 @@ const FilterBar = ({
                     const newSortUnitsAsc =
                       localSortUnitsAsc === false ? null : false;
                     setLocalSortUnitsAsc(newSortUnitsAsc);
-                    if (newSortUnitsAsc === false) setLocalSortPriceAsc(null);
+                    if (newSortUnitsAsc === false) {
+                      setLocalSortPriceAsc(null);
+                      setLocalSortExpAsc(null);
+                    }
                   }}
                   className="hidden"
                 />
                 <span
                   className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
                     localSortUnitsAsc === false
+                      ? "bg-mainButtonColor"
+                      : "border-gray-400"
+                  }`}
+                />
+                Descending
+              </label>
+            </div>
+          </div>
+
+          {/* exp sort */}
+          <div className="mb-2">
+            <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+              By Expiry
+            </span>
+            <div className="w-full border mb-2"></div>
+
+            <div className="w-full px-2">
+              <label
+                htmlFor="expiry_ascending"
+                className="flex items-center flex-1 mb-2"
+              >
+                <input
+                  type="checkbox"
+                  id="expiry_ascending"
+                  checked={localSortExpAsc === true}
+                  onChange={() => {
+                    const newSortExpAsc =
+                      localSortExpAsc === true ? null : true;
+                    setLocalSortExpAsc(newSortExpAsc);
+                    if (newSortExpAsc === true) {
+                      setLocalSortPriceAsc(null);
+                      setLocalSortUnitsAsc(null);
+                    }
+                  }}
+                  className="hidden"
+                />
+                <span
+                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                    localSortExpAsc === true
+                      ? "bg-mainButtonColor"
+                      : "border-gray-400"
+                  }`}
+                />
+                Ascending
+              </label>
+              <label
+                htmlFor="expiry_descending"
+                className="flex items-center flex-1"
+              >
+                <input
+                  type="checkbox"
+                  id="expiry_descending"
+                  checked={localSortExpAsc === false}
+                  onChange={() => {
+                    const newSortExpAsc =
+                      localSortExpAsc === false ? null : false;
+                    setLocalSortExpAsc(newSortExpAsc);
+                    if (newSortExpAsc === false) {
+                      setLocalSortPriceAsc(null);
+                      setLocalSortUnitsAsc(null);
+                    }
+                  }}
+                  className="hidden"
+                />
+                <span
+                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                    localSortExpAsc === false
                       ? "bg-mainButtonColor"
                       : "border-gray-400"
                   }`}
@@ -359,7 +435,10 @@ const FilterBar = ({
                 const newSortPriceAsc =
                   localSortPriceAsc === true ? null : true;
                 setLocalSortPriceAsc(newSortPriceAsc);
-                if (newSortPriceAsc === true) setLocalSortUnitsAsc(null);
+                if (newSortPriceAsc === true) {
+                  setLocalSortUnitsAsc(null);
+                  setLocalSortExpAsc(null);
+                }
               }}
               className="hidden"
             />
@@ -384,7 +463,10 @@ const FilterBar = ({
                 const newSortPriceAsc =
                   localSortPriceAsc === false ? null : false;
                 setLocalSortPriceAsc(newSortPriceAsc);
-                if (newSortPriceAsc === false) setLocalSortUnitsAsc(null);
+                if (newSortPriceAsc === false) {
+                  setLocalSortUnitsAsc(null);
+                  setLocalSortExpAsc(null);
+                }
               }}
               className="hidden"
             />
@@ -404,8 +486,14 @@ const FilterBar = ({
         className="bg-mainButtonColor text-white p-2 rounded-md mt-auto"
         onClick={() => {
           handleApplyFilters();
-          console.log("localAscPrice:", localSortPriceAsc);
-          console.log("localAscUnits:", localSortUnitsAsc);
+          console.log(
+            "pa:",
+            localSortPriceAsc,
+            "ua:",
+            localSortUnitsAsc,
+            "ea:",
+            localSortExpAsc
+          );
         }}
       >
         Apply Filters

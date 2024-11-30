@@ -12,6 +12,7 @@ const ProductCard = ({
   editingProductID = "",
   productPrice = "",
   productStock = "",
+  productInventoryExpiration = null,
   product = {},
   setShowInventoryForm = () => {},
   setProductName = () => {},
@@ -20,7 +21,39 @@ const ProductCard = ({
   setShowProductInventories = () => {},
 }) => {
   const hasNoInventory = productStock === "No inventory";
+  // Calculate remaining time to expiration
+  const getExpirationMessage = (expirationDate) => {
+    if (!expirationDate) return "N/A";
 
+    const currentDate = new Date();
+    const diffInMs = expirationDate.getTime() - currentDate.getTime();
+
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24)); // Calculate days difference
+    const diffInWeeks = Math.floor(diffInDays / 7); // Calculate weeks difference
+    const diffInMonths = Math.floor(diffInDays / 30); // Approximate months difference
+
+    // More than 2 months away
+    if (diffInMonths > 2) return `Expires in: >2 months`;
+
+    // About 1 month away
+    if (diffInMonths === 2) return `Expires in: ~2 months`;
+
+    // Between 2 and 4 weeks
+    if (diffInWeeks >= 2) return `Expires in: ${diffInWeeks} weeks`;
+
+    // About 1 week
+    if (diffInWeeks === 1) return `Expires in: 1 week`;
+
+    // 7 days or fewer
+    if (diffInDays > 0) return `Expires in: ${diffInDays} days`;
+
+    // Expired
+    return "EXPIRED";
+  };
+
+  const formattedExpirationDate = getExpirationMessage(
+    productInventoryExpiration
+  );
   return (
     <div
       key={cardkey}
@@ -107,19 +140,38 @@ const ProductCard = ({
 
       <div className="flex flex-col justify-center z-20">
         {pathName.includes("admin") && (
-          <div
-            className="self-end object-cover p-1 rounded-md flex"
-            onClick={() => {
-              setEditingProductID(product.product_id);
-            }}
-          >
-            <Image
-              src={editIcon}
-              alt="Edit product"
-              width={20}
-              height={20}
-              className="object-cover w-6 h-6 cursor-pointer"
-            ></Image>
+          <div className="flex">
+            <div
+              className={`flex-1 text-sm ${
+                formattedExpirationDate.includes(">2 months")
+                  ? "text-[#28a745] "
+                  : formattedExpirationDate.includes("~2 months")
+                  ? "text-[#f39c12] "
+                  : formattedExpirationDate.includes("week")
+                  ? "text-[#e67e22] "
+                  : formattedExpirationDate.includes("day")
+                  ? "text-[#e74c3c] "
+                  : formattedExpirationDate === "EXPIRED"
+                  ? "text-[#b03a2e] font-extrabold"
+                  : "text-[#28a745] "
+              }`}
+            >
+              {formattedExpirationDate}
+            </div>
+            <div
+              className="object-cover p-1 rounded-md flex"
+              onClick={() => {
+                setEditingProductID(product.product_id);
+              }}
+            >
+              <Image
+                src={editIcon}
+                alt="Edit product"
+                width={20}
+                height={20}
+                className="object-cover w-6 h-6 cursor-pointer"
+              ></Image>
+            </div>
           </div>
         )}
         <div className="flex justify-center sm:h-[10rem] h-[6rem]">

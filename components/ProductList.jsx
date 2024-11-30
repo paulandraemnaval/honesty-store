@@ -13,6 +13,7 @@ const ProductList = ({
   selectedSupplier = "all",
   sortPriceAsc = null,
   sortUnitsAsc = null,
+  sortExpirationAsc = null,
   searchKeyword = "",
   editingProductID = "",
 
@@ -25,6 +26,7 @@ const ProductList = ({
   useEffect(() => {
     console.log("sortPriceAsc PL", sortPriceAsc);
     console.log("sortUnitsAsc PL", sortUnitsAsc);
+    console.log("sortExpirationAsc PL", sortExpirationAsc);
   }, [sortPriceAsc, sortUnitsAsc]);
   const [productsWithInventories, setProductsWithInventories] = useState([]);
 
@@ -163,7 +165,11 @@ const ProductList = ({
       })
       .sort((a, b) => {
         // Sorting logic for price and units
-        if (sortPriceAsc !== null || sortUnitsAsc !== null) {
+        if (
+          sortPriceAsc !== null ||
+          sortUnitsAsc !== null ||
+          sortExpirationAsc !== null
+        ) {
           if (sortPriceAsc === true) {
             return (
               a.inventory.inventory_retail_price -
@@ -187,11 +193,24 @@ const ProductList = ({
               a.inventory.inventory_total_units
             );
           }
+          if (sortExpirationAsc === true) {
+            return (
+              a.inventory.inventory_expiration_date.seconds -
+              b.inventory.inventory_expiration_date.seconds
+            );
+          } else if (sortExpirationAsc === false) {
+            return (
+              b.inventory.inventory_expiration_date.seconds -
+              a.inventory.inventory_expiration_date.seconds
+            );
+          }
         }
         return 0;
       });
 
     const withoutInventories = productsWithNoInventories.filter((product) => {
+      const isSupplierMatch = selectedSupplier === "all";
+
       const isCategoryMatch =
         selectedCategory === "all" ||
         product.product_category === selectedCategory;
@@ -200,7 +219,7 @@ const ProductList = ({
         .toLowerCase()
         .includes(searchKeyword.toLowerCase());
 
-      return isCategoryMatch && isKeywordMatch;
+      return isCategoryMatch && isKeywordMatch && isSupplierMatch;
     });
 
     setFilteredProducts({
@@ -215,6 +234,7 @@ const ProductList = ({
     productsWithNoInventories,
     sortPriceAsc,
     sortUnitsAsc,
+    sortExpirationAsc,
   ]);
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -262,22 +282,30 @@ const ProductList = ({
           <AddProductCard setShowProductForm={setShowProductForm} />
         )}
         {filteredProducts.withInventories.length > 0 && !loading
-          ? filteredProducts.withInventories.map((prdwinv) => (
-              <ProductCard
-                key={prdwinv.inventory.inventory_id}
-                cardkey={prdwinv.product_id}
-                pathName={pathname}
-                editingProductID={editingProductID}
-                productPrice={`₱${prdwinv.inventory.inventory_retail_price}`}
-                productStock={`${prdwinv.inventory.inventory_total_units} units`}
-                product={prdwinv.product}
-                setShowInventoryForm={setShowInventoryForm}
-                setProductName={setProductName}
-                setShowProductForm={setShowProductForm}
-                setEditingProductID={setEditingProductID}
-                setShowProductInventories={setShowProductInventories}
-              />
-            ))
+          ? filteredProducts.withInventories.map((prdwinv) => {
+              const expirationDateObj =
+                prdwinv.inventory.inventory_expiration_date;
+              const expdatesec = expirationDateObj.seconds;
+              const expirationDate = new Date(expdatesec * 1000);
+
+              return (
+                <ProductCard
+                  key={prdwinv.inventory.inventory_id}
+                  cardkey={prdwinv.product_id}
+                  pathName={pathname}
+                  editingProductID={editingProductID}
+                  productPrice={`₱${prdwinv.inventory.inventory_retail_price}`}
+                  productStock={`${prdwinv.inventory.inventory_total_units} units`}
+                  productInventoryExpiration={expirationDate}
+                  product={prdwinv.product}
+                  setShowInventoryForm={setShowInventoryForm}
+                  setProductName={setProductName}
+                  setShowProductForm={setShowProductForm}
+                  setEditingProductID={setEditingProductID}
+                  setShowProductInventories={setShowProductInventories}
+                />
+              );
+            })
           : null}
         {filteredProducts.withoutInventories.length > 0 &&
           pathname.includes("admin") &&

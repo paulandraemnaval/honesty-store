@@ -96,7 +96,7 @@ const Navbar = () => {
   return (
     <nav>
       {/* Desktop nav */}
-      <div className="p-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[14rem]">
+      <div className="px-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[14rem]">
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
           Honesty Store
         </p>
