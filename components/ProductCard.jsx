@@ -21,45 +21,23 @@ const ProductCard = ({
   setShowProductInventories = () => {},
 }) => {
   const hasNoInventory = productStock === "No inventory";
-  // Calculate remaining time to expiration
+
   const getExpirationMessage = (expirationDate) => {
     if (!expirationDate) return "N/A";
 
     const currentDate = new Date();
     const diffInMs = expirationDate.getTime() - currentDate.getTime();
 
-    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24)); // Calculate days difference
-    const diffInWeeks = Math.floor(diffInDays / 7); // Calculate weeks difference
-    const diffInMonths = Math.floor(diffInDays / 30); // Approximate months difference
-    const diffInYears = Math.floor(diffInMonths / 12); // Calculate years difference
+    const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    const diffInMonths = Math.floor(diffInDays / 30);
+    const diffInYears = Math.floor(diffInMonths / 12);
 
-    // More than 1 year away
     if (diffInYears > 1) return `Expires in: >1 year`;
-
-    // Between 11 and 1 months away
-    if (diffInMonths >= 11) return `Expires in: ${diffInMonths} months`;
-
-    // 10 months to 1 month away
-    if (diffInMonths === 10) return `Expires in: ~10 months`;
-
-    if (diffInMonths === 9) return `Expires in: ~9 months`;
-    if (diffInMonths === 8) return `Expires in: ~8 months`;
-    if (diffInMonths === 7) return `Expires in: ~7 months`;
-    if (diffInMonths === 6) return `Expires in: ~6 months`;
-    if (diffInMonths === 5) return `Expires in: ~5 months`;
-    if (diffInMonths === 4) return `Expires in: ~4 months`;
-    if (diffInMonths === 3) return `Expires in: ~3 months`;
-
-    // Between 2 and 4 weeks
+    if (diffInMonths > 1) return `Expires in: ~${diffInMonths} months`;
     if (diffInWeeks >= 2) return `Expires in: ${diffInWeeks} weeks`;
-
-    // About 1 week
     if (diffInWeeks === 1) return `Expires in: 1 week`;
-
-    // 7 days or fewer
     if (diffInDays > 0) return `Expires in: ${diffInDays} days`;
-
-    // Expired
     return "EXPIRED";
   };
 
@@ -69,7 +47,7 @@ const ProductCard = ({
   return (
     <div
       key={cardkey}
-      className={`relative p-4 rounded-smxl shadow-lg border-2 ${
+      className={`relative p-4 rounded-sm shadow-lg border-2 ${
         hasNoInventory ? "bg-gray-100" : "bg-white"
       }`}
     >

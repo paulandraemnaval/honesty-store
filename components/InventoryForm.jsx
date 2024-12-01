@@ -5,7 +5,13 @@ import closeIcon from "@public/icons/close_icon.png";
 import Image from "next/image";
 import Loading from "./Loading";
 import ButtonLoading from "./ButtonLoading";
-const CreateInventory = ({ productName, setShowInventoryForm }) => {
+const CreateInventory = ({
+  productName = "",
+  setShowInventoryForm = () => {},
+  inventoryID = "",
+}) => {
+  console.log("inventoryID", inventoryID);
+
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,6 +31,28 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
   const [supplierValid, setSupplierValid] = useState(false);
 
   const [manualProfitMargin, setManualProfitMargin] = useState(false);
+
+  useEffect(() => {
+    if (inventoryID) {
+      const fetchInventory = async () => {
+        try {
+          setDataLoading(true);
+          const response = await fetch(`/api/admin/inventory/${inventoryID}`);
+          const data = await response.json();
+          const inventoryData = data?.data[0];
+          setWholesalePrice(inventoryData?.wholesale_price);
+          setProfitMargin(inventoryData?.profit_margin);
+          setRetailPrice(inventoryData?.retail_price);
+          setSelectedSupplier(inventoryData?.supplier_id);
+        } catch (error) {
+          console.error("Failed to fetch inventory: ", error);
+        } finally {
+          setDataLoading(false);
+        }
+      };
+      fetchInventory();
+    }
+  }, [inventoryID]);
 
   useEffect(() => {
     if (!manualProfitMargin && wholesalePrice !== "") {
@@ -273,7 +301,7 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
         </p>
 
         <label htmlFor="inventory_profit_margin" className="ml-1">
-          Profit Margin
+          Profit Margin (%)
           {manualProfitMargin ? (
             <span className="text-red-600">*</span>
           ) : (
@@ -314,7 +342,6 @@ const CreateInventory = ({ productName, setShowInventoryForm }) => {
           }}
           onBlur={(e) => {
             const value = e.target.value.trim();
-            // Re-add the '%' symbol on blur
             if (value && !value.endsWith("%")) {
               e.target.value = `${value}%`;
             }
