@@ -142,7 +142,7 @@ export async function POST(request) {
 
     audit_gross_income = roundToTwoDecimals(audit_gross_income);
     audit_total_expense = roundToTwoDecimals(audit_total_expense);
-    const audit_net_income = roundToTwoDecimals(
+    const audit_net_profit = roundToTwoDecimals(
       audit_gross_income - audit_total_expense
     );
 
@@ -151,7 +151,7 @@ export async function POST(request) {
       account_id: user.account_id,
       audit_gross_income,
       audit_total_expense,
-      audit_net_income,
+      audit_net_profit,
       audit_timestamp: Timestamp.now(),
       audit_last_updated: Timestamp.now(),
       audit_soft_deleted: false,

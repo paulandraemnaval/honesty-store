@@ -20,6 +20,7 @@ import {
   startAfter,
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
+import { generateReport } from "@utils/sheets";
 
 export async function POST(request) {
   try {
@@ -33,6 +34,7 @@ export async function POST(request) {
     let report_start_date;
 
     if (await checkCollectionExists("Report")) {
+      console.log("create");
       report_start_date = await getLastReportEndDate();
     } else {
       const inventoryRef = collection(db, "Inventory");
@@ -129,6 +131,8 @@ export async function POST(request) {
       });
 
       await Promise.all(updatePromises);
+
+      await generateReport(reportDoc.id);
 
       const logData = await createLog(
         user.account_id,

@@ -9,7 +9,7 @@ import {
   query,
   getDoc,
 } from "firebase/firestore";
-import { exportSheetToXLSX } from "./export";
+import { exportSheetToXLSX, exportSheetToPDF } from "./export";
 import { formatDate, formatDateToLong } from "./formatDate";
 
 // Initialize auth - see https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication
@@ -40,12 +40,13 @@ export const generateReport = async (reportId) => {
       return;
     }
     const reportDb = reportSnapshot.data();
-    await report2.loadInfo();
 
-    const sheet = await report2.addSheet({
-      title: `${formatDateToLong(
-        reportDb.report_start_date
-      )} - ${formatDateToLong(reportDb.report_end_date)}`,
+    await report1.loadInfo();
+
+    const sheet = await report1.addSheet({
+      title: `${formatDate(reportDb.report_start_date.toDate())} - ${formatDate(
+        reportDb.report_end_date.toDate()
+      )}`,
       headerRowIndex: 2,
       headerValues: [
         "Year",
@@ -240,8 +241,6 @@ export const generateReport = async (reportId) => {
       rowInd,
       sheet
     );
-
-    await exportSheetToXLSX(process.env.GOOGLE_SHEET_ID_2);
   } catch (error) {
     console.log(error);
   }
@@ -308,6 +307,7 @@ const inventorySummary = async (startDate, endDate, rowInd, sheet) => {
     });
 
     await Promise.all(promises);
+    console.log("data:", data);
 
     for (let i = 0; i < data.length; i++) {
       rowInd++;
@@ -323,6 +323,7 @@ const inventorySummary = async (startDate, endDate, rowInd, sheet) => {
           };
         }
       }
+      await sheet.saveUpdatedCells(); // Add this line
     }
   } catch (error) {
     console.log(error);
