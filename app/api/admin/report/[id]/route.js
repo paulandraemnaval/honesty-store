@@ -1,16 +1,16 @@
 import { db, getLoggedInUser, createLog } from "@utils/firebase";
 import { Timestamp, updateDoc, doc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
-import getImageURL from "@utils/imageURL";
+
 
 export async function DELETE(request, { params }) {
   const { id } = params;
 
   try {
-    const categoryDoc = doc(db, "Category", id);
-    await updateDoc(categoryDoc, {
-      category_soft_deleted: true,
-      category_last_updated: Timestamp.now(),
+    const reportDoc = doc(db, "Report", id);
+    await updateDoc(reportDoc, {
+      report_soft_deleted: true,
+      report_last_updated: Timestamp.now(),
     });
 
     const user = await getLoggedInUser();
