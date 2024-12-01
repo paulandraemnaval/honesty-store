@@ -27,9 +27,10 @@ export async function POST(request) {
   const restockItems = []; //list of inventories need for restocking
   try {
     const data = await request.json();
-    const cycleCountRef = collection(db, "CycleCount"); //every cycle count is linked to a specific inventory
 
     const promises = data.map(async (item) => {
+      const cycleCountRef = collection(db, "CycleCount"); //every cycle count is linked to a specific inventory
+
       const { inventoryId, remaining } = item;
       const remainingUnits = parseInt(remaining, 10) || 0;
 
@@ -104,7 +105,7 @@ export async function POST(request) {
       let isLessThanReorderPoint = false;
 
       //Sum up the total units from all inventories with the same product_id
-      if (!inventoriesSnapshot.empty()) {
+      if (!inventoriesSnapshot.empty) {
         inventoriesSnapshot.forEach((doc) => {
           inventoryData = doc.data();
           totalUnits += inventoryData.inventory_total_units;
@@ -141,7 +142,7 @@ export async function POST(request) {
 
     audit_gross_income = roundToTwoDecimals(audit_gross_income);
     audit_total_expense = roundToTwoDecimals(audit_total_expense);
-    const audit_net_income = roundToTwoDecimals(
+    const audit_net_profit = roundToTwoDecimals(
       audit_gross_income - audit_total_expense
     );
 
@@ -150,7 +151,7 @@ export async function POST(request) {
       account_id: user.account_id,
       audit_gross_income,
       audit_total_expense,
-      audit_net_income,
+      audit_net_profit,
       audit_timestamp: Timestamp.now(),
       audit_last_updated: Timestamp.now(),
       audit_soft_deleted: false,

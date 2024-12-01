@@ -8,8 +8,8 @@ export async function DELETE(request, { params }) {
   try {
     const auditDoc = doc(db, "Audit", id);
     await updateDoc(auditDoc, {
-      report_soft_deleted: true,
-      report_last_updated: Timestamp.now(),
+      audit_soft_deleted: true,
+      audit_last_updated: Timestamp.now(),
     });
 
     const user = await getLoggedInUser();

@@ -33,6 +33,7 @@ export async function DELETE(request, { params }) {
     await updateDoc(supplierRef, {
       supplier_last_updated: Timestamp.now(),
       supplier_soft_deleted: true,
+      supplier_id: "no supplier",
     });
 
     const user = await getLoggedInUser();
