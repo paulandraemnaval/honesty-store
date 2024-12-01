@@ -10,16 +10,18 @@ import MobileFilter from "@components/MobileFilter";
 const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [sortPriceAsc, setSortPriceAsc] = useState(null);
   return (
     <>
       <header className="flex justify-center items-center p-4 bg-gradient-to-r from-gradientStart to-gradientEnd">
         <p className="text-2xl text-white font-bold">HONESTY STORE</p>
       </header>
-      <div className="w-full px-4 flex sm:h-[calc(100vh-6rem)] h-[calc(100vh-5rem)] mt-2">
-        <div className="sm:flex hidden pr-2">
+      <div className="w-full px-2 flex sm:h-[calc(100vh-4.5rem)] h-[calc(100vh-5rem)] mt-2">
+        <div className="sm:flex hidden pr-2 mr-2">
           <FilterBar
             selectedCategory={selectedCategory}
             setSelectedCategory={setSelectedCategory}
+            setSortPriceAsc={setSortPriceAsc}
           />
         </div>
 
@@ -35,6 +37,7 @@ const Page = () => {
               <MobileFilter
                 setSelectedCategory={setSelectedCategory}
                 selectedCategory={selectedCategory}
+                setSortPriceAsc={setSortPriceAsc}
               />
             </div>
           </div>
@@ -43,6 +46,7 @@ const Page = () => {
           <div className="overflow-y-auto flex-1">
             <ProductList
               selectedCategory={selectedCategory}
+              sortPriceAsc={sortPriceAsc}
               searchKeyword={searchKeyword}
             />
           </div>

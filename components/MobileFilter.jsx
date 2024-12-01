@@ -16,12 +16,11 @@ import ButtonLoading from "./ButtonLoading";
 
 const MobileFilter = ({
   setSelectedCategory = () => {},
-  selectedCategory = "all",
   setSelectedSupplier = () => {},
-  supplierFilter = "all",
-  renderedIn,
+  setSortPriceAsc = () => {},
+  setSortUnitsAsc = () => {},
+  setSortExpirationAsc = () => {},
 }) => {
-  const router = useRouter();
   const pathname = usePathname();
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -29,7 +28,9 @@ const MobileFilter = ({
   const [suppliers, setSuppliers] = useState([]);
   const [localCategory, setLocalCategory] = useState("all");
   const [localSupplier, setLocalSupplier] = useState("all");
-
+  const [localSortPriceAsc, setLocalSortPriceAsc] = useState(null);
+  const [localSortUnitsAsc, setLocalSortUnitsAsc] = useState(null);
+  const [localSortExpirationAsc, setLocalSortExpirationAsc] = useState(null);
   const [loadingCategories, setLoadingCategories] = useState(false);
   const [loadingSuppliers, setLoadingSuppliers] = useState(false);
   useEffect(() => {
@@ -72,18 +73,46 @@ const MobileFilter = ({
   const handleApplyFilters = () => {
     setSelectedCategory(localCategory);
     setSelectedSupplier(localSupplier);
+    setSortPriceAsc(localSortPriceAsc);
+    setSortUnitsAsc(localSortUnitsAsc);
+    setSortExpirationAsc(localSortExpirationAsc);
     setIsExpanded(false);
+  };
+
+  const appliedFilterCount = () => {
+    let count = 0;
+    if (localCategory !== "all") {
+      count++;
+    }
+    if (localSupplier !== "all") {
+      count++;
+    }
+    if (localSortPriceAsc !== null) {
+      count++;
+    }
+    if (localSortUnitsAsc !== null) {
+      count++;
+    }
+    if (localSortExpirationAsc !== null) {
+      count++;
+    }
+    return count;
   };
 
   return (
     <>
       <div className="flex">
         <div
-          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-md font-semibold text-white"
+          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-sm font-semibold text-white"
           onClick={() => setIsExpanded((prev) => !prev)}
         >
           <span>Filter</span>
           <Image src={FilterIcon} height={20} width={20} alt="filter_icon" />
+          {appliedFilterCount() > 0 && (
+            <span className="bg-white text-mainButtonColor rounded-full px-2">
+              {appliedFilterCount()}
+            </span>
+          )}
         </div>
       </div>
       {isExpanded && (
@@ -96,7 +125,7 @@ const MobileFilter = ({
         >
           <div className="w-[85vw] flex flex-col bg-white h-full overflow-y-auto">
             {/* Header */}
-            <div className="flex py-2 px-4 justify-center items-center">
+            <div className="flex py-4 px-6 justify-center items-center">
               <span className="mr-auto font-semibold text-xl">Filter</span>
               <div
                 className="object-cover"
@@ -110,9 +139,8 @@ const MobileFilter = ({
                 />
               </div>
             </div>
-
             {/* Categories */}
-            <div className="flex px-4 flex-col gap-2">
+            <div className="flex px-6 flex-col gap-2">
               <span className="mt-auto mr-auto">By Category</span>
               <div className="grid gap-1 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
                 {pathname.includes("admin") && (
@@ -159,7 +187,7 @@ const MobileFilter = ({
                         <div className="w-full mt-2 mb-2 px-2">
                           {category.category_name}
                         </div>
-                        {renderedIn === "admin" &&
+                        {pathname.includes("admin") &&
                           category.category_id === localCategory && (
                             <Link
                               href={`/admin/user/manage/edit_category/${category.category_id}`}
@@ -179,10 +207,9 @@ const MobileFilter = ({
                 )}
               </div>
             </div>
-
             {/* Suppliers */}
             {pathname.includes("admin") && (
-              <div className="flex px-4 flex-col gap-2 mt-4">
+              <div className="flex px-6 flex-col gap-2 mt-4">
                 <span className="mt-auto mr-auto">By Supplier</span>
                 <div className="grid gap-1 w-full grid-cols-2 md:grid-cols-[repeat(auto-fit,minmax(12rem,1fr))]">
                   <Link
@@ -247,7 +274,190 @@ const MobileFilter = ({
                 </div>
               </div>
             )}
+            {pathname.includes("admin") && (
+              <>
+                {/* Units Sorting */}
+                <div className="mb-2 px-6 mt-4">
+                  <span className="w-full text-left px-2 flex justify-between items-center">
+                    By Units
+                  </span>
+                  <div className="w-full border mb-2"></div>
 
+                  <div className="w-full px-2">
+                    <div
+                      role="button"
+                      aria-pressed={localSortUnitsAsc === true}
+                      tabIndex="0"
+                      className={`flex items-center flex-1 mb-2 cursor-pointer`}
+                      onClick={() => {
+                        const newSortUnitsAsc =
+                          localSortUnitsAsc === true ? null : true;
+                        setLocalSortUnitsAsc(newSortUnitsAsc);
+                        if (newSortUnitsAsc === true) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortExpirationAsc(null);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`w-4 h-4 mr-2 border-2 rounded-full ${
+                          localSortUnitsAsc === true
+                            ? "bg-mainButtonColor"
+                            : "border-gray-400"
+                        }`}
+                      />
+                      Ascending
+                    </div>
+
+                    <div
+                      role="button"
+                      aria-pressed={localSortUnitsAsc === false}
+                      tabIndex="0"
+                      className={`flex items-center flex-1 cursor-pointer`}
+                      onClick={() => {
+                        const newSortUnitsAsc =
+                          localSortUnitsAsc === false ? null : false;
+                        setLocalSortUnitsAsc(newSortUnitsAsc);
+                        if (newSortUnitsAsc === false) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortExpirationAsc(null);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`w-4 h-4 mr-2 border-2 rounded-full ${
+                          localSortUnitsAsc === false
+                            ? "bg-mainButtonColor"
+                            : "border-gray-400"
+                        }`}
+                      />
+                      Descending
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            {pathname.includes("admin") && (
+              <>
+                {/* Expiry sort */}
+                <div className="mb-2 px-6 mt-4">
+                  <span className="w-full text-left px-2 flex justify-between items-center">
+                    By Expiry
+                  </span>
+                  <div className="w-full border mb-2"></div>
+
+                  <div className="w-full px-2">
+                    <div
+                      role="button"
+                      aria-pressed={localSortExpirationAsc === true}
+                      tabIndex="0"
+                      className={`flex items-center flex-1 mb-2 cursor-pointer`}
+                      onClick={() => {
+                        const newSortExpirationAsc =
+                          localSortExpirationAsc === true ? null : true;
+                        setLocalSortExpirationAsc(newSortExpirationAsc);
+                        if (newSortExpirationAsc === true) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortUnitsAsc(null);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`w-4 h-4 mr-2 border-2 rounded-full ${
+                          localSortExpirationAsc === true
+                            ? "bg-mainButtonColor"
+                            : "border-gray-400"
+                        }`}
+                      />
+                      Ascending
+                    </div>
+
+                    <div
+                      role="button"
+                      aria-pressed={localSortExpirationAsc === false}
+                      tabIndex="0"
+                      className={`flex items-center flex-1 cursor-pointer`}
+                      onClick={() => {
+                        const newSortExpirationAsc =
+                          localSortExpirationAsc === false ? null : false;
+                        setLocalSortExpirationAsc(newSortExpirationAsc);
+                        if (newSortExpirationAsc === false) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortUnitsAsc(null);
+                        }
+                      }}
+                    >
+                      <div
+                        className={`w-4 h-4 mr-2 border-2 rounded-full ${
+                          localSortExpirationAsc === false
+                            ? "bg-mainButtonColor"
+                            : "border-gray-400"
+                        }`}
+                      />
+                      Descending
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="mb-2 px-6 mt-4">
+              <span className="w-full text-left px-2 flex justify-between items-center">
+                By Price
+              </span>
+              <div className="w-full border mb-2"></div>
+
+              <div className="w-full px-2">
+                <div
+                  role="button"
+                  aria-pressed={localSortPriceAsc === true}
+                  tabIndex="0"
+                  className={`flex items-center flex-1 mb-2 cursor-pointer`}
+                  onClick={() => {
+                    const newSortPriceAsc =
+                      localSortPriceAsc === true ? null : true;
+                    setLocalSortPriceAsc(newSortPriceAsc);
+                    if (newSortPriceAsc === true) {
+                      setLocalSortUnitsAsc(null);
+                      setLocalSortExpirationAsc(null);
+                    }
+                  }}
+                >
+                  <div
+                    className={`w-4 h-4 mr-2 border-2 rounded-full ${
+                      localSortPriceAsc === true
+                        ? "bg-mainButtonColor"
+                        : "border-gray-400"
+                    }`}
+                  />
+                  Ascending
+                </div>
+
+                <div
+                  role="button"
+                  aria-pressed={localSortPriceAsc === false}
+                  tabIndex="0"
+                  className={`flex items-center flex-1 cursor-pointer`}
+                  onClick={() => {
+                    const newSortPriceAsc =
+                      localSortPriceAsc === false ? null : false;
+                    setLocalSortPriceAsc(newSortPriceAsc);
+                    if (newSortPriceAsc === false) {
+                      setLocalSortExpirationAsc(null);
+                      setLocalSortUnitsAsc(null);
+                    }
+                  }}
+                >
+                  <div
+                    className={`w-4 h-4 mr-2 border-2 rounded-full ${
+                      localSortPriceAsc === false
+                        ? "bg-mainButtonColor"
+                        : "border-gray-400"
+                    }`}
+                  />
+                  Descending
+                </div>
+              </div>
+            </div>
             {/* Apply Button */}
             <div className="w-full px-4 py-2 mt-auto flex flex-row-reverse z-50">
               <button
