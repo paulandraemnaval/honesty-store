@@ -1,5 +1,5 @@
 import { db, getLoggedInUser, createLog } from "@utils/firebase";
-import { Timestamp, updateDoc, doc } from "firebase/firestore";
+import { Timestamp, updateDoc, doc, getDoc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
 export async function GET(request, { params }) {
