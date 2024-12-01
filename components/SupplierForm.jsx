@@ -5,6 +5,8 @@ import closeIcon from "@public/icons/close_icon.png";
 import { toast } from "react-hot-toast";
 import ButtonLoading from "./ButtonLoading";
 import Loading from "./Loading";
+
+//TODO; create delete modal
 const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
   const [validationMessages, setValidationMessages] = useState({
     supplier_name: "\u00A0",
@@ -144,6 +146,48 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
     }
   };
 
+  const getHeaderMsg = () => {
+    return supplierID ? "Edit Supplier" : "New Supplier";
+  };
+
+  const getSubheaderMsg = () => {
+    return supplierID
+      ? `Edit the details of supplier ${supplier?.supplier_name}`
+      : "Make a new supplier for inventories";
+  };
+
+  const deleteSupplier = async (spID) => {
+    try {
+      const response = await fetch(`/api/admin/supplier/${spID}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("Supplier deleted successfully!", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+        setSupplier(null);
+        setShowSupplierForm(false);
+      } else {
+        toast.error("Failed to delete supplier. Please try again", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+      }
+    } catch (err) {
+      console.error("Failed to delete supplier. Please try again");
+      toast.error("Failed to delete supplier. Please try again later.", {
+        duration: 3000,
+        style: { fontSize: "1.2rem", padding: "16px" },
+      });
+    }
+  };
+
+  const handleSupplierDelete = (spID) => {
+    deleteSupplier(spID);
+  };
+
   if (dataLoading) {
     return <Loading />;
   }
@@ -152,10 +196,8 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
     <>
       <div className="w-full sm:flex hidden px-2 mb-2 py-2">
         <div className="w-full">
-          <h1 className="text-2xl font-bold mr-auto">Make new supplier</h1>
-          <h2 className="text-sm text-gray-500">
-            Make a new supplier for inventories
-          </h2>
+          <h1 className="text-2xl font-bold mr-auto">{getHeaderMsg()}</h1>
+          <h2 className="text-sm text-gray-500">{getSubheaderMsg()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "
@@ -258,6 +300,15 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
               "Create Supplier"
             )}
           </button>
+          {supplierID && (
+            <button
+              type="button"
+              className="text-red-600 bg-white p-2"
+              onClick={() => handleSupplierDelete(supplierID)}
+            >
+              Delete Supplier
+            </button>
+          )}
         </div>
       </form>
     </>

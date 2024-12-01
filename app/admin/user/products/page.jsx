@@ -20,11 +20,18 @@ const productspage = () => {
 
   //edit states
   const [productName, setProductName] = useState("");
+
+  //technically, these states are not needed, but they are used to keep track of the ID of the entity being edited
+  //in the future adjust the logic in filter application and product list to use the ID directly
   const [editingInventoryID, setEditingInventoryID] = useState("");
   const [editingProductID, setEditingProductID] = useState("");
+  const [editingCategoryID, setEditingCategoryID] = useState("");
+  const [editingSupplierID, setEditingSupplierID] = useState("");
 
+  //instead of adding "editing_X_ID" state, we can use the ID directly in the filter application and product list. but for now, we will keep it this way
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSupplier, setSelectedSupplier] = useState("all");
+
   const [sortUnitsAsc, setSortUnitsAsc] = useState(null); //null for deselected, true for ascending, false for descending
   const [sortPriceAsc, setSortPriceAsc] = useState(null);
   const [sortExpirationAsc, setSortExpirationAsc] = useState(null);
@@ -52,13 +59,6 @@ const productspage = () => {
                 <InventoryForm
                   setShowInventoryForm={setShowInventoryForm}
                   productName={productName}
-                />
-              )}
-
-              {showInventoryForm && editingInventoryID && (
-                <InventoryForm
-                  setShowInventoryForm={setShowInventoryForm}
-                  productName={productName}
                   inventoryID={editingInventoryID}
                 />
               )}
@@ -73,12 +73,16 @@ const productspage = () => {
               {showCategoryForm && (
                 <CategoryForm
                   setShowCategoryForm={setShowCategoryForm}
-                  categoryID={selectedCategory}
+                  categoryID={editingCategoryID}
                 />
               )}
 
               {showSupplierForm && (
-                <SupplierForm setShowSupplierForm={setShowSupplierForm} />
+                <SupplierForm
+                  setShowSupplierForm={setShowSupplierForm}
+                  setEditingSupplierID={setEditingSupplierID}
+                  supplierID={editingSupplierID}
+                />
               )}
 
               {showProductInventories && (
@@ -103,6 +107,8 @@ const productspage = () => {
           setSortUnitsAsc={setSortUnitsAsc}
           setSortPriceAsc={setSortPriceAsc}
           setSortExpirationAsc={setSortExpirationAsc}
+          setEditingCategoryID={setEditingCategoryID}
+          setEditingSupplierID={setEditingSupplierID}
         />
       </div>
 

@@ -66,15 +66,26 @@ export async function PATCH(request, { params }) {
     const category_name = reqFormData.get("category_name");
     const file = reqFormData.get("file");
     const category_description = reqFormData.get("category_description");
+    const url = reqFormData.get("category_image_url");
 
-    const imageURL = await getImageURL(file, categoryDoc.id, "Category");
-    if (!imageURL) {
-      console.error("Failed to generate image URL:", error);
-      return NextResponse.json(
-        { error: "Failed to generate image URL" },
-        { status: 400 }
-      );
-    }
+    let imageURL = url;
+    if (file && file.size > 0)
+      try {
+        imageURL = await getImageURL(file, categoryDoc.id, "Category");
+        if (!imageURL) {
+          console.error("Failed to generate image URL:", error);
+          return NextResponse.json(
+            { error: "Failed to generate image URL" },
+            { status: 400 }
+          );
+        }
+      } catch (error) {
+        console.error("Error generating image URL:", error);
+        return NextResponse.json(
+          { error: "Error generating image URL" },
+          { status: 500 }
+        );
+      }
 
     await updateDoc(categoryDoc, {
       category_name,

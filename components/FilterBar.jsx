@@ -20,6 +20,8 @@ const FilterBar = ({
   setSortUnitsAsc = () => {},
   setSortPriceAsc = () => {},
   setSortExpirationAsc = () => {},
+  setEditingCategoryID = () => {},
+  setEditingSupplierID = () => {},
 }) => {
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -83,7 +85,10 @@ const FilterBar = ({
           <div className="w-full flex ">
             <button
               className="w-[80%]  text-sm h-8 rouded-sm font-semibold bg-gray-100  border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 border-mainButtonColor hover:bg-gray-200 rounded-sm"
-              onClick={() => setShowCategoryForm(true)}
+              onClick={() => {
+                setShowCategoryForm(true);
+                setEditingCategoryID("");
+              }}
             >
               Create Category
               <Image src={plusIcon} alt="plus" height={20} width={20} />
@@ -125,43 +130,52 @@ const FilterBar = ({
               All
             </label>
 
-            {categories.map((category) => (
-              <label
-                key={category.category_id}
-                className="flex items-center"
-                htmlFor={category.category_name}
-              >
-                <input
-                  type="radio"
-                  value={category.category_id}
-                  checked={localCategory === category.category_id}
-                  onChange={() => setLocalCategory(category.category_id)}
-                  className="hidden"
-                  id={category.category_name}
-                />
-                <span
-                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                    localCategory === category.category_id
-                      ? "bg-mainButtonColor"
-                      : "border-gray-400"
-                  }`}
-                />
-                <span className="mr-auto max-w-[80%]">
-                  {category.category_name}
-                </span>
-                {pathName.includes("admin") &&
-                  category.category_id === localCategory && (
-                    <Image
-                      src={editIcon}
-                      alt="edit"
-                      height={20}
-                      width={20}
-                      className="cursor-pointer"
-                      onClick={() => setShowCategoryForm(true)}
-                    />
-                  )}
-              </label>
-            ))}
+            {categories.map((category) => {
+              if (category.category_soft_deleted) return null;
+              return (
+                <label
+                  key={category.category_id}
+                  className="flex items-center"
+                  htmlFor={category.category_name}
+                >
+                  <input
+                    type="radio"
+                    value={category.category_id}
+                    checked={localCategory === category.category_id}
+                    onChange={() => {
+                      setLocalCategory(category.category_id);
+                      setEditingCategoryID(category.category_id);
+                    }}
+                    className="hidden"
+                    id={category.category_name}
+                  />
+                  <span
+                    className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                      localCategory === category.category_id
+                        ? "bg-mainButtonColor"
+                        : "border-gray-400"
+                    }`}
+                  />
+                  <span className="mr-auto max-w-[80%]">
+                    {category.category_name}
+                  </span>
+                  {pathName.includes("admin") &&
+                    category.category_id === localCategory && (
+                      <Image
+                        src={editIcon}
+                        alt="edit"
+                        height={20}
+                        width={20}
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setEditingCategoryID(category.category_id);
+                          setShowCategoryForm(true);
+                        }}
+                      />
+                    )}
+                </label>
+              );
+            })}
           </div>
         )}
         {!categoryDropdownOpen && (
@@ -186,7 +200,10 @@ const FilterBar = ({
           <div className="mb-2">
             <div className="flex w-full">
               <button
-                onClick={() => setShowSupplierForm(true)}
+                onClick={() => {
+                  setShowSupplierForm(true);
+                  setEditingSupplierID("");
+                }}
                 className="w-[70%] text-sm h-8 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
               >
                 Add Supplier
@@ -226,43 +243,51 @@ const FilterBar = ({
                   />
                   All
                 </label>
-                {suppliers.map((supplier) => (
-                  <label
-                    key={supplier.supplier_id}
-                    className="flex items-center"
-                    htmlFor={supplier.supplier_id}
-                  >
-                    <input
-                      type="radio"
-                      value={supplier.supplier_id}
-                      checked={localSupplier === supplier.supplier_id}
-                      onChange={() => setLocalSupplier(supplier.supplier_id)}
-                      className="hidden"
-                      id={supplier.supplier_id}
-                    />
-                    <span
-                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                        localSupplier === supplier.supplier_id
-                          ? "bg-mainButtonColor"
-                          : "border-gray-400"
-                      }`}
-                    />
-                    <span className="mr-auto max-w-[70%]">
-                      {supplier.supplier_name}
-                    </span>
-                    {pathName.includes("admin") &&
-                      localSupplier === supplier.supplier_id && (
+                {suppliers.map((supplier) => {
+                  if (supplier.supplier_soft_deleted) return null;
+                  return (
+                    <label
+                      key={supplier.supplier_id}
+                      className="flex items-center"
+                      htmlFor={supplier.supplier_name}
+                    >
+                      <input
+                        type="radio"
+                        value={supplier.supplier_id}
+                        checked={localSupplier === supplier.supplier_id}
+                        onChange={() => {
+                          setLocalSupplier(supplier.supplier_id);
+                          setEditingSupplierID(supplier.supplier_id);
+                        }}
+                        className="hidden"
+                        id={supplier.supplier_name}
+                      />
+                      <span
+                        className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                          localSupplier === supplier.supplier_id
+                            ? "bg-mainButtonColor"
+                            : "border-gray-400"
+                        }`}
+                      />
+                      <span className="mr-auto max-w-[80%]">
+                        {supplier.supplier_name}
+                      </span>
+                      {supplier.supplier_id === localSupplier && (
                         <Image
                           src={editIcon}
                           alt="edit"
                           height={20}
                           width={20}
                           className="cursor-pointer"
-                          onClick={() => setShowSupplierForm(true)}
+                          onClick={() => {
+                            setEditingSupplierID(supplier.supplier_id);
+                            setShowSupplierForm(true);
+                          }}
                         />
                       )}
-                  </label>
-                ))}
+                    </label>
+                  );
+                })}
                 {supplierDropdownOpen && loading && (
                   <div className="flex justify-center items-center h-10">
                     <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
@@ -486,14 +511,6 @@ const FilterBar = ({
         className="bg-mainButtonColor text-white p-2 rounded-md mt-auto"
         onClick={() => {
           handleApplyFilters();
-          console.log(
-            "pa:",
-            localSortPriceAsc,
-            "ua:",
-            localSortUnitsAsc,
-            "ea:",
-            localSortExpAsc
-          );
         }}
       >
         Apply Filters
