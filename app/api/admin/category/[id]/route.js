@@ -33,6 +33,7 @@ export async function DELETE(request, { params }) {
     await updateDoc(categoryDoc, {
       category_soft_deleted: true,
       category_last_updated: Timestamp.now(),
+      category_id: "no category",
     });
 
     const user = await getLoggedInUser();

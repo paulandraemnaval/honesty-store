@@ -27,9 +27,10 @@ export async function POST(request) {
   const restockItems = []; //list of inventories need for restocking
   try {
     const data = await request.json();
-    const cycleCountRef = collection(db, "CycleCount"); //every cycle count is linked to a specific inventory
 
     const promises = data.map(async (item) => {
+      const cycleCountRef = collection(db, "CycleCount"); //every cycle count is linked to a specific inventory
+
       const { inventoryId, remaining } = item;
       const remainingUnits = parseInt(remaining, 10) || 0;
 
@@ -104,7 +105,7 @@ export async function POST(request) {
       let isLessThanReorderPoint = false;
 
       //Sum up the total units from all inventories with the same product_id
-      if (!inventoriesSnapshot.empty()) {
+      if (!inventoriesSnapshot.empty) {
         inventoriesSnapshot.forEach((doc) => {
           inventoryData = doc.data();
           totalUnits += inventoryData.inventory_total_units;
