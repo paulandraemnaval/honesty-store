@@ -15,7 +15,9 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
     await report.loadInfo();
 
     const sheet = await report.addSheet({
-      title: `${formatDate(startDate)} - ${formatDate(endDate)}`,
+      title: `${formatDate(startDate.toDate())} - ${formatDate(
+        endDate.toDate()
+      )}`,
       headerRowIndex: 2,
       headerValues: [
         "Inventory ID",
@@ -105,6 +107,7 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
           };
         }
       }
+      await sheet.saveUpdatedCells();
     }
   } catch (error) {
     console.error("Error creating inventory list:", error);

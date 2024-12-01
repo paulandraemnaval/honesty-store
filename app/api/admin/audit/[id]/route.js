@@ -65,3 +65,25 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function GET(request, { params }) {
+  try {
+    const { id } = params;
+    const auditDoc = doc(db, "Audit", id);
+    const snapshot = await getDoc(auditDoc);
+    if (!snapshot.exists()) {
+      return NextResponse.json(
+        { message: "No audit found with the given ID" },
+        { status: 404 }
+      );
+    }
+    const audit = snapshot.data();
+    return NextResponse.json(
+      { message: `Audit found with the given ID: `, data: audit },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ message: error }, { status: 500 });
+  }
+}

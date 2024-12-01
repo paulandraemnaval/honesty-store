@@ -2,6 +2,28 @@ import { db, getLoggedInUser, createLog } from "@utils/firebase";
 import { Timestamp, updateDoc, doc } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+export async function GET(request, { params }) {
+  try {
+    const { id } = params;
+    const inventoryDoc = doc(db, "Inventory", id);
+    const snapshot = await getDoc(inventoryDoc);
+    if (!snapshot.exists()) {
+      return NextResponse.json(
+        { message: "No inventory found with the given ID" },
+        { status: 404 }
+      );
+    }
+    const inventory = snapshot.data();
+    return NextResponse.json(
+      { message: `Inventory found with the given ID: `, data: inventory },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({ message: error }, { status: 500 });
+  }
+}
+
 export async function DELETE({ params }) {
   const { id } = params;
   try {

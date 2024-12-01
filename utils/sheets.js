@@ -323,7 +323,7 @@ const inventorySummary = async (startDate, endDate, rowInd, sheet) => {
           };
         }
       }
-      await sheet.saveUpdatedCells(); // Add this line
+      await sheet.saveUpdatedCells();
     }
   } catch (error) {
     console.log(error);
