@@ -78,6 +78,7 @@ const ProductInventories = ({
             </h2>
           </div>
         </div>
+
         <div
           className="w-fit h-fit cursor-pointer sm:block hidden"
           onClick={() => setShowProductInventories(false)}
@@ -91,6 +92,7 @@ const ProductInventories = ({
           />
         </div>
       </div>
+      <div className="w-full border mb-2"></div>
 
       <div>
         {productInventories.length === 0 && <div>No inventories found</div>}
