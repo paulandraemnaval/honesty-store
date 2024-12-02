@@ -515,7 +515,7 @@ const ProductForm = ({
             )}
           </button>
           <button
-            className="rounded-lg bg-white text-red-600 p-2"
+            className="rounded-lg bg-transparent text-red-600 p-2"
             type="button"
             onClick={() => handleDelete()}
           >

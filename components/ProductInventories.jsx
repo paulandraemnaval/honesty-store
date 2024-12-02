@@ -6,8 +6,7 @@ import downArrow from "@public/icons/down_arrow_icon.png";
 import upArrow from "@public/icons/up_arrow_icon.png";
 import Loading from "./Loading";
 import closeIcon from "@public/icons/close_icon.png";
-import editIcon from "@public/icons/edit_icon.png";
-import editIconWhite from "@public/icons/edit_icon_white.png";
+import backArrow from "@public/icons/back_icon.png";
 const ProductInventories = ({
   productID = "",
   setShowProductInventories = () => {},
@@ -62,14 +61,22 @@ const ProductInventories = ({
 
   return (
     <>
-      <div className="w-full flex px-1 mb-2 py-2">
-        <div className="w-full">
-          <h1 className="text-xl font-bold mr-auto">
-            Product Name: {product?.product_name}
-          </h1>
-          <h2 className="text-sm text-gray-600">
-            view and edit the inventories of a product
-          </h2>
+      <div className="w-full flex sm:px-1 mb-2 sm:py-2">
+        <div className="w-full flex gap-2">
+          <Link
+            href="/admin/user/products"
+            className="p-2 rounded-sm bg-mainButtonColor sm:hidden h-fit "
+          >
+            <Image src={backArrow} alt="back" width={16} height={16} />
+          </Link>
+          <div className="flex flex-col">
+            <h1 className="text-2xl font-bold mr-auto">
+              {product?.product_name}
+            </h1>
+            <h2 className="text-sm text-gray-600">
+              view and edit the inventories of a product
+            </h2>
+          </div>
         </div>
         <div
           className="w-fit h-fit cursor-pointer sm:block hidden"
@@ -118,7 +125,7 @@ const ProductInventories = ({
                   <div
                     className={`${
                       expandedStates[inventory.inventory_id] ? "mb-0" : "mb-2"
-                    } w-full border rounded-sm px-2 py-3 flex flex-col sm:hover:bg-gray-100 duration-100 ease-in-out transition-colors`}
+                    } w-full border rounded-sm px-2 py-3 flex flex-col sm:hover:bg-gray-100 duration-100 ease-in-out transition-colors bg-white`}
                     onClick={() => toggleExpand(inventory.inventory_id)}
                   >
                     <div className="flex items-center px-2">
@@ -137,7 +144,7 @@ const ProductInventories = ({
                       >
                         Edit
                       </div>
-                      <span className="ml_auto font-light text-sm text-gray-400">
+                      <span className="ml-auto font-light text-sm text-gray-400">
                         {inventory.inventory_id}
                       </span>
                       <button
@@ -145,7 +152,7 @@ const ProductInventories = ({
                           e.stopPropagation(); // Prevent toggling expand on button click
                           toggleExpand(inventory.inventory_id);
                         }}
-                        className="ml-4 flex items-center"
+                        className="ml-2 flex items-center"
                       >
                         <Image
                           src={
@@ -163,7 +170,7 @@ const ProductInventories = ({
 
                   {/* Expanded details */}
                   {expandedStates[inventory.inventory_id] && (
-                    <div className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2">
+                    <div className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2 shadow-md">
                       <ul className="flex gap-2 flex-col">
                         <li>
                           <h1 className="font-semibold">Date Info</h1>
@@ -207,6 +214,12 @@ const ProductInventories = ({
                           </ul>
                         </li>
                       </ul>
+                      <Link
+                        href={`/admin/user/products/edit_inventory/${productID}/${inventory.inventory_id}/${product?.product_name}`}
+                        className="flex sm:hidden bg-mainButtonColor px-4 py-2 rounded-md text-white w-fit"
+                      >
+                        Edit
+                      </Link>
                     </div>
                   )}
                 </div>

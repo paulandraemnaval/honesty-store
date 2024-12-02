@@ -57,13 +57,13 @@ const ProductList = ({
         const response = await fetch("/api/admin/inventory", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ lastVisible: null }),
+          body: JSON.stringify({ lastVisible: "" }),
         });
         const data = await response.json();
 
         if (!response.ok) {
-          setInventories([]);
-          setStopFetching(true);
+          setProductsWithInventories([]);
+          setStopFetchingProductsWithInventories(true);
           return;
         }
 

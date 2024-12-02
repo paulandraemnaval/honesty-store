@@ -615,10 +615,10 @@ const CreateInventory = ({
           placeholder="inventory description"
           defaultValue={inventory ? inventory?.inventory_description : ""}
         />
-        <div className="flex w-full flex-row-reverse">
+        <div className="flex w-full flex-row-reverse gap-2">
           <button
             type="submit"
-            className={`text-white rounded-lg p-2 sm:w-fit w-full self-end flex items-center justify-center gap-1 ${
+            className={`text-white rounded-lg p-2 w-fit self-end flex items-center justify-center ${
               loading || dataLoading
                 ? "bg-mainButtonColorDisabled"
                 : "bg-mainButtonColor"
@@ -635,7 +635,7 @@ const CreateInventory = ({
           </button>
           {inventoryID && (
             <button
-              className="bg-white text-red-600 rounded-lg p-2"
+              className="bg-transparent text-red-600 rounded-lg p-2"
               onClick={() => {
                 handleDelete();
               }}
