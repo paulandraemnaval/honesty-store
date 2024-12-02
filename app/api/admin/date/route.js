@@ -1,6 +1,7 @@
 import { db } from "@utils/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { NextResponse } from "next/server";
+import { createInventoryList } from "@utils/inventoryFile";
 
 export async function GET(request) {
   const url = new URL(request.url);
@@ -39,6 +40,9 @@ export async function GET(request) {
     }
 
     const inventories = snapshot.docs.map((doc) => doc.data());
+
+    await createInventoryList(inventories, start, end);
+
     return NextResponse.json(
       {
         message: "Inventories found from the given date range",
