@@ -205,7 +205,6 @@ export async function POST(request) {
 
 export async function PATCH(request) {
   const { lastVisible } = await request.json();
-  console.log("last Visible:", lastVisible);
 
   try {
     const inventoryRef = collection(db, "Inventory");
@@ -213,7 +212,7 @@ export async function PATCH(request) {
     const reportExist = await checkCollectionExists("Report");
     let fullQuery;
 
-    if (lastVisible) {
+    if (reportExist && lastVisible !== "") {
       const lastDocSnapshot = await getDoc(doc(db, "Inventory", lastVisible));
       if (!lastDocSnapshot.exists()) {
         return NextResponse.json(
@@ -221,51 +220,76 @@ export async function PATCH(request) {
           { status: 400 }
         );
       }
+      const lastReport = await getLastReportEndDate();
+      const currentDate = new Date();
 
-      if (reportExist) {
-        const lastReport = await getLastReportEndDate();
-        const currentDate = new Date();
-        inventoryQuery = query(
-          inventoryRef,
-          limit(20),
-          where("inventory_last_updated", ">=", lastReport),
-          where("inventory_last_updated", "<=", currentDate),
-          where("inventory_soft_delete", "==", false),
-          orderBy("inventory_total_units", "desc"),
-          startAfter(lastDocSnapshot)
-        );
-        fullQuery = query(
-          inventoryRef,
-          where("inventory_last_updated", ">=", lastReport),
-          where("inventory_last_updated", "<=", currentDate),
-          where("inventory_soft_delete", "==", false),
-          orderBy("inventory_total_units", "desc"),
-          startAfter(lastDocSnapshot)
-        );
-      } else {
-        inventoryQuery = query(
-          inventoryRef,
-          limit(20),
-          where("inventory_soft_delete", "==", false),
-          orderBy("inventory_total_units", "desc"),
-          startAfter(lastDocSnapshot)
-        );
-        fullQuery = query(
-          inventoryRef,
-          where("inventory_soft_delete", "==", false),
-          orderBy("inventory_total_units", "desc"),
-          startAfter(lastDocSnapshot)
+      inventoryQuery = query(
+        inventoryRef,
+        limit(20),
+        where("inventory_last_updated", ">=", lastReport),
+        where("inventory_last_updated", "<=", currentDate),
+        where("inventory_soft_delete", "==", false),
+        orderBy("inventory_total_units", "desc"),
+        startAfter(lastDocSnapshot)
+      );
+      fullQuery = query(
+        inventoryRef,
+        where("inventory_last_updated", ">=", lastReport),
+        where("inventory_last_updated", "<=", currentDate),
+        where("inventory_soft_delete", "==", false),
+        orderBy("inventory_total_units", "desc"),
+        startAfter(lastDocSnapshot)
+      );
+    } else if (!reportExist && lastVisible !== "") {
+      const lastDocSnapshot = await getDoc(doc(db, "Inventory", lastVisible));
+      if (!lastDocSnapshot.exists()) {
+        return NextResponse.json(
+          { message: "Invalid lastVisible document ID." },
+          { status: 400 }
         );
       }
+      inventoryQuery = query(
+        inventoryRef,
+        limit(20),
+        where("inventory_soft_deleted", "==", false),
+        orderBy("inventory_total_units", "desc"),
+        startAfter(lastDocSnapshot)
+      );
+      fullQuery = query(
+        inventoryRef,
+        where("inventory_soft_deleted", "==", false),
+        orderBy("inventory_total_units", "desc"),
+        startAfter(lastDocSnapshot)
+      );
+    } else if (reportExist && lastVisible === "") {
+      const lastReport = await getLastReportEndDate();
+      const currentDate = new Date();
+
+      inventoryQuery = query(
+        inventoryRef,
+        limit(20),
+        where("inventory_last_updated", ">=", lastReport),
+        where("inventory_last_updated", "<=", currentDate),
+        where("inventory_soft_deleted", "==", false),
+        orderBy("inventory_total_units", "desc")
+      );
+      fullQuery = query(
+        inventoryRef,
+        where("inventory_last_updated", ">=", lastReport),
+        where("inventory_last_updated", "<=", currentDate),
+        where("inventory_soft_deleted", "==", false),
+        orderBy("inventory_total_units", "desc")
+      );
     } else {
       inventoryQuery = query(
         inventoryRef,
         limit(20),
-        where("inventory_soft_delete", "==", false),
+        where("inventory_soft_deleted", "==", false),
         orderBy("inventory_total_units", "desc")
       );
       fullQuery = query(inventoryRef, orderBy("inventory_total_units", "desc"));
     }
+
     const snapshot = await getDocs(inventoryQuery);
     if (snapshot.empty) {
       return NextResponse.json(
@@ -308,7 +332,6 @@ export async function PATCH(request) {
     });
 
     await Promise.all(promises);
-    console.log(invProds);
 
     const productRef = collection(db, "Product");
     const q = query(productRef, where("product_soft_deleted", "==", false));
@@ -333,7 +356,6 @@ export async function PATCH(request) {
     const noInvProds = products.filter(
       (product) => !invProdIds.has(product.product_id)
     );
-    console.log(noInvProds);
 
     return NextResponse.json(
       {

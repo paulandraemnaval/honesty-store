@@ -120,7 +120,9 @@ export const getLastReportEndDate = async () => {
       return null; // or handle this case as needed
     }
 
-    return lastReport.report_end_date;
+    return lastReport.report_end_date.toDate
+      ? lastReport.report_end_date.toDate()
+      : lastReport.report_end_date;
   } catch (error) {
     console.error("Error fetching last report end date:", error);
   }
