@@ -62,12 +62,12 @@ const ProductInventories = ({
   return (
     <>
       <div className="w-full flex sm:px-1 mb-2 sm:py-2">
-        <div className="w-full flex gap-2">
+        <div className="w-full flex gap-2 items-center">
           <Link
             href="/admin/user/products"
-            className="p-2 rounded-sm bg-mainButtonColor sm:hidden h-fit "
+            className="p-2 rounded-sm bg-mainButtonColor sm:hidden h-10 w-10 flex items-center justify-center"
           >
-            <Image src={backArrow} alt="back" width={16} height={16} />
+            <Image src={backArrow} alt="back" width={25} height={25} />
           </Link>
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold mr-auto">
