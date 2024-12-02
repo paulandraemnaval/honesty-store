@@ -5,9 +5,15 @@ import closeIcon from "@public/icons/close_icon.png";
 import { toast } from "react-hot-toast";
 import ButtonLoading from "./ButtonLoading";
 import Loading from "./Loading";
-
+import { useRouter } from "next/navigation";
+import { Router } from "@node_modules/next/router";
 //TODO; create delete modal
-const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
+const SupplierForm = ({
+  setShowSupplierForm,
+  supplierID = "",
+  redirectURL = "",
+}) => {
+  const router = useRouter();
   const [validationMessages, setValidationMessages] = useState({
     supplier_name: "\u00A0",
     supplier_contact_person: "\u00A0",
@@ -169,6 +175,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
         });
         setSupplier(null);
         setShowSupplierForm(false);
+        if (redirectURL) router.push(redirectURL);
       } else {
         toast.error("Failed to delete supplier. Please try again", {
           duration: 3000,

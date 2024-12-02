@@ -131,7 +131,7 @@ const FilterBar = ({
             </label>
 
             {categories.map((category) => {
-              if (category.category_soft_deleted) return null;
+              if (category.category_soft_deleted) return;
               return (
                 <label
                   key={category.category_id}

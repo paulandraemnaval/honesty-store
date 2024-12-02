@@ -2,6 +2,7 @@ import SupplierForm from "@components/SupplierForm";
 
 const page = ({ params }) => {
   const supplierID = params.supplier_id;
+  const redirectURL = "/admin/user/products";
   return (
     <div className="w-full flex py-2 flex-col sm:h-[calc(100vh-6rem)] h-[calc(100vh-10rem)] mt-2 z-0">
       <div className="px-4">
@@ -11,7 +12,7 @@ const page = ({ params }) => {
       </div>
 
       <div className="overflow-y-auto flex-1 px-4">
-        <SupplierForm supplierID={supplierID} />
+        <SupplierForm supplierID={supplierID} redirectURL={redirectURL} />
       </div>
     </div>
   );

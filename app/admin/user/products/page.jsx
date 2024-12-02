@@ -74,14 +74,15 @@ const productspage = () => {
                 <CategoryForm
                   setShowCategoryForm={setShowCategoryForm}
                   categoryID={editingCategoryID}
+                  redirectURL=""
                 />
               )}
 
               {showSupplierForm && (
                 <SupplierForm
                   setShowSupplierForm={setShowSupplierForm}
-                  setEditingSupplierID={setEditingSupplierID}
                   supplierID={editingSupplierID}
+                  redirectURL=""
                 />
               )}
 

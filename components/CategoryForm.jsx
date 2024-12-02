@@ -6,9 +6,14 @@ import closeIcon from "@public/icons/close_icon.png";
 import { toast } from "react-hot-toast";
 import ButtonLoading from "./ButtonLoading";
 import Loading from "./Loading";
-
+import { useRouter } from "next/navigation";
 //TODO: create delete modal
-const CategoryForm = ({ setShowCategoryForm = () => {}, categoryID = "" }) => {
+const CategoryForm = ({
+  setShowCategoryForm = () => {},
+  categoryID = "",
+  redirectURL = "",
+}) => {
+  const router = useRouter();
   const [image, setImage] = useState({
     file: null,
     url: "",
@@ -168,6 +173,9 @@ const CategoryForm = ({ setShowCategoryForm = () => {}, categoryID = "" }) => {
           },
         });
         setShowCategoryForm(false);
+        if (redirectURL) {
+          router.push(redirectURL);
+        }
       } else {
         const errorData = await response.json();
         toast.error("Failed to delete category. Please try again.", {
