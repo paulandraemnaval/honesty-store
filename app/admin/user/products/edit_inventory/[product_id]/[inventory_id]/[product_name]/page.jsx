@@ -19,7 +19,7 @@ const page = ({ params }) => {
           <h1 className="text-2xl font-bold">
             Edit inventory of {productName}
           </h1>
-          <span className="text-sm">Edit product details</span>
+          <span className="text-sm">Edit inventory details</span>
         </span>
       </div>
       <div className="w-full border mb-2"></div>
