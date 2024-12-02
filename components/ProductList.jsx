@@ -23,11 +23,6 @@ const ProductList = ({
   setEditingProductID = () => {},
   setShowProductInventories = () => {},
 }) => {
-  useEffect(() => {
-    console.log("sortPriceAsc PL", sortPriceAsc);
-    console.log("sortUnitsAsc PL", sortUnitsAsc);
-    console.log("sortExpirationAsc PL", sortExpirationAsc);
-  }, [sortPriceAsc, sortUnitsAsc]);
   const [productsWithInventories, setProductsWithInventories] = useState([]);
 
   const [
@@ -283,6 +278,7 @@ const ProductList = ({
         )}
         {filteredProducts.withInventories.length > 0 && !loading
           ? filteredProducts.withInventories.map((prdwinv) => {
+              if (prdwinv.product.product_soft_deleted) return null;
               const expirationDateObj =
                 prdwinv.inventory.inventory_expiration_date;
               const expdatesec = expirationDateObj.seconds;
@@ -311,22 +307,25 @@ const ProductList = ({
           pathname.includes("admin") &&
           stopFetchingProductsWithInventories &&
           !loading &&
-          filteredProducts.withoutInventories.map((product) => (
-            <ProductCard
-              key={product.product_id}
-              cardkey={product.product_id}
-              pathName={pathname}
-              editingProductID={editingProductID}
-              productPrice={`No Price`}
-              productStock={`No inventory`}
-              product={product}
-              setShowInventoryForm={setShowInventoryForm}
-              setProductName={setProductName}
-              setShowProductForm={setShowProductForm}
-              setEditingProductID={setEditingProductID}
-              setShowProductInventories={setShowProductInventories}
-            />
-          ))}
+          filteredProducts.withoutInventories.map((product) => {
+            if (product.product_soft_deleted) return null;
+            return (
+              <ProductCard
+                key={product.product_id}
+                cardkey={product.product_id}
+                pathName={pathname}
+                editingProductID={editingProductID}
+                productPrice={`No Price`}
+                productStock={`No inventory`}
+                product={product}
+                setShowInventoryForm={setShowInventoryForm}
+                setProductName={setProductName}
+                setShowProductForm={setShowProductForm}
+                setEditingProductID={setEditingProductID}
+                setShowProductInventories={setShowProductInventories}
+              />
+            );
+          })}
       </div>
 
       <div className="w-full mt-6 flex flex-col items-center">

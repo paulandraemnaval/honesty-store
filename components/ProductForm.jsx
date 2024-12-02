@@ -6,7 +6,11 @@ import { toast } from "react-hot-toast";
 import closeIcon from "@public/icons/close_icon.png";
 import Loading from "@components/Loading";
 import ButtonLoading from "./ButtonLoading";
-const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
+const ProductForm = ({
+  productID = "",
+  setShowProductForm = () => {},
+  setEditingProductID = () => {},
+}) => {
   const [image, setImage] = useState({
     file: null,
     url: "",
@@ -252,6 +256,38 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
     return <Loading />;
   }
 
+  const handleDelete = async () => {
+    if (!productID) return;
+
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/admin/products/${productID}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        toast.success("Product deleted successfully!", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+        setShowProductForm(false);
+        setEditingProductID("");
+      } else {
+        toast.error("Product deletion failed. Please try again.", {
+          duration: 3000,
+          style: { fontSize: "1.2rem", padding: "16px" },
+        });
+      }
+    } catch (err) {
+      toast.error("Error occurred while deleting product.", {
+        duration: 3000,
+        style: { fontSize: "1.2rem", padding: "16px" },
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="w-full sm:flex hidden px-1 mb-2 py-2">
@@ -477,6 +513,13 @@ const ProductForm = ({ productID = "", setShowProductForm = () => {} }) => {
             ) : (
               "Add Product"
             )}
+          </button>
+          <button
+            className="rounded-lg bg-white text-red-600 p-2"
+            type="button"
+            onClick={() => handleDelete()}
+          >
+            Delete Product
           </button>
         </div>
       </form>

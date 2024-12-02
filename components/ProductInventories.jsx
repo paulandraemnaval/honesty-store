@@ -34,7 +34,11 @@ const ProductInventories = ({
 
         setProduct(productData?.data);
         setProductInventories(
-          Array.isArray(inventoryData?.data) ? inventoryData?.data : []
+          Array.isArray(inventoryData?.data)
+            ? inventoryData?.data.filter(
+                (inventory) => inventory.inventory_soft_deleted !== true
+              )
+            : []
         );
       } catch (err) {
         console.log(err);
@@ -109,9 +113,9 @@ const ProductInventories = ({
               });
 
               return (
-                <>
+                <div key={inventory.inventory_id}>
+                  {/* Main inventory box */}
                   <div
-                    key={inventory.inventory_id}
                     className={`${
                       expandedStates[inventory.inventory_id] ? "mb-0" : "mb-2"
                     } w-full border rounded-sm px-2 py-3 flex flex-col sm:hover:bg-gray-100 duration-100 ease-in-out transition-colors`}
@@ -123,11 +127,12 @@ const ProductInventories = ({
                       </span>
                       <span className="sm:ml-2 ml-0 mr-4">{timestamp}</span>
                       <div
-                        className="text-mainButtonColor  mr-auto font-light cursor-pointer hover:underline sm:block hidden"
-                        onClick={() => {
+                        className="text-mainButtonColor mr-auto font-light cursor-pointer hover:underline sm:block hidden"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent toggling expand on edit click
                           setEditingInventoryID(inventory.inventory_id);
-                          setShowInventoryForm(true);
                           setShowProductInventories(false);
+                          setShowInventoryForm(true);
                         }}
                       >
                         Edit
@@ -136,7 +141,10 @@ const ProductInventories = ({
                         {inventory.inventory_id}
                       </span>
                       <button
-                        onClick={() => toggleExpand(inventory.inventory_id)}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent toggling expand on button click
+                          toggleExpand(inventory.inventory_id);
+                        }}
                         className="ml-4 flex items-center"
                       >
                         <Image
@@ -152,11 +160,10 @@ const ProductInventories = ({
                       </button>
                     </div>
                   </div>
+
+                  {/* Expanded details */}
                   {expandedStates[inventory.inventory_id] && (
-                    <div
-                      className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2"
-                      key={inventory.inventory_id}
-                    >
+                    <div className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2">
                       <ul className="flex gap-2 flex-col">
                         <li>
                           <h1 className="font-semibold">Date Info</h1>
@@ -179,7 +186,6 @@ const ProductInventories = ({
                         <li>
                           <h1 className="font-semibold">Inventory Info</h1>
                           <div className="w-full border"></div>
-
                           <ul>
                             <li>
                               <span className="">Quantity: </span>
@@ -203,7 +209,7 @@ const ProductInventories = ({
                       </ul>
                     </div>
                   )}
-                </>
+                </div>
               );
             })}
           </div>

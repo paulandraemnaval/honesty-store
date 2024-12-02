@@ -49,6 +49,10 @@ const productspage = () => {
     showSupplierForm ||
     showProductInventories;
 
+  useEffect(() => {
+    showProductInventories;
+  }, [showProductInventories]);
+
   return (
     <div className="w-full px-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
       {showPopover && (
@@ -60,6 +64,8 @@ const productspage = () => {
                   setShowInventoryForm={setShowInventoryForm}
                   productName={productName}
                   inventoryID={editingInventoryID}
+                  setEditingInventoryID={setEditingInventoryID}
+                  setShowProductInventories={setShowProductInventories}
                 />
               )}
 
@@ -67,6 +73,7 @@ const productspage = () => {
                 <ProductForm
                   productID={editingProductID}
                   setShowProductForm={setShowProductForm}
+                  setEditingProductID={setEditingProductID}
                 />
               )}
 
