@@ -4,7 +4,7 @@ import { createInventoryList } from "@utils/inventoryFile";
 
 export async function GET() {
   try {
-    let startDate = new Date("2024-11-30").toISOString();
+    let startDate = new Date("2024-11-28").toISOString();
     let endDate = new Date().toISOString();
 
     console.log("start:", startDate);

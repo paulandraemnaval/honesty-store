@@ -41,7 +41,7 @@ export async function GET(request) {
 
     const inventories = snapshot.docs.map((doc) => doc.data());
 
-    await createInventoryList(inventories, startDate, endDate);
+    await createInventoryList(inventories, start, end);
 
     return NextResponse.json(
       {

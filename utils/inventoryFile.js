@@ -1,27 +1,19 @@
 import { db } from "@utils/firebase";
-import {
-  collection,
-  where,
-  doc,
-  getDocs,
-  query,
-  getDoc,
-} from "firebase/firestore";
-import { report } from "./sheets";
+import { doc, getDoc } from "firebase/firestore";
+import { report2 } from "./sheets";
 import { formatDateToLong, formatDate } from "./formatDate";
 
 export const createInventoryList = async (inventories, startDate, endDate) => {
   try {
-    await report.loadInfo();
+    await report2.loadInfo();
 
-    const sheet = await report.addSheet({
-      title: `${formatDate(startDate.toDate())} - ${formatDate(
-        endDate.toDate()
-      )}`,
+    const sheet = await report2.addSheet({
+      title: `${formatDate(startDate)} - ${formatDate(endDate)}`,
       headerRowIndex: 2,
       headerValues: [
         "Inventory ID",
         "Product",
+        "Supplier",
         "Wholesale Price",
         "Retail Price",
         "Profit Margin",
@@ -31,9 +23,9 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
     });
 
     let rowInd = 1;
-    await sheet.loadCells(`A${rowInd + 1}:G${rowInd + 1}`);
+    await sheet.loadCells(`A${rowInd + 1}:H${rowInd + 1}`);
 
-    for (let col = 0; col < 7; col++) {
+    for (let col = 0; col < 8; col++) {
       const cell = sheet.getCell(rowInd, col);
       cell.horizontalAlignment = "CENTER";
       cell.textFormat = { bold: true };
@@ -45,12 +37,12 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
       startRowIndex: 0, // 0-indexed, first row
       endRowIndex: 1, // 1-indexed, second row (exclusive)
       startColumnIndex: 0, // 0-indexed, first column (A)
-      endColumnIndex: 7, // 7-indexed, eighth column (H, exclusive)
+      endColumnIndex: 8, // 8-indexed, eighth column (H, exclusive)
     };
 
     await sheet.mergeCells(range, "MERGE_ALL");
-    await sheet.loadCells(`A${rowInd}:G${rowInd}`);
-    const title1 = sheet.getCellByA1("A1:G1");
+    await sheet.loadCells(`A${rowInd}:H${rowInd}`);
+    const title1 = sheet.getCellByA1("A1:H1");
     title1.value = `${formatDateToLong(startDate)} - ${formatDateToLong(
       endDate
     )}`;
@@ -95,8 +87,8 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
 
     for (let i = 0; i < newRowValues.length; i++) {
       rowInd++;
-      await sheet.loadCells(`A${rowInd + 1}:G${rowInd + 1}`);
-      for (let col = 0; col < 7; col++) {
+      await sheet.loadCells(`A${rowInd + 1}:H${rowInd + 1}`);
+      for (let col = 0; col < 8; col++) {
         const cell = sheet.getCell(rowInd, col);
         cell.value = newRowValues[i][col];
         cell.horizontalAlignment = "CENTER";
