@@ -153,7 +153,10 @@ const ProductInventories = ({
                     </div>
                   </div>
                   {expandedStates[inventory.inventory_id] && (
-                    <div className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2">
+                    <div
+                      className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2"
+                      key={inventory.inventory_id}
+                    >
                       <ul className="flex gap-2 flex-col">
                         <li>
                           <h1 className="font-semibold">Date Info</h1>
@@ -211,5 +214,3 @@ const ProductInventories = ({
 };
 
 export default ProductInventories;
-
-const ToggleComponent = {};

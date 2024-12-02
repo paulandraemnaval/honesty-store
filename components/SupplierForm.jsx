@@ -94,7 +94,7 @@ const SupplierForm = ({ setShowSupplierForm, supplierID = "" }) => {
         body: new FormData(e.target),
       });
       const data = await response.json();
-      if (data?.success) {
+      if (response.ok) {
         toast.success("Supplier has been created successfully!", {
           duration: 3000,
           style: { fontSize: "1.2rem", padding: "16px" },

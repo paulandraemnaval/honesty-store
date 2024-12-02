@@ -55,7 +55,7 @@ const productspage = () => {
         <div className="absolute w-full h-full z-50 border top-0 left-0 bg-[rgba(0,0,0,0.25)]">
           <div className="z-50 sm:w-[calc(100vw-30rem)] w-[calc(100vw)] sm:h-[calc(100vh-10rem)] h-[calc(100vh-6rem)]  rounded-md shadow-md absolute self-center sm:top-[50%] top-0 sm:left-[50%] left-0 smLtransform sm:-translate-x-1/2 sm:-translate-y-1/2 bg-white overflow-y-auto py-6 px-6">
             <Suspense fallback={<Loading />}>
-              {showInventoryForm && !editingInventoryID && (
+              {showInventoryForm && (
                 <InventoryForm
                   setShowInventoryForm={setShowInventoryForm}
                   productName={productName}
