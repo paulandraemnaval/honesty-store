@@ -230,6 +230,7 @@ export async function PATCH(request) {
           limit(20),
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
+          where("inventory_soft_delete", "==", false),
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
@@ -237,6 +238,7 @@ export async function PATCH(request) {
           inventoryRef,
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
+          where("inventory_soft_delete", "==", false),
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
@@ -244,11 +246,13 @@ export async function PATCH(request) {
         inventoryQuery = query(
           inventoryRef,
           limit(20),
+          where("inventory_soft_delete", "==", false),
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
         fullQuery = query(
           inventoryRef,
+          where("inventory_soft_delete", "==", false),
           orderBy("inventory_total_units", "desc"),
           startAfter(lastDocSnapshot)
         );
@@ -257,6 +261,7 @@ export async function PATCH(request) {
       inventoryQuery = query(
         inventoryRef,
         limit(20),
+        where("inventory_soft_delete", "==", false),
         orderBy("inventory_total_units", "desc")
       );
       fullQuery = query(inventoryRef, orderBy("inventory_total_units", "desc"));

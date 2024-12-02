@@ -1,17 +1,33 @@
 import { NextResponse } from "next/server";
-import { generateReport } from "@utils/sheets";
+import { generateReport, report1 } from "@utils/sheets";
 import { createInventoryList } from "@utils/inventoryFile";
+import { formatDate } from "@utils/formatDate";
+import { exportSheetToPDF } from "@utils/export";
+import { db } from "@utils/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export async function GET() {
   try {
-    let startDate = new Date("2024-11-28").toISOString();
-    let endDate = new Date().toISOString();
+    const reportDoc = doc(db, "Report", "mJnf0mQHiro65DxCG2ef");
+    const reportSnap = await getDoc(reportDoc);
+    if (!reportSnap.exists()) {
+      return NextResponse.json(
+        { message: "No report found with the given id" },
+        { status: 404 }
+      );
+    }
+    const report = reportSnap.data();
 
-    console.log("start:", startDate);
-    console.log("end:", endDate);
+    let sheetTitle = `${formatDate(
+      report.report_start_date.toDate()
+    )} - ${formatDate(report.report_end_date.toDate())}`;
+
+    sheetTitle = sheetTitle.replace(/\\/g, "/");
+
+    await exportSheetToPDF(report1, sheetTitle);
 
     return NextResponse.json(
-      { message: "Report generated successfully" },
+      { message: "Report downloaded successfully" },
       { status: 200 }
     );
   } catch (error) {

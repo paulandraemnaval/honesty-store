@@ -4,17 +4,21 @@ import { homedir } from "os";
 import { serviceAccountAuth } from "./sheets";
 import { GoogleSpreadsheet } from "google-spreadsheet";
 
+function sanitizeSheetName(sheetName) {
+  return sheetName.replace(/[\/\\:\*\?\"<>\|]/g, "_"); // Replace invalid characters with underscores
+}
+
 // Function to export Google Sheet to PDF
-export const exportSheetToPDF = async (id) => {
-  const doc = new GoogleSpreadsheet(id, serviceAccountAuth);
-
+export const exportSheetToPDF = async (report, sheetTitle) => {
   // Load the document
-  await doc.loadInfo(); // Loads document properties and worksheets
+  await report.loadInfo(); // Loads document properties and worksheets
 
-  // Get the last sheet
-  const lastSheetIndex = doc.sheetCount - 1; // Get the index of the last sheet
-  const lastSheet = doc.sheetsByIndex[lastSheetIndex]; // Access the last sheet
-
+  // Get the sheet by title
+  const sheet = report.sheetsByTitle[sheetTitle];
+  if (!sheet) {
+    throw new Error(`Sheet with title "${sheetTitle}" not found.`);
+  }
+  const title = sanitizeSheetName(sheetTitle);
   // Get the Downloads folder path
   const downloadsFolder = path.join(homedir(), "Downloads");
 
@@ -24,14 +28,17 @@ export const exportSheetToPDF = async (id) => {
   }
 
   // Export as PDF (ArrayBuffer mode)
-  const pdfBuffer = await lastSheet.downloadAsPDF();
-  const pdfFilePath = path.join(downloadsFolder, "my-export.pdf");
+  const pdfBuffer = await sheet.downloadAsPDF();
+  const pdfFilePath = path.join(downloadsFolder, `${title}-export.pdf`);
   fs.writeFileSync(pdfFilePath, Buffer.from(pdfBuffer));
   console.log(`PDF exported successfully to ${pdfFilePath}!`);
 
   // Alternatively, export as PDF (Stream mode)
-  const pdfStream = await lastSheet.downloadAsPDF(true); // `true` toggles to stream mode
-  const streamPdfFilePath = path.join(downloadsFolder, "my-export-stream.pdf");
+  const pdfStream = await sheet.downloadAsPDF(true); // `true` toggles to stream mode
+  const streamPdfFilePath = path.join(
+    downloadsFolder,
+    `${title}-export-stream.pdf`
+  );
   const writableStream = fs.createWriteStream(streamPdfFilePath);
 
   writableStream.on("finish", () => {
