@@ -12,6 +12,7 @@ module.exports = {
         foreground: "var(--foreground)",
         gradientStart: "#00D4FF",
         gradientEnd: "#001BFF",
+
         horizontalLineColor: "#4285F4",
         searchbarColor: "#ECE6F0",
         searchbarTextColor: "#FFFFFF",
@@ -23,6 +24,8 @@ module.exports = {
         darkButtonColor: "#1A73E8",
         darkButtonHover: "#63A4FF",
         darkButtonBorder: "#8AB4F8",
+        productInventoryEditable: "#DCE8F6",
+        productInventoryEditableBorder: "#4285F4",
       },
     },
   },

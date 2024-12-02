@@ -1,21 +1,23 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import downArrow from "@public/icons/down_arrow_icon.png";
 import upArrow from "@public/icons/up_arrow_icon.png";
 import Loading from "./Loading";
 import closeIcon from "@public/icons/close_icon.png";
-
+import editIcon from "@public/icons/edit_icon.png";
+import editIconWhite from "@public/icons/edit_icon_white.png";
 const ProductInventories = ({
-  productID,
+  productID = "",
   setShowProductInventories = () => {},
+  setShowInventoryForm = () => {},
+  setEditingInventoryID = () => {},
 }) => {
   const [loading, setLoading] = useState(false);
   const [productInventories, setProductInventories] = useState([]);
   const [product, setProduct] = useState({});
   const [expandedStates, setExpandedStates] = useState({});
-
-  console.log(productID);
 
   useEffect(() => {
     const getProductData = async () => {
@@ -56,7 +58,7 @@ const ProductInventories = ({
 
   return (
     <>
-      <div className="w-full sm:flex hidden px-1 mb-2 py-2">
+      <div className="w-full flex px-1 mb-2 py-2">
         <div className="w-full">
           <h1 className="text-xl font-bold mr-auto">
             Product Name: {product?.product_name}
@@ -66,7 +68,7 @@ const ProductInventories = ({
           </h2>
         </div>
         <div
-          className="w-fit h-fit cursor-pointer "
+          className="w-fit h-fit cursor-pointer sm:block hidden"
           onClick={() => setShowProductInventories(false)}
         >
           <Image
@@ -82,7 +84,7 @@ const ProductInventories = ({
       <div>
         {productInventories.length === 0 && <div>No inventories found</div>}
         {productInventories.length > 0 && (
-          <div className="h-full cursor-pointer flex flex-col">
+          <div className="h-full  flex flex-col">
             {productInventories.map((inventory) => {
               const timestamp = new Date(
                 inventory.inventory_timestamp.seconds * 1000
@@ -112,14 +114,24 @@ const ProductInventories = ({
                     key={inventory.inventory_id}
                     className={`${
                       expandedStates[inventory.inventory_id] ? "mb-0" : "mb-2"
-                    } w-full border rounded-sm px-2 py-3 flex flex-col bg-white hover:bg-gray-100 duration-100 ease-in-out transition-colors`}
+                    } w-full border rounded-sm px-2 py-3 flex flex-col sm:hover:bg-gray-100 duration-100 ease-in-out transition-colors`}
                     onClick={() => toggleExpand(inventory.inventory_id)}
                   >
                     <div className="flex items-center px-2">
                       <span className="font-semibold sm:inline-block hidden">
                         Inventory created at:{" "}
                       </span>
-                      <span className="sm:ml-4 ml-0 mr-auto ">{timestamp}</span>
+                      <span className="sm:ml-2 ml-0 mr-4">{timestamp}</span>
+                      <div
+                        className="text-mainButtonColor  mr-auto font-light cursor-pointer hover:underline sm:block hidden"
+                        onClick={() => {
+                          setEditingInventoryID(inventory.inventory_id);
+                          setShowInventoryForm(true);
+                          setShowProductInventories(false);
+                        }}
+                      >
+                        Edit
+                      </div>
                       <span className="ml_auto font-light text-sm text-gray-400">
                         {inventory.inventory_id}
                       </span>
@@ -141,7 +153,7 @@ const ProductInventories = ({
                     </div>
                   </div>
                   {expandedStates[inventory.inventory_id] && (
-                    <div className="p-2 bg-backgroundMain mb-2">
+                    <div className="p-4 sm:bg-backgroundMain bg-gray-50 mb-2">
                       <ul className="flex gap-2 flex-col">
                         <li>
                           <h1 className="font-semibold">Date Info</h1>
@@ -199,3 +211,5 @@ const ProductInventories = ({
 };
 
 export default ProductInventories;
+
+const ToggleComponent = {};
