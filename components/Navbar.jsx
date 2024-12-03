@@ -265,7 +265,11 @@ const Navbar = () => {
               }}
             >
               <Image
-                src={managementIcon}
+                src={
+                  pathName.includes("manage") || pathName.includes("report")
+                    ? managementIconSelected
+                    : managementIcon
+                }
                 alt="manage_icon"
                 height={20}
                 width={25}

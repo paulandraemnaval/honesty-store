@@ -2,17 +2,19 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import placeholderImage from "@public/defaultImages/placeholder_image.png";
-
-//TODO: IMPLEMENT SEARCH
+import { toast } from "react-hot-toast";
+import ButtonLoading from "./ButtonLoading";
+import Loading from "@components/Loading"; // Import your Loading component
 
 const AuditForm = () => {
   const [inventories, setInventories] = useState([]);
-  const [products, setProducts] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [errorMessages, setErrorMessages] = useState({});
+  const [loading, setLoading] = useState(true);
   const [showSummary, setShowSummary] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [submitEnabled, setSubmitEnabled] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [refreshForm, setRefreshForm] = useState(false); // New state to trigger re-render
+
   useEffect(() => {
     const getInventories = async () => {
       try {
@@ -30,63 +32,56 @@ const AuditForm = () => {
       }
     };
     getInventories();
-  }, []);
+  }, [refreshForm]); // Re-fetch inventories when the form is refreshed
 
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const response = await fetch("/api/admin/products");
-        const data = await response.json();
-        setProducts(Array.isArray(data?.data) ? data.data : []);
-      } catch (err) {
-        console.error("Failed to fetch products: ", err);
-        setProducts([]);
-      }
-    };
-    getProducts();
-  }, []);
-
-  const getProductName = (productId) => {
-    const product = products.find(
-      (product) => product.product_id === productId
-    );
-    return product ? product.product_name : "";
-  };
-
-  const getProductImage = (productId) => {
-    const product = products.find(
-      (product) => product.product_id === productId
-    );
-    return product ? product.product_image_url : "";
-  };
   const handleQuantityChange = (inventoryId, value) => {
-    const updatedQuantities = {
+    setQuantities({
       ...quantities,
       [inventoryId]: value,
-    };
-
-    const allFieldsValid =
-      filteredInventories.length > 0 &&
-      filteredInventories.every((inventory) => {
-        const quantity = updatedQuantities[inventory.inventory_id];
-        return (
-          quantity !== undefined &&
-          quantity !== "" &&
-          !quantity.includes("-") &&
-          Number(quantity) >= 0
-        );
-      });
-
-    setQuantities(updatedQuantities);
-    setSubmitEnabled(allFieldsValid);
+    });
   };
 
-  const handleShowSummary = () => {
-    setShowSummary((prev) => !prev);
+  const validateQuantities = () => {
+    let valid = true;
+    let newErrorMessages = {};
+
+    inventories.forEach((prdwinv) => {
+      const quantity = quantities[prdwinv.inventory.inventory_id];
+      const inventoryTotal = prdwinv.inventory.inventory_total_units;
+
+      if (
+        (quantity &&
+          (Number(quantity) > inventoryTotal || Number(quantity) < 0)) ||
+        !quantity
+      ) {
+        newErrorMessages[
+          prdwinv.inventory.inventory_id
+        ] = `Invalid quantity. Must be between 0 and ${inventoryTotal}`;
+        valid = false;
+      }
+    });
+    if (!valid) {
+      toast.error("Invalid quantities. Please check the highlighted fields.", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
+    }
+
+    setErrorMessages(newErrorMessages);
+    return valid;
   };
 
   const submitAudit = async (e) => {
     e.preventDefault();
+
+    if (!validateQuantities()) {
+      console.log("Invalid quantities");
+      return;
+    }
+
     setIsProcessing(true);
     const newQuantities = Object.entries(quantities).map(
       ([inventoryId, quantity]) => ({
@@ -105,7 +100,16 @@ const AuditForm = () => {
       });
       const data = await response.json();
       if (response.ok) {
+        toast.success("Audit submitted successfully", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
         setQuantities({});
+        setShowSummary(false);
+        setRefreshForm((prev) => !prev); // Trigger re-render to refresh the form
       } else {
         console.error("Failed to submit audit: ", data.error);
       }
@@ -113,64 +117,61 @@ const AuditForm = () => {
       console.error("Failed to submit audit: ", err);
     } finally {
       setIsProcessing(false);
-      handleShowSummary();
     }
   };
 
-  const filteredInventories = inventories.filter((inventory) =>
-    products.some((product) => product.product_id === inventory.product_id)
-  );
+  const handleShowSummary = () => {
+    setShowSummary(false);
+  };
 
   return (
     <div className="overflow-auto max-h-full flex flex-col">
-      <form
-        className="gap-4 flex flex-col p-2 relative overflow-auto"
-        onSubmit={(e) => {
-          e.preventDefault();
-        }}
-      >
+      <form className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-2">
         {loading ? (
-          <div className="flex justify-center items-center h-96">
+          <div className="flex justify-center items-center h-96 col-span-full">
             <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
             <p className="text-black">Loading...</p>
           </div>
-        ) : filteredInventories.length > 0 ? (
-          filteredInventories.map((inventory) => (
+        ) : inventories?.length > 0 ? (
+          inventories?.map((prdwinv) => (
             <AuditFormField
-              key={inventory.inventory_id}
-              inventory={inventory}
-              productName={getProductName(inventory.product_id)}
-              image={getProductImage(inventory.product_id)}
-              onChange={handleQuantityChange}
+              key={prdwinv.inventory.inventory_id}
+              inventory={prdwinv.inventory}
+              productName={prdwinv.product.product_name}
+              image={prdwinv.product.product_image_url}
               quantities={quantities}
+              errorMessages={errorMessages}
+              inventoryId={prdwinv.inventory.inventory_id}
+              handleQuantityChange={handleQuantityChange}
             />
           ))
         ) : (
-          <p>No auditable inventories found</p>
+          <p className="col-span-full">No auditable inventories found</p>
         )}
-
+      </form>
+      <div className="flex w-full flex-row-reverse">
         <button
-          className={`bg-customerRibbonGreen text-white py-2 px-4 rounded-md w-fit self-end ${
-            !submitEnabled
-              ? "cursor-not-allowed bg-mainButtonColorDisabled"
-              : "bg-mainButtonColor"
-          }`}
-          onClick={() => {
-            handleShowSummary();
-          }}
-          disabled={!submitEnabled}
+          type="button"
+          className={`bg-customerRibbonGreen text-white py-2 px-4 rounded-md w-fit mt-4 bg-mainButtonColor`}
+          onClick={() =>
+            isProcessing
+              ? null
+              : validateQuantities()
+              ? setShowSummary(true)
+              : null
+          }
         >
           Submit
         </button>
-      </form>
+      </div>
+
       {showSummary && (
         <Summary
-          inventories={filteredInventories}
+          inventories={inventories}
           quantities={quantities}
-          handleShowSummary={handleShowSummary}
           submitAudit={submitAudit}
-          getProductName={getProductName}
           isProcessing={isProcessing}
+          handleShowSummary={handleShowSummary}
         />
       )}
     </div>
@@ -181,84 +182,127 @@ const AuditFormField = ({
   image,
   inventory,
   productName,
-  onChange,
   quantities,
+  errorMessages,
+  inventoryId,
+  handleQuantityChange,
 }) => {
-  const handleChange = (e) => {
-    onChange(inventory.inventory_id, e.target.value);
-  };
+  const errorMessage = errorMessages[inventoryId] || "";
 
   return (
-    <div className="w-full rounded-md shadow-md p-4 bg-white">
-      <div className="flex gap-2 w-full mb-2">
-        <label htmlFor={inventory.inventory_id} className="mt-auto mr-auto">
-          {productName}
+    <div className="w-full rounded-md shadow-md p-4 bg-white flex flex-col items-center">
+      <Image
+        src={image || placeholderImage}
+        alt={productName || "Product image"}
+        className="rounded-md object-cover mb-auto"
+        height={150}
+        width={150}
+      />
+      <h3 className="text-center font-semibold mt-4 mb-2 text-sm sm:text-base">
+        {productName}
+      </h3>
+      <div className="flex flex-col w-full">
+        <label
+          htmlFor={inventory.inventory_id}
+          className="text-left text-sm font-light"
+        >
+          Quantity
         </label>
-        <Image
-          src={image || placeholderImage}
-          alt={productName || "Product image"}
-          height={40}
-          width={40}
+        <input
+          type="text"
+          name={inventory.inventory_id}
+          id={inventory.inventory_id}
+          placeholder={`0 - ${inventory.inventory_total_units}`}
+          className={`mt-2 w-full p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border-2 ${
+            errorMessage ? "border-red-500" : "border"
+          }`}
+          value={quantities[inventory.inventory_id] || ""}
+          onInput={(e) => {
+            const match = e.target.value.match(/^\d*$/);
+            if (!match) {
+              e.target.value = e.target.value.slice(0, -1);
+            }
+          }}
+          onChange={(e) => {
+            handleQuantityChange(inventory.inventory_id, e.target.value);
+          }}
         />
       </div>
-      <input
-        type="number"
-        name={inventory.inventory_id}
-        id={inventory.inventory_id}
-        placeholder="Enter quantity"
-        className="h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border w-full border-gray-300"
-        onChange={handleChange}
-        value={quantities[inventory.inventory_id] || ""}
-        required
-        min="0"
-      />
+      {errorMessage && (
+        <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
+      )}
     </div>
   );
 };
-
 const Summary = ({
   submitAudit,
   inventories,
   quantities,
-  handleShowSummary,
-  getProductName,
   isProcessing,
+  handleShowSummary,
 }) => {
   return (
-    <div className="w-[24rem] rounded-md shadow-md p-4 absolute self-center top-[50%] left-[50%] transform -translate-x-1/2 -translate-y-1/2 bg-white">
-      <h2 className="text-xl font-semibold mb-2">Summary</h2>
-      <hr />
-      <div className="flex mb-2 mt-4">
-        <h2 className="font-semibold mr-auto">Product Name</h2>
-        <h2 classname="font-semibold">New Quantity</h2>
-      </div>
-      <div className="flex mb-4">
-        {Object.entries(quantities).map(([inventoryId, quantity]) => (
-          <div key={inventoryId} className="flex w-full">
-            <p className="text-base mr-auto">
-              {getProductName(
-                inventories.find((inv) => inv.inventory_id === inventoryId)
-                  .product_id
-              )}
-            </p>
-            {quantity}
+    <div className="fixed  h-full sm:w-[calc(100vw-14rem)] w-full bg-black bg-opacity-50 flex justify-center items-center top-0 right-0 ">
+      <div className="w-[40rem] max-h-[80vh] rounded-md shadow-md py-6 px-4 bg-white overflow-hidden relative mt-0 sm:mt-20">
+        <h2 className="text-xl font-semibold mb-4 text-center">
+          Audit Summary
+        </h2>
+        <div className="overflow-auto max-h-[60vh] border-t border-gray-300">
+          <div className="flex font-semibold text-lg border-b border-gray-300 p-2">
+            <div className="flex-1">Product</div>
+            <div className="flex-1 text-center">Prev</div>
+            <div className="w-8 flex items-center justify-center"></div>
+            <div className="flex-1 text-center">New</div>
           </div>
-        ))}
-      </div>
-      <div className="flex gap-2 flex-row-reverse w-full">
-        <button
-          type="submit"
-          className="bg-mainButtonColor text-white py-2 px-4 w-fit rounded-md"
-          onClick={(e) => submitAudit(e)}
-        >
-          {isProcessing ? "Submitting..." : "Submit"}
-        </button>
-        <button
-          className="text-customerRibbonGreen"
-          onClick={() => handleShowSummary()}
-        >
-          Cancel
-        </button>
+          {inventories.map((prdwinv) => (
+            <div
+              key={prdwinv.inventory.inventory_id}
+              className="flex items-center p-2 border-b border-gray-200"
+            >
+              <div className="flex-1 truncate">
+                {prdwinv.product.product_name}
+              </div>
+              <div className="flex-1 text-center">
+                {prdwinv.inventory.inventory_total_units}
+              </div>
+              <div className="w-8 flex items-center justify-center">
+                <span className="text-xl text-mainButtonColor">→</span>
+              </div>
+              <div className="flex-1 text-center">
+                {quantities[prdwinv.inventory.inventory_id] || "-"}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="flex justify-between mt-4 w-full">
+          <button
+            className={`bg-gray-300 text-black py-2 px-4 rounded-md hover:bg-gray-400 cursor-pointer`}
+            onClick={() => {
+              handleShowSummary();
+            }}
+            disabled={isProcessing}
+          >
+            Close
+          </button>
+          <button
+            className={`py-2 px-4 rounded-md text-white w-fit self-end  border ${
+              isProcessing
+                ? "bg-mainButtonColorDisabled cursor-not-allowed"
+                : "bg-mainButtonColor  hover:bg-mainButtonColorHover"
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              submitAudit(e);
+            }}
+            disabled={isProcessing}
+          >
+            {isProcessing ? (
+              <ButtonLoading>Processing...</ButtonLoading>
+            ) : (
+              "Confirm Audit"
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

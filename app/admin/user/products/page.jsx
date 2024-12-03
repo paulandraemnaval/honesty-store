@@ -20,11 +20,18 @@ const productspage = () => {
 
   //edit states
   const [productName, setProductName] = useState("");
+
+  //technically, these states are not needed, but they are used to keep track of the ID of the entity being edited
+  //in the future adjust the logic in filter application and product list to use the ID directly
   const [editingInventoryID, setEditingInventoryID] = useState("");
   const [editingProductID, setEditingProductID] = useState("");
+  const [editingCategoryID, setEditingCategoryID] = useState("");
+  const [editingSupplierID, setEditingSupplierID] = useState("");
 
+  //instead of adding "editing_X_ID" state, we can use the ID directly in the filter application and product list. but for now, we will keep it this way
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedSupplier, setSelectedSupplier] = useState("all");
+
   const [sortUnitsAsc, setSortUnitsAsc] = useState(null); //null for deselected, true for ascending, false for descending
   const [sortPriceAsc, setSortPriceAsc] = useState(null);
   const [sortExpirationAsc, setSortExpirationAsc] = useState(null);
@@ -42,24 +49,23 @@ const productspage = () => {
     showSupplierForm ||
     showProductInventories;
 
+  useEffect(() => {
+    showProductInventories;
+  }, [showProductInventories]);
+
   return (
     <div className="w-full px-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
       {showPopover && (
         <div className="absolute w-full h-full z-50 border top-0 left-0 bg-[rgba(0,0,0,0.25)]">
           <div className="z-50 sm:w-[calc(100vw-30rem)] w-[calc(100vw)] sm:h-[calc(100vh-10rem)] h-[calc(100vh-6rem)]  rounded-md shadow-md absolute self-center sm:top-[50%] top-0 sm:left-[50%] left-0 smLtransform sm:-translate-x-1/2 sm:-translate-y-1/2 bg-white overflow-y-auto py-6 px-6">
             <Suspense fallback={<Loading />}>
-              {showInventoryForm && !editingInventoryID && (
-                <InventoryForm
-                  setShowInventoryForm={setShowInventoryForm}
-                  productName={productName}
-                />
-              )}
-
-              {showInventoryForm && editingInventoryID && (
+              {showInventoryForm && (
                 <InventoryForm
                   setShowInventoryForm={setShowInventoryForm}
                   productName={productName}
                   inventoryID={editingInventoryID}
+                  setEditingInventoryID={setEditingInventoryID}
+                  setShowProductInventories={setShowProductInventories}
                 />
               )}
 
@@ -67,18 +73,24 @@ const productspage = () => {
                 <ProductForm
                   productID={editingProductID}
                   setShowProductForm={setShowProductForm}
+                  setEditingProductID={setEditingProductID}
                 />
               )}
 
               {showCategoryForm && (
                 <CategoryForm
                   setShowCategoryForm={setShowCategoryForm}
-                  categoryID={selectedCategory}
+                  categoryID={editingCategoryID}
+                  redirectURL=""
                 />
               )}
 
               {showSupplierForm && (
-                <SupplierForm setShowSupplierForm={setShowSupplierForm} />
+                <SupplierForm
+                  setShowSupplierForm={setShowSupplierForm}
+                  supplierID={editingSupplierID}
+                  redirectURL=""
+                />
               )}
 
               {showProductInventories && (
@@ -103,6 +115,8 @@ const productspage = () => {
           setSortUnitsAsc={setSortUnitsAsc}
           setSortPriceAsc={setSortPriceAsc}
           setSortExpirationAsc={setSortExpirationAsc}
+          setEditingCategoryID={setEditingCategoryID}
+          setEditingSupplierID={setEditingSupplierID}
         />
       </div>
 

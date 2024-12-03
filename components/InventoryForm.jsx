@@ -9,9 +9,9 @@ const CreateInventory = ({
   productName = "",
   setShowInventoryForm = () => {},
   inventoryID = "",
+  setEditingInventoryID = () => {},
+  setShowProductInventories = () => {},
 }) => {
-  console.log("inventoryID", inventoryID);
-
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,6 +21,8 @@ const CreateInventory = ({
   const [profitMargin, setProfitMargin] = useState("");
   const [retailPrice, setRetailPrice] = useState("");
   const [manualRetailPrice, setManualRetailPrice] = useState(false);
+  const [expDate, setExpDate] = useState(null);
+  const [expDateDisplay, setExpDateDisplay] = useState("");
   const [validationMessages, setValidationMessages] = useState({
     inventory_supplier: "\u00A0",
     inventory_wholesale_price: "\u00A0",
@@ -29,29 +31,50 @@ const CreateInventory = ({
     inventory_expiration_date: "\u00A0",
   });
   const [supplierValid, setSupplierValid] = useState(false);
-
+  const [inventory, setInventory] = useState({});
   const [manualProfitMargin, setManualProfitMargin] = useState(false);
 
   useEffect(() => {
-    if (inventoryID) {
-      const fetchInventory = async () => {
-        try {
-          setDataLoading(true);
-          const response = await fetch(`/api/admin/inventory/${inventoryID}`);
-          const data = await response.json();
-          const inventoryData = data?.data[0];
-          setWholesalePrice(inventoryData?.wholesale_price);
-          setProfitMargin(inventoryData?.profit_margin);
-          setRetailPrice(inventoryData?.retail_price);
-          setSelectedSupplier(inventoryData?.supplier_id);
-        } catch (error) {
-          console.error("Failed to fetch inventory: ", error);
-        } finally {
-          setDataLoading(false);
+    if (!inventoryID) return;
+    const fetchInventory = async () => {
+      try {
+        setDataLoading(true);
+        const response = await fetch(`/api/admin/inventory/${inventoryID}`);
+        const data = await response.json();
+        setInventory(data?.data);
+        setSupplierValid(true);
+        setWholesalePrice(data?.data.inventory_wholesale_price);
+        setProfitMargin(data?.data.inventory_profit_margin);
+        setRetailPrice(data?.data.inventory_retail_price);
+        setSelectedProduct(data?.data.product_id);
+        const expirationms =
+          data?.data.inventory_expiration_date.seconds * 1000 +
+          Math.floor(data?.data.inventory_expiration_date.nanoseconds / 1e6);
+
+        const expirationDate = new Date(expirationms)
+          .toISOString()
+          .split("T")[0];
+
+        setExpDateDisplay(expirationDate);
+        setExpDate(new Date(expirationms));
+        if (data?.data) {
+          const supplierResponse = await fetch(
+            `/api/admin/supplier/${data?.data.supplier_id}`
+          );
+          const supplierData = await supplierResponse.json();
+
+          console.log(supplierData);
+          console.log("xd", data);
+          setSupplierQuery(supplierData?.data.supplier_name);
+          setSelectedSupplier(supplierData?.data.supplier_id);
         }
-      };
-      fetchInventory();
-    }
+      } catch (error) {
+        console.error("Failed to fetch inventory: ", error);
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    fetchInventory();
   }, [inventoryID]);
 
   useEffect(() => {
@@ -164,8 +187,8 @@ const CreateInventory = ({
       formData.append("retail_price", retailPrice);
 
       formData.delete("inventory_profit_margin");
-
       formData.append("inventory_profit_margin", profitMargin);
+
       formData.append("wholesale_price", wholesalePrice);
 
       //delete redundant fields
@@ -229,8 +252,112 @@ const CreateInventory = ({
       });
       return;
     }
+    if (inventoryID) patchInventory(e);
+    else postInventory(e);
+  };
 
-    postInventory(e);
+  const patchInventory = async (e) => {
+    try {
+      setLoading(true);
+      const formData = new FormData(e.target);
+
+      //to conform to API requirements
+      formData.append("inventory_product", selectedProduct);
+      formData.append("inventory_supplier", selectedSupplier);
+      formData.append("total_units", formData.get("inventory_total_units"));
+      formData.append("retail_price", retailPrice);
+
+      formData.delete("inventory_profit_margin");
+
+      formData.delete("inventory_expiration_date");
+
+      formData.append("inventory_expiration_date", expDate.toISOString());
+
+      formData.append("inventory_profit_margin", profitMargin);
+      formData.append("wholesale_price", wholesalePrice);
+
+      //delete redundant fields
+      formData.delete("inventory_retail_price");
+      formData.delete("inventory_wholesale_price");
+      formData.delete("inventory_total_units");
+
+      const response = await fetch(`/api/admin/inventory/${inventoryID}`, {
+        method: "PATCH",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success("Inventory Updated Successfully!", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      } else {
+        toast.error("Failed to update inventory. Please try again later.", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to update inventory. Please try again later.");
+      console.error("Failed to patch inventory: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/admin/inventory/${inventoryID}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        toast.success("Inventory Deleted Successfully!", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+        setShowInventoryForm(false);
+      } else {
+        toast.error("Failed to delete inventory. Please try again later.", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
+    } catch (error) {
+      toast.error("Failed to delete inventory. Please try again later.");
+      console.error("Failed to delete inventory: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getHeaderMsg = () => {
+    if (inventoryID) return "Edit an existing inventory";
+
+    return `Create an inventory for ${productName}`;
+  };
+
+  const getSubheaderMsg = () => {
+    if (inventoryID) {
+      return `Edit Inventory of a product`;
+    } else if (productName) {
+      return `Make Inventory for ${productName}`;
+    }
+    return "Make Inventory";
   };
 
   if (dataLoading) {
@@ -241,14 +368,17 @@ const CreateInventory = ({
     <>
       <div className="w-full sm:flex hidden px-1 mb-2">
         <div className="w-full">
-          <h1 className="text-2xl font-bold mr-auto">
-            Make Inventory for {productName}
-          </h1>
-          <h2 className="text-sm text-gray-600">replenish stocks</h2>
+          <h1 className="text-2xl font-bold mr-auto">{getHeaderMsg()}</h1>
+          <h2 className="text-sm text-gray-600">{getSubheaderMsg()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "
-          onClick={() => setShowInventoryForm(false)}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (inventoryID) setShowProductInventories(true);
+            setEditingInventoryID("");
+            setShowInventoryForm(false);
+          }}
         >
           <Image
             src={closeIcon}
@@ -453,6 +583,7 @@ const CreateInventory = ({
               e.target.value = e.target.value.slice(0, -1);
             }
           }}
+          defaultValue={inventory ? inventory?.inventory_total_units : ""}
         />
         <p className="text-red-600 text-sm mb-3">
           {validationMessages.inventory_total_units}
@@ -465,6 +596,10 @@ const CreateInventory = ({
           id="inventory_expiration_date"
           name="inventory_expiration_date"
           className="border p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1"
+          defaultValue={expDateDisplay}
+          onChange={(e) => {
+            setExpDate(new Date(e.target.value));
+          }}
         />
         <p className="text-red-600 text-sm mb-3">
           {validationMessages.inventory_expiration_date}
@@ -478,23 +613,38 @@ const CreateInventory = ({
           name="inventory_description"
           className="h-40 border px-2 py-4 rounded-lg mb-4 outline-none focus:ring-mainButtonColor focus:ring-1"
           placeholder="inventory description"
+          defaultValue={inventory ? inventory?.inventory_description : ""}
         />
-
-        <button
-          type="submit"
-          className={`text-white rounded-lg p-2 sm:w-fit w-full self-end flex items-center justify-center gap-1 ${
-            loading || dataLoading
-              ? "bg-mainButtonColorDisabled"
-              : "bg-mainButtonColor"
-          }`}
-          disabled={loading || dataLoading}
-        >
-          {loading ? (
-            <ButtonLoading>Processing...</ButtonLoading>
-          ) : (
-            "Create Inventory"
+        <div className="flex w-full flex-row-reverse gap-2">
+          <button
+            type="submit"
+            className={`text-white rounded-lg p-2 w-fit self-end flex items-center justify-center ${
+              loading || dataLoading
+                ? "bg-mainButtonColorDisabled"
+                : "bg-mainButtonColor"
+            }`}
+            disabled={loading || dataLoading}
+          >
+            {loading ? (
+              <ButtonLoading>Processing...</ButtonLoading>
+            ) : inventoryID ? (
+              "Update Inventory"
+            ) : (
+              "Create Inventory"
+            )}
+          </button>
+          {inventoryID && (
+            <button
+              className="bg-transparent text-red-600 rounded-lg p-2"
+              onClick={() => {
+                handleDelete();
+              }}
+              type="button"
+            >
+              Delete Inventory
+            </button>
           )}
-        </button>
+        </div>
       </form>
     </>
   );

@@ -24,7 +24,7 @@ export async function GET(request, { params }) {
   }
 }
 
-export async function DELETE({ params }) {
+export async function DELETE(request, { params }) {
   const { id } = params;
   try {
     const inventoryRef = doc(db, "Inventory", id);
@@ -69,9 +69,13 @@ export async function PATCH(request, { params }) {
     const inventory_profit_margin = parseFloat(
       reqFormData.get("inventory_profit_margin")
     );
-    const inventory_expiration_date = reqFormData.get(
+    const inventory_expiration_date_raw = reqFormData.get(
       "inventory_expiration_date"
     );
+
+    const inventory_expiration_date = inventory_expiration_date_raw
+      ? Timestamp.fromDate(new Date(inventory_expiration_date_raw))
+      : null;
 
     await updateDoc(inventoryDoc, {
       product_id,

@@ -7,7 +7,7 @@ const Page = ({ params }) => {
         <h1 className="text-2xl font-bold">{`Create Inventory for ${decodeURIComponent(
           params.product_name
         )}`}</h1>
-        <p className="text-gray-500">Create a new inventory</p>
+        <p className="text-gray-500 mb-2">Create a new inventory</p>
         <div className="w-full border mb-2"></div>
       </div>
 

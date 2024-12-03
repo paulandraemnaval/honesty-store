@@ -173,36 +173,39 @@ const MobileFilter = ({
                       All
                     </button>
 
-                    {categories.map((category) => (
-                      <button
-                        key={category.category_id}
-                        onClick={() => setLocalCategory(category.category_id)}
-                        className={` flex text-center font-semibold rounded-sm ${
-                          localCategory === category.category_id
-                            ? "bg-mainButtonColor text-white"
-                            : "text-black bg-gray-200"
-                        }
+                    {categories.map((category) => {
+                      if (category.category_soft_deleted) return;
+                      return (
+                        <button
+                          key={category.category_id}
+                          onClick={() => setLocalCategory(category.category_id)}
+                          className={` flex text-center font-semibold rounded-sm ${
+                            localCategory === category.category_id
+                              ? "bg-mainButtonColor text-white"
+                              : "text-black bg-gray-200"
+                          }
                         `}
-                      >
-                        <div className="w-full mt-2 mb-2 px-2">
-                          {category.category_name}
-                        </div>
-                        {pathname.includes("admin") &&
-                          category.category_id === localCategory && (
-                            <Link
-                              href={`/admin/user/manage/edit_category/${category.category_id}`}
-                              className="bg-white h-full items-center flex w-14 justify-center"
-                            >
-                              <Image
-                                src={editIcon}
-                                alt="edit_icon"
-                                height={20}
-                                width={20}
-                              />
-                            </Link>
-                          )}
-                      </button>
-                    ))}
+                        >
+                          <div className="w-full mt-2 mb-2 px-2">
+                            {category.category_name}
+                          </div>
+                          {pathname.includes("admin") &&
+                            category.category_id === localCategory && (
+                              <Link
+                                href={`/admin/user/manage/edit_category/${category.category_id}`}
+                                className="bg-white h-full items-center flex w-14 justify-center"
+                              >
+                                <Image
+                                  src={editIcon}
+                                  alt="edit_icon"
+                                  height={20}
+                                  width={20}
+                                />
+                              </Link>
+                            )}
+                        </button>
+                      );
+                    })}
                   </>
                 )}
               </div>
@@ -239,36 +242,41 @@ const MobileFilter = ({
                       >
                         All
                       </button>
-                      {suppliers.map((supplier) => (
-                        <button
-                          key={supplier.supplier_id}
-                          onClick={() => setLocalSupplier(supplier.supplier_id)}
-                          className={`flex text-center font-semibold rounded-sm ${
-                            localSupplier === supplier.supplier_id
-                              ? "bg-mainButtonColor text-white"
-                              : "text-black bg-gray-200"
-                          }
+                      {suppliers.map((supplier) => {
+                        if (supplier.supplier_soft_deleted) return;
+                        return (
+                          <button
+                            key={supplier.supplier_id}
+                            onClick={() =>
+                              setLocalSupplier(supplier.supplier_id)
+                            }
+                            className={`flex text-center font-semibold rounded-sm ${
+                              localSupplier === supplier.supplier_id
+                                ? "bg-mainButtonColor text-white"
+                                : "text-black bg-gray-200"
+                            }
                           `}
-                        >
-                          <div className="w-full mt-2 mb-2 px-2 truncate">
-                            {supplier.supplier_name}
-                          </div>
-                          {pathname.includes("admin") &&
-                            supplier.supplier_id === localSupplier && (
-                              <Link
-                                href={`/admin/user/manage/edit_supplier/${supplier.supplier_id}`}
-                                className="bg-white h-full items-center flex w-14 justify-center"
-                              >
-                                <Image
-                                  src={editIcon}
-                                  alt="edit_icon"
-                                  height={20}
-                                  width={20}
-                                />
-                              </Link>
-                            )}
-                        </button>
-                      ))}
+                          >
+                            <div className="w-full mt-2 mb-2 px-2 truncate">
+                              {supplier.supplier_name}
+                            </div>
+                            {pathname.includes("admin") &&
+                              supplier.supplier_id === localSupplier && (
+                                <Link
+                                  href={`/admin/user/manage/edit_supplier/${supplier.supplier_id}`}
+                                  className="bg-white h-full items-center flex w-14 justify-center"
+                                >
+                                  <Image
+                                    src={editIcon}
+                                    alt="edit_icon"
+                                    height={20}
+                                    width={20}
+                                  />
+                                </Link>
+                              )}
+                          </button>
+                        );
+                      })}
                     </>
                   )}
                 </div>
