@@ -18,7 +18,9 @@ export const exportSheetToPDF = async (report, sheetTitle) => {
   if (!sheet) {
     throw new Error(`Sheet with title "${sheetTitle}" not found.`);
   }
+
   const title = sanitizeSheetName(sheetTitle);
+
   // Get the Downloads folder path
   const downloadsFolder = path.join(homedir(), "Downloads");
 
@@ -29,30 +31,30 @@ export const exportSheetToPDF = async (report, sheetTitle) => {
 
   // Export as PDF (ArrayBuffer mode)
   const pdfBuffer = await sheet.downloadAsPDF();
-  const pdfFilePath = path.join(downloadsFolder, `${title}-export.pdf`);
+  const pdfFilePath = path.join(downloadsFolder, `${title}.pdf`);
   fs.writeFileSync(pdfFilePath, Buffer.from(pdfBuffer));
   console.log(`PDF exported successfully to ${pdfFilePath}!`);
 
   // Alternatively, export as PDF (Stream mode)
-  const pdfStream = await sheet.downloadAsPDF(true); // `true` toggles to stream mode
-  const streamPdfFilePath = path.join(
-    downloadsFolder,
-    `${title}-export-stream.pdf`
-  );
-  const writableStream = fs.createWriteStream(streamPdfFilePath);
+  // const pdfStream = await sheet.downloadAsPDF(true); // `true` toggles to stream mode
+  // const streamPdfFilePath = path.join(
+  //   downloadsFolder,
+  //   `${title}-export-stream.pdf`
+  // );
+  // const writableStream = fs.createWriteStream(streamPdfFilePath);
 
-  writableStream.on("finish", () => {
-    console.log(`Streamed PDF exported successfully to ${streamPdfFilePath}!`);
-  });
-  writableStream.on("error", (err) => {
-    console.error("Error during streaming:", err);
-  });
+  // writableStream.on("finish", () => {
+  //   console.log(`Streamed PDF exported successfully to ${streamPdfFilePath}!`);
+  // });
+  // writableStream.on("error", (err) => {
+  //   console.error("Error during streaming:", err);
+  // });
 
-  pdfStream.pipe(writableStream);
+  // pdfStream.pipe(writableStream);
 };
 
 // Function to export Google Sheet to XLSX
-export const exportSheetToXLSX = async (id) => {
+export const exportSheetToXLSX = async (report, sheetTitle) => {
   const doc = new GoogleSpreadsheet(id, serviceAccountAuth);
 
   // Load the document
