@@ -268,7 +268,7 @@ const ProductList = ({
     <div className="w-full h-full overflow-y-auto z-0 px-1 py-2 ">
       <div
         className={`grid gap-3 w-full grid-cols-2 ${
-          productsWithInventories.length > 3
+          filteredProducts.withInventories.length > 3
             ? "md:grid-cols-[repeat(auto-fit,minmax(13rem,1fr))]"
             : "md:grid-cols-[repeat(auto-fit,14rem)]"
         }`}

@@ -5,27 +5,33 @@ import downArrow from "@public/icons/down_arrow_icon.png";
 import upArrow from "@public/icons/up_arrow_icon.png";
 import ButtonLoading from "@components/ButtonLoading";
 import { toast } from "react-hot-toast";
+import Loading from "@components/Loading";
 const ReportForm = () => {
   const [reports, setReports] = useState([]);
   const [showFlowUI, setShowFlowUI] = useState(false);
   const [lastVisible, setLastVisible] = useState(null);
   const [expandedStates, setExpandedStates] = useState({});
   const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getReports = async () => {
       try {
+        setLoading(true);
         const response = await fetch("/api/admin/report", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ lastVisible: null }),
         });
+
         const data = await response.json();
         if (response.ok) {
           setReports(Array.isArray(data?.reports) ? data.reports : []);
         } else setReports([]);
       } catch (err) {
         console.log(err);
+      } finally {
+        setLoading(false);
       }
     };
     getReports();
@@ -42,66 +48,65 @@ const ReportForm = () => {
     setShowFlowUI((prev) => !prev);
   };
 
+  if (loading) {
+    return <Loading />;
+  }
   return (
     <div className="gap-2 flex flex-col">
       <h1 className="text-lg">Report History</h1>
-      {reports?.length > 0 ? (
-        reports?.map((report) => {
-          const startDate = new Date(report.report_start_date.seconds * 1000);
-          const lastUpdatedDate = new Date(
-            report.report_last_updated.seconds * 1000
-          );
+      {reports?.map((report) => {
+        const startDate = new Date(report.report_start_date.seconds * 1000);
+        const lastUpdatedDate = new Date(
+          report.report_last_updated.seconds * 1000
+        );
 
-          const formattedStartDate = startDate.toLocaleDateString("en-US", {
+        const formattedStartDate = startDate.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "2-digit",
+        });
+        const formattedLastUpdatedDate = lastUpdatedDate.toLocaleDateString(
+          "en-US",
+          {
             year: "numeric",
             month: "short",
             day: "2-digit",
-          });
-          const formattedLastUpdatedDate = lastUpdatedDate.toLocaleDateString(
-            "en-US",
-            {
-              year: "numeric",
-              month: "short",
-              day: "2-digit",
-            }
-          );
+          }
+        );
 
-          return (
-            <div key={report.report_id}>
-              <div
-                className={`w-full border rounded-sm p-4 flex flex-col sm:hover:bg-gray-100 cursor-pointer transition-colors bg-white`}
-                onClick={() => toggleExpand(report.report_id)}
-              >
-                <div className="flex items-center">
-                  <span className="mr-auto">
-                    {`${formattedStartDate} - ${formattedLastUpdatedDate}`}
-                  </span>
-                  <Image
-                    src={expandedStates[report.report_id] ? upArrow : downArrow}
-                    alt="arrow"
-                    height={20}
-                    width={20}
-                  />
+        return (
+          <div key={report.report_id}>
+            <div
+              className={`w-full border rounded-sm p-4 flex flex-col sm:hover:bg-gray-100 cursor-pointer transition-colors bg-white`}
+              onClick={() => toggleExpand(report.report_id)}
+            >
+              <div className="flex items-center">
+                <span className="mr-auto">
+                  {`${formattedStartDate} - ${formattedLastUpdatedDate}`}
+                </span>
+                <Image
+                  src={expandedStates[report.report_id] ? upArrow : downArrow}
+                  alt="arrow"
+                  height={20}
+                  width={20}
+                />
+              </div>
+            </div>
+            {expandedStates[report.report_id] && (
+              <div className="p-4 bg-gray-50 shadow-md">
+                <div className="mb-2">
+                  <span className="font-semibold">Cash Inflow:</span>{" "}
+                  {report.report_cash_inflow}
+                </div>
+                <div className="mb-2">
+                  <span className="font-semibold">Cash Outflow:</span>{" "}
+                  {report.report_cash_outflow}
                 </div>
               </div>
-              {expandedStates[report.report_id] && (
-                <div className="p-4 bg-gray-50 shadow-md">
-                  <div className="mb-2">
-                    <span className="font-semibold">Cash Inflow:</span>{" "}
-                    {report.report_cash_inflow}
-                  </div>
-                  <div className="mb-2">
-                    <span className="font-semibold">Cash Outflow:</span>{" "}
-                    {report.report_cash_outflow}
-                  </div>
-                </div>
-              )}
-            </div>
-          );
-        })
-      ) : (
-        <p className="font-semibold m-2">No previous reports generated</p>
-      )}
+            )}
+          </div>
+        );
+      })}
 
       {showFlowUI && (
         <FlowUI handleShowCFUI={handleShowCFUI} setRefresh={setRefresh} />
