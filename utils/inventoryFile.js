@@ -102,11 +102,9 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
       }
       await sheet.saveUpdatedCells();
     }
-
-    await exportSheetToPDF(
-      report2,
-      `${formatDate(startDate)} - ${formatDate(endDate)}`
-    );
+    let sheetTitle = `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    sheetTitle = sheetTitle.replace(/\\/g, "/");
+    await exportSheetToPDF(report2, sheetTitle);
   } catch (error) {
     console.error("Error creating inventory list:", error);
   }
