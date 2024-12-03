@@ -6,9 +6,10 @@ import { exportSheetToPDF } from "@utils/export";
 import { db } from "@utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
 
-export async function GET() {
+export async function GET(request, { params }) {
   try {
-    const reportDoc = doc(db, "Report", "mJnf0mQHiro65DxCG2ef");
+    const { id } = params;
+    const reportDoc = doc(db, "Report", id);
     const reportSnap = await getDoc(reportDoc);
     if (!reportSnap.exists()) {
       return NextResponse.json(
