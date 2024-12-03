@@ -21,6 +21,9 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import { generateReport } from "@utils/sheets";
+import { exportSheetToPDF } from "@utils/export";
+import { formatDate } from "@utils/formatDate";
+import { report1 } from "@utils/sheets";
 
 export async function POST(request) {
   try {
@@ -133,6 +136,12 @@ export async function POST(request) {
       await Promise.all(updatePromises);
 
       await generateReport(reportDoc.id);
+      const start = new Date(report_start_date);
+      const end = new Date();
+
+      let title = `${formatDate(start)} - ${formatDate(end)}`;
+      title = title.replace(/\\/g, "/");
+      await exportSheetToPDF(report1, title);
 
       const logData = await createLog(
         user.account_id,
