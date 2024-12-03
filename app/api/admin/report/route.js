@@ -139,21 +139,19 @@ export async function POST(request) {
       const start = new Date(report_start_date);
       const end = new Date();
 
-      let title = `${formatDate(start)} - ${formatDate(end)}`;
+      let sheetTitle = `${formatDate(start)} - ${formatDate(end)}`;
 
-      await exportSheetToPDF(report1, title);
+      const { buffer, title } = await exportSheetToPDF(report1, sheetTitle);
 
-      const logData = await createLog(
-        user.account_id,
-        "Report",
-        reportDoc.id,
-        "CREATE"
-      );
+      await createLog(user.account_id, "Report", reportDoc.id, "CREATE");
 
-      return NextResponse.json(
-        { message: "Report successfully created", logData },
-        { status: 200 }
-      );
+      return new NextResponse(buffer, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Disposition": `attachment; filename="${title}"`,
+        },
+      });
     } else {
       return NextResponse.json(
         { message: "No valid report start date found." },
