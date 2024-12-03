@@ -20,6 +20,7 @@ import {
 } from "firebase/firestore";
 import { NextResponse } from "next/server";
 
+//give oldest
 export async function GET(request) {
   let inventories = [];
   const url = new URL(request.url);
@@ -74,8 +75,7 @@ export async function GET(request) {
           inventoryRef,
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
-          where("inventory_total_units", ">", 0),
-          orderBy("inventory_total_units", "desc")
+          orderBy("inventory_timestamp", "desc")
         );
         snapshot = await getDocs(q);
 
@@ -91,11 +91,13 @@ export async function GET(request) {
 
       const oldInventories = inventories.reduce((acc, inventory) => {
         const productId = inventory.product_id;
+
         if (
-          !acc[productId] ||
-          acc[productId].inventory_timestamp > inventory.inventory_timestamp
+          inventory.inventory_timestamp && // Ensure timestamp exists
+          (!acc[productId] ||
+            acc[productId].inventory_timestamp > inventory.inventory_timestamp)
         ) {
-          acc[productId] = { inventory };
+          acc[productId] = inventory;
         }
         return acc;
       }, {});
@@ -104,12 +106,12 @@ export async function GET(request) {
 
       const invProds = [];
       const promises = result.map(async (item) => {
-        const productRef = doc(db, "Product", item.inventory.product_id);
+        const productRef = doc(db, "Product", item.product_id);
 
         const snapshot = await getDoc(productRef);
         if (snapshot.exists()) {
           const product = snapshot.data();
-          invProds.push({ inventory: item.inventory, product });
+          invProds.push({ inventory: item, product });
         } else {
           console.log(
             `No product found for inventory with product_id: ${item.product_id}`
