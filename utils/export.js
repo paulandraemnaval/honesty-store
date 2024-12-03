@@ -31,9 +31,14 @@ export const exportSheetToPDF = async (report, sheetTitle) => {
 
   // Export as PDF (ArrayBuffer mode)
   const pdfBuffer = await sheet.downloadAsPDF();
-  const pdfFilePath = path.join(downloadsFolder, `${title}.pdf`);
-  fs.writeFileSync(pdfFilePath, Buffer.from(pdfBuffer));
-  console.log(`PDF exported successfully to ${pdfFilePath}!`);
+  // Return the PDF buffer
+  return {
+    buffer: Buffer.from(pdfBuffer),
+    title: `${title}.pdf`,
+  };
+  // const pdfFilePath = path.join(downloadsFolder, `${title}.pdf`);
+  // fs.writeFileSync(pdfFilePath, Buffer.from(pdfBuffer));
+  // console.log(`PDF exported successfully to ${pdfFilePath}!`);
 
   // Alternatively, export as PDF (Stream mode)
   // const pdfStream = await sheet.downloadAsPDF(true); // `true` toggles to stream mode

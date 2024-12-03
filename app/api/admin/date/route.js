@@ -2,6 +2,9 @@ import { db } from "@utils/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 import { NextResponse } from "next/server";
 import { createInventoryList } from "@utils/inventoryFile";
+import { exportSheetToPDF } from "@utils/export";
+import { report2 } from "@utils/sheets";
+import { formatDate } from "@utils/formatDate";
 
 export async function GET(request) {
   const url = new URL(request.url);
@@ -42,18 +45,19 @@ export async function GET(request) {
     const inventories = snapshot.docs.map((doc) => doc.data());
 
     await createInventoryList(inventories, start, end);
+    const sheetTitle = `${formatDate(start)} - ${formatDate(end)}`;
+    const { buffer, title } = await exportSheetToPDF(report2, sheetTitle);
 
-    return NextResponse.json(
-      {
-        message: "Inventories found from the given date range",
-        data: inventories,
+    return new NextResponse(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${title}"`,
       },
-      { status: 200 }
-    );
+    });
   } catch (error) {
-    return NextResponse.json(
-      { message: "Error fetching data" },
-      { status: 500 }
-    );
+    console.log(error);
+
+    return new NextResponse("Error exporting PDF", { status: 500 });
   }
 }
