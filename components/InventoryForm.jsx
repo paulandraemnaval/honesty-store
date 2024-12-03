@@ -268,11 +268,9 @@ const CreateInventory = ({
       formData.append("retail_price", retailPrice);
 
       formData.delete("inventory_profit_margin");
-
       formData.delete("inventory_expiration_date");
 
       formData.append("inventory_expiration_date", expDate.toISOString());
-
       formData.append("inventory_profit_margin", profitMargin);
       formData.append("wholesale_price", wholesalePrice);
 
