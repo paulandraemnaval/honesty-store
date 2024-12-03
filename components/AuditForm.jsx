@@ -46,20 +46,19 @@ const AuditForm = () => {
     let newErrorMessages = {};
 
     inventories.forEach((prdwinv) => {
-      const quantity = quantities[prdwinv.inventory.inventory_id];
+      const quantity = quantities[prdwinv.inventory.inventory_id]?.trim();
       const inventoryTotal = prdwinv.inventory.inventory_total_units;
 
-      if (
-        (quantity &&
-          (Number(quantity) > inventoryTotal || Number(quantity) < 0)) ||
-        !quantity
-      ) {
+      if (quantity === "") return;
+
+      if (Number(quantity) > inventoryTotal || Number(quantity) < 0) {
         newErrorMessages[
           prdwinv.inventory.inventory_id
         ] = `Invalid quantity. Must be between 0 and ${inventoryTotal}`;
         valid = false;
       }
     });
+
     if (!valid) {
       toast.error("Invalid quantities. Please check the highlighted fields.", {
         duration: 3000,
@@ -83,12 +82,22 @@ const AuditForm = () => {
     }
 
     setIsProcessing(true);
-    const newQuantities = Object.entries(quantities).map(
-      ([inventoryId, quantity]) => ({
-        inventoryId,
-        remaining: quantity,
+
+    const newQuantities = Object.entries(quantities)
+      .filter(([inventoryId, quantity]) => {
+        const inventory = inventories.find(
+          (prdwinv) => prdwinv.inventory.inventory_id === inventoryId
+        );
+
+        return (
+          quantity?.trim() !== "" &&
+          Number(quantity) !== inventory.inventory.inventory_total_units
+        );
       })
-    );
+      .map(([inventoryId, quantity]) => ({
+        inventoryId,
+        remaining: Number(quantity),
+      }));
 
     try {
       const response = await fetch("/api/admin/audit", {
@@ -109,7 +118,7 @@ const AuditForm = () => {
         });
         setQuantities({});
         setShowSummary(false);
-        setRefreshForm((prev) => !prev); // Trigger re-render to refresh the form
+        setRefreshForm((prev) => !prev);
       } else {
         console.error("Failed to submit audit: ", data.error);
       }
@@ -201,19 +210,26 @@ const AuditFormField = ({
       <h3 className="text-center font-semibold mt-4 mb-2 text-sm sm:text-base">
         {productName}
       </h3>
-      <div className="flex flex-col w-full">
-        <label
-          htmlFor={inventory.inventory_id}
-          className="text-left text-sm font-light"
-        >
-          Quantity
-        </label>
+      <div className="flex flex-col w-full ">
+        <div className="flex items-center justify-center gap-2 ">
+          <label
+            htmlFor={inventory.inventory_id}
+            className="text-left text-sm font-light self-start mr-auto "
+          >
+            Quantity
+          </label>
+          {errorMessage && (
+            <span className="text-red-500 text-xs text-right w-full ml-auto ">
+              {errorMessage}
+            </span>
+          )}
+        </div>
         <input
           type="text"
           name={inventory.inventory_id}
           id={inventory.inventory_id}
           placeholder={`0 - ${inventory.inventory_total_units}`}
-          className={`mt-2 w-full p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border-2 ${
+          className={` w-full p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border-2 ${
             errorMessage ? "border-red-500" : "border"
           }`}
           value={quantities[inventory.inventory_id] || ""}
@@ -228,9 +244,6 @@ const AuditFormField = ({
           }}
         />
       </div>
-      {errorMessage && (
-        <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
-      )}
     </div>
   );
 };
