@@ -23,8 +23,6 @@ export async function GET(request, { params }) {
       report.report_start_date.toDate()
     )} - ${formatDate(report.report_end_date.toDate())}`;
 
-    sheetTitle = sheetTitle.replace(/\\/g, "/");
-
     await exportSheetToPDF(report1, sheetTitle);
 
     return NextResponse.json(
