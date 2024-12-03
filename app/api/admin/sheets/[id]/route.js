@@ -23,12 +23,15 @@ export async function GET(request, { params }) {
       report.report_start_date.toDate()
     )} - ${formatDate(report.report_end_date.toDate())}`;
 
-    await exportSheetToPDF(report1, sheetTitle);
+    const { buffer, title } = await exportSheetToPDF(report1, sheetTitle);
 
-    return NextResponse.json(
-      { message: "Report downloaded successfully" },
-      { status: 200 }
-    );
+    return new NextResponse(buffer, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${title}"`,
+      },
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json({ message: "error" }, { status: 500 });
