@@ -2,6 +2,7 @@ import { db } from "@utils/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { report2 } from "./sheets";
 import { formatDateToLong, formatDate } from "./formatDate";
+import { exportSheetToPDF } from "./export";
 
 export const createInventoryList = async (inventories, startDate, endDate) => {
   try {
@@ -101,6 +102,11 @@ export const createInventoryList = async (inventories, startDate, endDate) => {
       }
       await sheet.saveUpdatedCells();
     }
+
+    await exportSheetToPDF(
+      report2,
+      `${formatDate(startDate)} - ${formatDate(endDate)}`
+    );
   } catch (error) {
     console.error("Error creating inventory list:", error);
   }

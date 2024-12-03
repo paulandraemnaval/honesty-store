@@ -141,6 +141,8 @@ export async function POST(request) {
 
       let title = `${formatDate(start)} - ${formatDate(end)}`;
       title = title.replace(/\\/g, "/");
+      console.log(title);
+
       await exportSheetToPDF(report1, title);
 
       const logData = await createLog(
