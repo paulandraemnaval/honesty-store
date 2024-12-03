@@ -20,10 +20,12 @@ const MobileFilter = ({
   setSortPriceAsc = () => {},
   setSortUnitsAsc = () => {},
   setSortExpirationAsc = () => {},
+  setMobileFilterExpanded = () => {},
+  setShowInventoryReport = () => {},
+  mobileFilterExpanded = false,
 }) => {
   const pathname = usePathname();
 
-  const [isExpanded, setIsExpanded] = useState(false);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [localCategory, setLocalCategory] = useState("all");
@@ -76,7 +78,7 @@ const MobileFilter = ({
     setSortPriceAsc(localSortPriceAsc);
     setSortUnitsAsc(localSortUnitsAsc);
     setSortExpirationAsc(localSortExpirationAsc);
-    setIsExpanded(false);
+    setMobileFilterExpanded(false);
   };
 
   const appliedFilterCount = () => {
@@ -103,11 +105,16 @@ const MobileFilter = ({
     <>
       <div className="flex">
         <div
-          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor rounded-sm font-semibold text-white"
-          onClick={() => setIsExpanded((prev) => !prev)}
+          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor  rounded-sm font-semibold text-white"
+          onClick={() => {
+            setShowInventoryReport((prev) => {
+              if (prev === true) return !prev;
+              return prev;
+            });
+            setMobileFilterExpanded((prev) => !prev);
+          }}
         >
-          <span>Filter</span>
-          <Image src={FilterIcon} height={20} width={20} alt="filter_icon" />
+          <Image src={FilterIcon} height={25} width={25} alt="filter_icon" />
           {appliedFilterCount() > 0 && (
             <span className="bg-white text-mainButtonColor rounded-full px-2">
               {appliedFilterCount()}
@@ -115,7 +122,7 @@ const MobileFilter = ({
           )}
         </div>
       </div>
-      {isExpanded && (
+      {mobileFilterExpanded && (
         <div
           className={`${
             pathname.includes("admin")
@@ -129,7 +136,7 @@ const MobileFilter = ({
               <span className="mr-auto font-semibold text-xl">Filter</span>
               <div
                 className="object-cover"
-                onClick={() => setIsExpanded(false)}
+                onClick={() => setMobileFilterExpanded(false)}
               >
                 <Image
                   src={closeIcon}

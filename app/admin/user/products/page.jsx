@@ -5,6 +5,8 @@ import FilterBar from "@components/FilterBar";
 import SearchInput from "@components/SearchInput";
 import MobileFilter from "@components/MobileFilter";
 import Loading from "@components/Loading";
+import InventoryReport from "@components/InventoryReport";
+import { ACTION_FAST_REFRESH } from "@node_modules/next/dist/client/components/router-reducer/router-reducer-types";
 
 const ProductList = lazy(() => import("@components/ProductList"));
 const InventoryForm = lazy(() => import("@components/InventoryForm"));
@@ -36,11 +38,13 @@ const productspage = () => {
   const [sortPriceAsc, setSortPriceAsc] = useState(null);
   const [sortExpirationAsc, setSortExpirationAsc] = useState(null);
 
+  const [mobileFilterExpanded, setMobileFilterExpanded] = useState(false);
   const [showInventoryForm, setShowInventoryForm] = useState(false);
   const [showProductForm, setShowProductForm] = useState(false);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [showSupplierForm, setShowSupplierForm] = useState(false);
   const [showProductInventories, setShowProductInventories] = useState(false);
+  const [showInventoryReport, setShowInventoryReport] = useState(false);
 
   const showPopover =
     showInventoryForm ||
@@ -48,10 +52,6 @@ const productspage = () => {
     showCategoryForm ||
     showSupplierForm ||
     showProductInventories;
-
-  useEffect(() => {
-    showProductInventories;
-  }, [showProductInventories]);
 
   return (
     <div className="w-full px-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
@@ -122,11 +122,18 @@ const productspage = () => {
 
       <div className="flex flex-col w-full pt-4">
         <div className="flex gap-1">
-          <div className="flex-1 mb-4">
+          <div className="flex-1 mb-4 flex items-center justify-between px-2 ">
             <SearchInput
               searchKeyword={searchKeyword}
               setSearchKeyword={setSearchKeyword}
             />
+            <div className="ml-4 flex-1 flex">
+              <InventoryReport
+                setShowInventoryReport={setShowInventoryReport}
+                showInventoryReport={showInventoryReport}
+                setEditingProductID={setEditingProductID}
+              />
+            </div>
           </div>
           <div className="sm:hidden block mb-4">
             <MobileFilter
@@ -135,6 +142,9 @@ const productspage = () => {
               setSortUnitsAsc={setSortUnitsAsc}
               setSortPriceAsc={setSortPriceAsc}
               setSortExpirationAsc={setSortExpirationAsc}
+              setShowInventoryReport={setShowInventoryReport}
+              setMobileFilterExpanded={setMobileFilterExpanded}
+              mobileFilterExpanded={mobileFilterExpanded}
             />
           </div>
         </div>
@@ -159,6 +169,7 @@ const productspage = () => {
                 setShowProductForm={setShowProductForm}
                 setEditingProductID={setEditingProductID}
                 setShowProductInventories={setShowProductInventories}
+                setShowInventoryReport={setShowInventoryReport}
               />
             )}
           </Suspense>

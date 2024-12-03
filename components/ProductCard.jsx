@@ -19,6 +19,7 @@ const ProductCard = ({
   setShowProductForm = () => {},
   setEditingProductID = () => {},
   setShowProductInventories = () => {},
+  setShowInventoryReport = () => {},
 }) => {
   const hasNoInventory = productStock === "No inventory";
 
@@ -152,6 +153,7 @@ const ProductCard = ({
               className="object-cover p-1 rounded-md flex"
               onClick={() => {
                 setEditingProductID(product.product_id);
+                setShowInventoryReport(false);
               }}
             >
               <Image

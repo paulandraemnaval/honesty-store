@@ -22,6 +22,7 @@ const ProductList = ({
   setShowProductForm = () => {},
   setEditingProductID = () => {},
   setShowProductInventories = () => {},
+  setShowInventoryReport = () => {},
 }) => {
   const [productsWithInventories, setProductsWithInventories] = useState([]);
 
@@ -299,6 +300,7 @@ const ProductList = ({
                   setShowProductForm={setShowProductForm}
                   setEditingProductID={setEditingProductID}
                   setShowProductInventories={setShowProductInventories}
+                  setShowInventoryReport={setShowInventoryReport}
                 />
               );
             })
