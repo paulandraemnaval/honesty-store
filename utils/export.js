@@ -98,9 +98,22 @@ export const exportSheetToXLSX = async (report, sheetTitle) => {
   xlsxStream.pipe(writableStream);
 };
 
+const splitDate = (date) => {
+  const dateString = "11/15/24 - 12/01/24";
+
+  // Split the string to get the two date parts
+  const dateParts = dateString.split(" - ");
+
+  // Convert the date strings into Date objects
+  const firstDate = new Date(dateParts[0]);
+  const secondDate = new Date(dateParts[1]);
+
+  return { start: firstDate, end: secondDate };
+};
+
 export const getProfitData = async (report) => {
   await report.loadInfo();
-  const salesData = [];
+  const profitData = [];
 
   // Iterate through all sheets
   for (let i = 0; i < report.sheetCount; i++) {
@@ -126,7 +139,41 @@ export const getProfitData = async (report) => {
       }
     }
 
-    salesData.push({ title: sheet.title, total });
+    profitData.push({ date: splitDate(sheet.title), total });
+  }
+
+  return profitData; // Return the collected sales data
+};
+
+export const getSalesData = async (report) => {
+  await report.loadInfo();
+  const salesData = [];
+
+  // Iterate through all sheets
+  for (let i = 0; i < report.sheetCount; i++) {
+    const sheet = report.sheetsByIndex[i];
+    await sheet.loadCells(); // Load all cells in the sheet
+
+    let rowInd = 0; // Start from the first row
+    let income = 0;
+    let foundTotal = false;
+
+    // Loop through rows until we find the "Total" label or reach the end of the sheet
+    while (!foundTotal) {
+      const cell = sheet.getCell(rowInd, 3); // Get the first column cell (A)
+      if (cell.value === "Sum") {
+        const nextCell = sheet.getCell(rowInd, 5); // Get the second column cell (B)
+        income = nextCell.value;
+        foundTotal = true; // Set flag to stop the loop
+      } else {
+        rowInd++;
+        if (rowInd >= sheet.rowCount) {
+          break; // Exit the loop if we reach the end of the sheet
+        }
+      }
+    }
+
+    salesData.push({ date: splitDate(sheet.title), total: income });
   }
 
   return salesData; // Return the collected sales data
