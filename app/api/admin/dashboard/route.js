@@ -34,10 +34,26 @@ export async function GET(request) {
     const profit = await getProfitData(report1);
     const sales = await getSalesData(report1);
 
+    const totalProfit = profit.reduce((acc, item) => {
+      return acc + item.total;
+    }, 0);
+
+    const totalSales = sales.reduce((acc, item) => {
+      return acc + item.total;
+    }, 0);
+
     return NextResponse.json(
       {
         message: "Sales successfully fetched",
-        data: { profit, sales, products, categories, suppliers },
+        data: {
+          profit,
+          sales,
+          products,
+          categories,
+          suppliers,
+          totalProfit,
+          totalSales,
+        },
       },
       { status: 200 }
     );
