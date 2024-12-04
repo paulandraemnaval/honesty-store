@@ -98,7 +98,7 @@ export const exportSheetToXLSX = async (report, sheetTitle) => {
   xlsxStream.pipe(writableStream);
 };
 
-export const getSalesData = async (report) => {
+export const getProfitData = async (report) => {
   await report.loadInfo();
   const salesData = [];
 
