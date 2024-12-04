@@ -63,6 +63,13 @@ const InventoryReport = ({
     return !Object.values(errors).some((error) => error);
   };
 
+  const formatDate = (date) => {
+    const options = { year: "2-digit", month: "2-digit", day: "2-digit" };
+    return new Intl.DateTimeFormat("en-US", options)
+      .format(date)
+      .replace(/\//g, "-");
+  };
+
   const handleCreateInventoryReport = async () => {
     if (!validateDates()) return;
     try {
@@ -72,8 +79,26 @@ const InventoryReport = ({
       const request = await fetch(
         `/api/admin/date?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
       );
-      const response = await request.json();
-      console.log(response);
+      const response = await request.arrayBuffer();
+      const buffer = Buffer.from(response);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(new Blob([buffer]));
+      link.download = `Inventories from ${formatDate(start)} to ${formatDate(
+        end
+      )}.pdf`;
+      link.click();
+      document.removeChild(link);
+
+      setStartDate(null);
+      setEndDate(null);
+
+      toast.success("Inventory report created successfully", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
     } catch (err) {
       console.error(err);
     } finally {

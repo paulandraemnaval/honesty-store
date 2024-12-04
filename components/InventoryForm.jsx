@@ -349,15 +349,6 @@ const CreateInventory = ({
     return `Create an inventory for ${productName}`;
   };
 
-  const getSubheaderMsg = () => {
-    if (inventoryID) {
-      return `Edit Inventory of a product`;
-    } else if (productName) {
-      return `Make Inventory for ${productName}`;
-    }
-    return "Make Inventory";
-  };
-
   if (dataLoading) {
     return <Loading />;
   }
@@ -367,7 +358,6 @@ const CreateInventory = ({
       <div className="w-full sm:flex hidden px-1 mb-2">
         <div className="w-full">
           <h1 className="text-2xl font-bold mr-auto">{getHeaderMsg()}</h1>
-          <h2 className="text-sm text-gray-600">{getSubheaderMsg()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "

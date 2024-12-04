@@ -9,10 +9,10 @@ import Loading from "@components/Loading";
 const ReportForm = () => {
   const [reports, setReports] = useState([]);
   const [showFlowUI, setShowFlowUI] = useState(false);
-  const [lastVisible, setLastVisible] = useState(null);
   const [expandedStates, setExpandedStates] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const getReports = async () => {
@@ -36,6 +36,51 @@ const ReportForm = () => {
     };
     getReports();
   }, [refresh]);
+
+  const formatDate = (date) => {
+    return new Date(date.seconds * 1000)
+      .toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+      })
+      .replace(/\//g, "-");
+  };
+
+  const handleExportPDF = async (reportID, startDate, lastUpdated) => {
+    try {
+      setDownloading(true);
+      console.log("Downloading report", reportID);
+      const response = await fetch(`/api/admin/sheets/${reportID}`);
+      const blob = await response.blob();
+      if (response.ok && blob.size > 0) {
+        const buffer = Buffer.from(await blob.arrayBuffer());
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(new Blob([buffer]));
+        link.download = `Financial Report from ${startDate} to ${lastUpdated}.pdf`;
+        link.click();
+      } else {
+        toast.error("Failed to download report", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
+    } catch (err) {
+      toast.error("Failed to download report", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
+      console.log(err);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   const toggleExpand = (reportId) => {
     setExpandedStates((prevStates) => ({
@@ -93,7 +138,7 @@ const ReportForm = () => {
               </div>
             </div>
             {expandedStates[report.report_id] && (
-              <div className="p-4 bg-gray-50 shadow-md">
+              <div className="p-4 bg-gray-50 shadow-md flex flex-col">
                 <div className="mb-2">
                   <span className="font-semibold">Cash Inflow:</span>{" "}
                   {report.report_cash_inflow}
@@ -101,6 +146,29 @@ const ReportForm = () => {
                 <div className="mb-2">
                   <span className="font-semibold">Cash Outflow:</span>{" "}
                   {report.report_cash_outflow}
+                </div>
+                <div className="flex flex-row-reverse">
+                  <button
+                    className={`text-white ${
+                      downloading
+                        ? "cursor-not-allowed bg-mainButtonColorDisabled"
+                        : "cursor-pointer bg-mainButtonColor"
+                    } p-2 rounded-md w-fit`}
+                    onClick={() =>
+                      handleExportPDF(
+                        report.report_id,
+                        formattedStartDate,
+                        formattedLastUpdatedDate
+                      )
+                    }
+                    disabled={downloading}
+                  >
+                    {downloading ? (
+                      <ButtonLoading>Downloading...</ButtonLoading>
+                    ) : (
+                      "Export PDF"
+                    )}
+                  </button>
                 </div>
               </div>
             )}
