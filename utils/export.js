@@ -97,3 +97,37 @@ export const exportSheetToXLSX = async (report, sheetTitle) => {
 
   xlsxStream.pipe(writableStream);
 };
+
+export const getSalesData = async (report) => {
+  await report.loadInfo();
+  const salesData = [];
+
+  // Iterate through all sheets
+  for (let i = 0; i < report.sheetCount; i++) {
+    const sheet = report.sheetsByIndex[i];
+    await sheet.loadCells(); // Load all cells in the sheet
+
+    let rowInd = 0; // Start from the first row
+    let total = 0;
+    let foundTotal = false;
+
+    // Loop through rows until we find the "Total" label or reach the end of the sheet
+    while (!foundTotal) {
+      const cell = sheet.getCell(rowInd, 0); // Get the first column cell (A)
+      if (cell.value === "Total") {
+        const nextCell = sheet.getCell(rowInd, 1); // Get the second column cell (B)
+        total = nextCell.value;
+        foundTotal = true; // Set flag to stop the loop
+      } else {
+        rowInd++;
+        if (rowInd >= sheet.rowCount) {
+          break; // Exit the loop if we reach the end of the sheet
+        }
+      }
+    }
+
+    salesData.push({ title: sheet.title, total });
+  }
+
+  return salesData; // Return the collected sales data
+};
