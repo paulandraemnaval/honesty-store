@@ -23,6 +23,7 @@ const ProductList = ({
   setEditingProductID = () => {},
   setShowProductInventories = () => {},
   setShowInventoryReport = () => {},
+  setFetchingProducts = () => {},
 }) => {
   const [productsWithInventories, setProductsWithInventories] = useState([]);
 
@@ -91,6 +92,7 @@ const ProductList = ({
         console.log("Failed to fetch products:", error);
       } finally {
         setLoading(false);
+        setFetchingProducts(false);
       }
     };
 

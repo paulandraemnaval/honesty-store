@@ -6,9 +6,8 @@ import SearchInput from "@components/SearchInput";
 import MobileFilter from "@components/MobileFilter";
 import Loading from "@components/Loading";
 import InventoryReport from "@components/InventoryReport";
-import { ACTION_FAST_REFRESH } from "@node_modules/next/dist/client/components/router-reducer/router-reducer-types";
+import ProductList from "@components/ProductList";
 
-const ProductList = lazy(() => import("@components/ProductList"));
 const InventoryForm = lazy(() => import("@components/InventoryForm"));
 const ProductForm = lazy(() => import("@components/ProductForm"));
 const CategoryForm = lazy(() => import("@components/CategoryForm"));
@@ -17,9 +16,7 @@ const ProductInventories = lazy(() => import("@components/ProductInventories"));
 
 const productspage = () => {
   //these states store IDS of the selected category and supplier
-
   const [searchKeyword, setSearchKeyword] = useState("");
-
   //edit states
   const [productName, setProductName] = useState("");
 
@@ -46,6 +43,8 @@ const productspage = () => {
   const [showProductInventories, setShowProductInventories] = useState(false);
   const [showInventoryReport, setShowInventoryReport] = useState(false);
 
+  const [fetchingProducts, setFetchingProducts] = useState(true);
+
   const showPopover =
     showInventoryForm ||
     showProductForm ||
@@ -54,10 +53,10 @@ const productspage = () => {
     showProductInventories;
 
   return (
-    <div className="w-full px-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
+    <div className="w-full pr-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
       {showPopover && (
         <div className="absolute w-full h-full z-50 border top-0 left-0 bg-[rgba(0,0,0,0.25)]">
-          <div className="z-50 sm:w-[calc(100vw-30rem)] w-[calc(100vw)] sm:h-[calc(100vh-10rem)] h-[calc(100vh-6rem)]  rounded-md shadow-md absolute self-center sm:top-[50%] top-0 sm:left-[50%] left-0 smLtransform sm:-translate-x-1/2 sm:-translate-y-1/2 bg-white overflow-y-auto py-6 px-6">
+          <div className="z-50 sm:w-[calc(100vw-30rem)] w-[calc(100vw)] sm:h-[calc(100vh-10rem)] h-[calc(100vh-6rem)]  rounded-md shadow-md absolute self-center sm:top-[50%] top-0 sm:left-[50%] left-0 smLtransform sm:-translate-x-1/2 sm:-translate-y-1/2 bg-white overflow-y-auto custom-scrollbar">
             <Suspense fallback={<Loading />}>
               {showInventoryForm && (
                 <InventoryForm
@@ -99,6 +98,7 @@ const productspage = () => {
                   setShowProductInventories={setShowProductInventories}
                   setShowInventoryForm={setShowInventoryForm}
                   setEditingInventoryID={setEditingInventoryID}
+                  setProductName={setProductName}
                 />
               )}
             </Suspense>
@@ -117,6 +117,7 @@ const productspage = () => {
           setSortExpirationAsc={setSortExpirationAsc}
           setEditingCategoryID={setEditingCategoryID}
           setEditingSupplierID={setEditingSupplierID}
+          fetchingProducts={fetchingProducts}
         />
       </div>
 
@@ -126,6 +127,7 @@ const productspage = () => {
             <SearchInput
               searchKeyword={searchKeyword}
               setSearchKeyword={setSearchKeyword}
+              fetchingProducts={fetchingProducts}
             />
             <div className="ml-4 flex-1 flex">
               <InventoryReport
@@ -145,6 +147,7 @@ const productspage = () => {
               setShowInventoryReport={setShowInventoryReport}
               setMobileFilterExpanded={setMobileFilterExpanded}
               mobileFilterExpanded={mobileFilterExpanded}
+              fetchingProducts={fetchingProducts}
             />
           </div>
         </div>
@@ -154,25 +157,22 @@ const productspage = () => {
         {/* Divider */}
 
         <div className="overflow-y-auto flex-1 ">
-          <Suspense fallback={<Loading />}>
-            {!showInventoryForm && !showProductForm && (
-              <ProductList
-                selectedCategory={selectedCategory}
-                selectedSupplier={selectedSupplier}
-                sortPriceAsc={sortPriceAsc}
-                sortUnitsAsc={sortUnitsAsc}
-                sortExpirationAsc={sortExpirationAsc}
-                searchKeyword={searchKeyword}
-                editingProductID={editingProductID}
-                setShowInventoryForm={setShowInventoryForm}
-                setProductName={setProductName}
-                setShowProductForm={setShowProductForm}
-                setEditingProductID={setEditingProductID}
-                setShowProductInventories={setShowProductInventories}
-                setShowInventoryReport={setShowInventoryReport}
-              />
-            )}
-          </Suspense>
+          <ProductList
+            selectedCategory={selectedCategory}
+            selectedSupplier={selectedSupplier}
+            sortPriceAsc={sortPriceAsc}
+            sortUnitsAsc={sortUnitsAsc}
+            sortExpirationAsc={sortExpirationAsc}
+            searchKeyword={searchKeyword}
+            editingProductID={editingProductID}
+            setShowInventoryForm={setShowInventoryForm}
+            setProductName={setProductName}
+            setShowProductForm={setShowProductForm}
+            setEditingProductID={setEditingProductID}
+            setShowProductInventories={setShowProductInventories}
+            setShowInventoryReport={setShowInventoryReport}
+            setFetchingProducts={setFetchingProducts}
+          />
         </div>
       </div>
     </div>

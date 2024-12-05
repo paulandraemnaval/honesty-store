@@ -22,6 +22,7 @@ const FilterBar = ({
   setSortExpirationAsc = () => {},
   setEditingCategoryID = () => {},
   setEditingSupplierID = () => {},
+  fetchingProducts = false,
 }) => {
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -32,6 +33,7 @@ const FilterBar = ({
   const [localSortUnitsAsc, setLocalSortUnitsAsc] = useState(null);
   const [localSortPriceAsc, setLocalSortPriceAsc] = useState(null);
   const [localSortExpAsc, setLocalSortExpAsc] = useState(null);
+  const [orderbyDropdownOpen, setOrderbyDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const pathName = usePathname();
 
@@ -77,14 +79,14 @@ const FilterBar = ({
   };
 
   return (
-    <div className="flex flex-col w-fit gap-2 flex-1 h-full min-w-[14rem] overflow-y-auto overflow-x-hidden p-4 border-r border-gray-300 custom-scrollbar">
+    <div className="flex flex-col w-fit gap-2 flex-1 h-full min-w-[12rem] overflow-y-auto overflow-x-hidden p-4 border-r border-gray-300 custom-scrollbar ">
       <span className="text-xl mb-2">Filters</span>
       {/* Category Filter */}
       <div className="mb-4">
         {pathName.includes("admin") && (
           <div className="w-full flex ">
             <button
-              className="w-[80%]  text-sm h-8 rouded-sm font-semibold bg-gray-100  border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 border-mainButtonColor hover:bg-gray-200 rounded-sm"
+              className="w-[100%] text-sm h-8 rouded-sm font-semibold bg-gray-100  border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 border-mainButtonColor hover:bg-gray-200 rounded-sm"
               onClick={() => {
                 setShowCategoryForm(true);
                 setEditingCategoryID("");
@@ -204,7 +206,7 @@ const FilterBar = ({
                   setShowSupplierForm(true);
                   setEditingSupplierID("");
                 }}
-                className="w-[70%] text-sm h-8 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
+                className="w-[85%] text-sm h-8 rouded-sm font-semibold bg-gray-100 border-mainButtonColor border-2 px-2 flex justify-between items-center border-dashed  text-mainButtonColor transition-all ease-in-out duration-100 hover:bg-gray-200 rounded-sm"
               >
                 Add Supplier
                 <Image src={plusIcon} alt="plus" height={20} width={20} />
@@ -305,211 +307,307 @@ const FilterBar = ({
               </div>
             )}
           </div>
-
-          {/* --------------------------------ASC/DESC----------------------------------- */}
-          <div className="mb-2">
-            <span className="w-full text-left px-2 flex justify-between items-center object-cover">
-              By Units
-            </span>
-            <div className="w-full border mb-2"></div>
-
-            <div className="w-full px-2">
-              <label
-                htmlFor="units_ascending"
-                className="flex items-center flex-1 mb-2"
-              >
-                <input
-                  type="checkbox"
-                  id="units_ascending"
-                  checked={localSortUnitsAsc === true}
-                  onChange={() => {
-                    const newSortUnitsAsc =
-                      localSortUnitsAsc === true ? null : true;
-                    setLocalSortUnitsAsc(newSortUnitsAsc);
-                    if (newSortUnitsAsc === true) {
-                      setLocalSortPriceAsc(null);
-                      setLocalSortExpAsc(null);
-                    }
-                  }}
-                  className="hidden"
-                />
-                <span
-                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                    localSortUnitsAsc === true
-                      ? "bg-mainButtonColor"
-                      : "border-gray-400"
-                  }`}
-                />
-                Ascending
-              </label>
-              <label
-                htmlFor="units_descending"
-                className="flex items-center flex-1"
-              >
-                <input
-                  type="checkbox"
-                  id="units_descending"
-                  checked={localSortUnitsAsc === false}
-                  onChange={() => {
-                    const newSortUnitsAsc =
-                      localSortUnitsAsc === false ? null : false;
-                    setLocalSortUnitsAsc(newSortUnitsAsc);
-                    if (newSortUnitsAsc === false) {
-                      setLocalSortPriceAsc(null);
-                      setLocalSortExpAsc(null);
-                    }
-                  }}
-                  className="hidden"
-                />
-                <span
-                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                    localSortUnitsAsc === false
-                      ? "bg-mainButtonColor"
-                      : "border-gray-400"
-                  }`}
-                />
-                Descending
-              </label>
-            </div>
-          </div>
-
-          {/* exp sort */}
-          <div className="mb-2">
-            <span className="w-full text-left px-2 flex justify-between items-center object-cover">
-              By Expiry
-            </span>
-            <div className="w-full border mb-2"></div>
-
-            <div className="w-full px-2">
-              <label
-                htmlFor="expiry_ascending"
-                className="flex items-center flex-1 mb-2"
-              >
-                <input
-                  type="checkbox"
-                  id="expiry_ascending"
-                  checked={localSortExpAsc === true}
-                  onChange={() => {
-                    const newSortExpAsc =
-                      localSortExpAsc === true ? null : true;
-                    setLocalSortExpAsc(newSortExpAsc);
-                    if (newSortExpAsc === true) {
-                      setLocalSortPriceAsc(null);
-                      setLocalSortUnitsAsc(null);
-                    }
-                  }}
-                  className="hidden"
-                />
-                <span
-                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                    localSortExpAsc === true
-                      ? "bg-mainButtonColor"
-                      : "border-gray-400"
-                  }`}
-                />
-                Ascending
-              </label>
-              <label
-                htmlFor="expiry_descending"
-                className="flex items-center flex-1"
-              >
-                <input
-                  type="checkbox"
-                  id="expiry_descending"
-                  checked={localSortExpAsc === false}
-                  onChange={() => {
-                    const newSortExpAsc =
-                      localSortExpAsc === false ? null : false;
-                    setLocalSortExpAsc(newSortExpAsc);
-                    if (newSortExpAsc === false) {
-                      setLocalSortPriceAsc(null);
-                      setLocalSortUnitsAsc(null);
-                    }
-                  }}
-                  className="hidden"
-                />
-                <span
-                  className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                    localSortExpAsc === false
-                      ? "bg-mainButtonColor"
-                      : "border-gray-400"
-                  }`}
-                />
-                Descending
-              </label>
-            </div>
-          </div>
         </>
       )}
-      <div className="mb-2">
-        <span className="w-full text-left px-2 flex justify-between items-center object-cover">
-          By Price
-        </span>
-        <div className="w-full border mb-2"></div>
 
-        <div className="w-full px-2">
-          <label
-            htmlFor="price_ascending"
-            className="flex items-center flex-1 mb-2"
-          >
-            <input
-              type="checkbox"
-              id="price_ascending"
-              checked={localSortPriceAsc === true}
-              onChange={() => {
-                const newSortPriceAsc =
-                  localSortPriceAsc === true ? null : true;
-                setLocalSortPriceAsc(newSortPriceAsc);
-                if (newSortPriceAsc === true) {
-                  setLocalSortUnitsAsc(null);
-                  setLocalSortExpAsc(null);
-                }
-              }}
-              className="hidden"
-            />
-            <span
-              className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                localSortPriceAsc === true
-                  ? "bg-mainButtonColor"
-                  : "border-gray-400"
-              }`}
-            />
-            Ascending
-          </label>
-          <label
-            htmlFor="price_descending"
-            className="flex items-center flex-1"
-          >
-            <input
-              type="checkbox"
-              id="price_descending"
-              checked={localSortPriceAsc === false}
-              onChange={() => {
-                const newSortPriceAsc =
-                  localSortPriceAsc === false ? null : false;
-                setLocalSortPriceAsc(newSortPriceAsc);
-                if (newSortPriceAsc === false) {
-                  setLocalSortUnitsAsc(null);
-                  setLocalSortExpAsc(null);
-                }
-              }}
-              className="hidden"
-            />
-            <span
-              className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
-                localSortPriceAsc === false
-                  ? "bg-mainButtonColor"
-                  : "border-gray-400"
-              }`}
-            />
-            Descending
-          </label>
+      {/* --------------------------------ASC/DESC----------------------------------- */}
+      {pathName.includes("admin") && (
+        <>
+          <div>
+            <button
+              className="w-full text-left p-2 flex justify-between items-center"
+              onClick={() => setOrderbyDropdownOpen((prev) => !prev)}
+            >
+              Sort By Order
+              <Image
+                src={supplierDropdownOpen ? upArrow : downArrow}
+                alt="arrow"
+                height={15}
+                width={15}
+              />
+            </button>
+            <div className="w-full border"></div>
+          </div>
+          {orderbyDropdownOpen && (
+            <div className="pl-2 mb-4">
+              <div className="mb-2">
+                <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+                  By Units
+                </span>
+                <div className="w-full border mb-2"></div>
+
+                <div className="w-full px-2">
+                  <label
+                    htmlFor="units_ascending"
+                    className="flex items-center flex-1 mb-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id="units_ascending"
+                      checked={localSortUnitsAsc === true}
+                      onChange={() => {
+                        const newSortUnitsAsc =
+                          localSortUnitsAsc === true ? null : true;
+                        setLocalSortUnitsAsc(newSortUnitsAsc);
+                        if (newSortUnitsAsc === true) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortExpAsc(null);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSortUnitsAsc === true
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    Ascending
+                  </label>
+                  <label
+                    htmlFor="units_descending"
+                    className="flex items-center flex-1"
+                  >
+                    <input
+                      type="checkbox"
+                      id="units_descending"
+                      checked={localSortUnitsAsc === false}
+                      onChange={() => {
+                        const newSortUnitsAsc =
+                          localSortUnitsAsc === false ? null : false;
+                        setLocalSortUnitsAsc(newSortUnitsAsc);
+                        if (newSortUnitsAsc === false) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortExpAsc(null);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSortUnitsAsc === false
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    Descending
+                  </label>
+                </div>
+              </div>
+
+              {/* exp sort */}
+              <div className="mb-2">
+                <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+                  By Expiry
+                </span>
+                <div className="w-full border mb-2"></div>
+
+                <div className="w-full px-2">
+                  <label
+                    htmlFor="expiry_ascending"
+                    className="flex items-center flex-1 mb-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id="expiry_ascending"
+                      checked={localSortExpAsc === true}
+                      onChange={() => {
+                        const newSortExpAsc =
+                          localSortExpAsc === true ? null : true;
+                        setLocalSortExpAsc(newSortExpAsc);
+                        if (newSortExpAsc === true) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortUnitsAsc(null);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSortExpAsc === true
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    Ascending
+                  </label>
+                  <label
+                    htmlFor="expiry_descending"
+                    className="flex items-center flex-1"
+                  >
+                    <input
+                      type="checkbox"
+                      id="expiry_descending"
+                      checked={localSortExpAsc === false}
+                      onChange={() => {
+                        const newSortExpAsc =
+                          localSortExpAsc === false ? null : false;
+                        setLocalSortExpAsc(newSortExpAsc);
+                        if (newSortExpAsc === false) {
+                          setLocalSortPriceAsc(null);
+                          setLocalSortUnitsAsc(null);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSortExpAsc === false
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    Descending
+                  </label>
+                </div>
+              </div>
+
+              <div className="mb-2">
+                <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+                  By Price
+                </span>
+                <div className="w-full border mb-2"></div>
+
+                <div className="w-full px-2">
+                  <label
+                    htmlFor="price_ascending"
+                    className="flex items-center flex-1 mb-2"
+                  >
+                    <input
+                      type="checkbox"
+                      id="price_ascending"
+                      checked={localSortPriceAsc === true}
+                      onChange={() => {
+                        const newSortPriceAsc =
+                          localSortPriceAsc === true ? null : true;
+                        setLocalSortPriceAsc(newSortPriceAsc);
+                        if (newSortPriceAsc === true) {
+                          setLocalSortUnitsAsc(null);
+                          setLocalSortExpAsc(null);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSortPriceAsc === true
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    Ascending
+                  </label>
+                  <label
+                    htmlFor="price_descending"
+                    className="flex items-center flex-1"
+                  >
+                    <input
+                      type="checkbox"
+                      id="price_descending"
+                      checked={localSortPriceAsc === false}
+                      onChange={() => {
+                        const newSortPriceAsc =
+                          localSortPriceAsc === false ? null : false;
+                        setLocalSortPriceAsc(newSortPriceAsc);
+                        if (newSortPriceAsc === false) {
+                          setLocalSortUnitsAsc(null);
+                          setLocalSortExpAsc(null);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <span
+                      className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                        localSortPriceAsc === false
+                          ? "bg-mainButtonColor"
+                          : "border-gray-400"
+                      }`}
+                    />
+                    Descending
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+      {pathName === "/" && (
+        <div className="mb-2">
+          <span className="w-full text-left px-2 flex justify-between items-center object-cover">
+            By Price
+          </span>
+          <div className="w-full border mb-2"></div>
+
+          <div className="w-full px-2">
+            <label
+              htmlFor="price_ascending"
+              className="flex items-center flex-1 mb-2"
+            >
+              <input
+                type="checkbox"
+                id="price_ascending"
+                checked={localSortPriceAsc === true}
+                onChange={() => {
+                  const newSortPriceAsc =
+                    localSortPriceAsc === true ? null : true;
+                  setLocalSortPriceAsc(newSortPriceAsc);
+                  if (newSortPriceAsc === true) {
+                    setLocalSortUnitsAsc(null);
+                    setLocalSortExpAsc(null);
+                  }
+                }}
+                className="hidden"
+              />
+              <span
+                className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                  localSortPriceAsc === true
+                    ? "bg-mainButtonColor"
+                    : "border-gray-400"
+                }`}
+              />
+              Ascending
+            </label>
+            <label
+              htmlFor="price_descending"
+              className="flex items-center flex-1"
+            >
+              <input
+                type="checkbox"
+                id="price_descending"
+                checked={localSortPriceAsc === false}
+                onChange={() => {
+                  const newSortPriceAsc =
+                    localSortPriceAsc === false ? null : false;
+                  setLocalSortPriceAsc(newSortPriceAsc);
+                  if (newSortPriceAsc === false) {
+                    setLocalSortUnitsAsc(null);
+                    setLocalSortExpAsc(null);
+                  }
+                }}
+                className="hidden"
+              />
+              <span
+                className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
+                  localSortPriceAsc === false
+                    ? "bg-mainButtonColor"
+                    : "border-gray-400"
+                }`}
+              />
+              Descending
+            </label>
+          </div>
         </div>
-      </div>
+      )}
       {/* Apply Button */}
       <button
-        className="bg-mainButtonColor text-white p-2 rounded-md mt-auto"
+        className={`${
+          fetchingProducts
+            ? "bg-mainButtonColorDisabled cursor-not-allowed"
+            : "bg-mainButtonColor cursor-pointer"
+        } text-white p-2 rounded-md mt-auto`}
         onClick={() => {
+          if (fetchingProducts) return;
           handleApplyFilters();
         }}
       >

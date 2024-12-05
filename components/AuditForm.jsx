@@ -158,7 +158,7 @@ const AuditForm = () => {
           <p className="col-span-full">No auditable inventories found</p>
         )}
       </form>
-      <div className="flex w-full flex-row-reverse">
+      <div className={`${loading ? "hidden" : "flex"} w-full flex-row-reverse`}>
         <button
           type="button"
           className={`bg-customerRibbonGreen text-white py-2 px-4 rounded-md w-fit mt-4 bg-mainButtonColor`}

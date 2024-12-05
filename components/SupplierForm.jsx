@@ -156,12 +156,6 @@ const SupplierForm = ({
     return supplierID ? "Edit Supplier" : "New Supplier";
   };
 
-  const getSubheaderMsg = () => {
-    return supplierID
-      ? `Edit the details of supplier ${supplier?.supplier_name}`
-      : "Make a new supplier for inventories";
-  };
-
   const deleteSupplier = async (spID) => {
     try {
       const response = await fetch(`/api/admin/supplier/${spID}`, {
@@ -200,11 +194,10 @@ const SupplierForm = ({
   }
 
   return (
-    <>
-      <div className="w-full sm:flex hidden px-2 mb-2 py-2">
+    <div className="relative">
+      <div className="w-full sm:flex hidden p-6 mb-2 sticky top-0 bg-modalTopBar z-10">
         <div className="w-full">
           <h1 className="text-2xl font-bold mr-auto">{getHeaderMsg()}</h1>
-          <h2 className="text-sm text-gray-500">{getSubheaderMsg()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "
@@ -223,7 +216,7 @@ const SupplierForm = ({
       <form
         action="createSupplier"
         onSubmit={handleSubmit}
-        className="flex flex-col w-full h-fit py-1 px-1"
+        className="flex flex-col w-full h-fit p-6 z-0"
       >
         <label htmlFor="supplier_name">
           Supplier Name<span className="text-red-500 text-sm">*</span>
@@ -318,7 +311,7 @@ const SupplierForm = ({
           )}
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import searchIcon from "@public/icons/search_icon.png";
 
-const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
+const SearchInput = ({ searchKeyword, setSearchKeyword, fetchingProducts }) => {
   const [localSearch, setLocalSearch] = useState(searchKeyword);
 
   useEffect(() => {
@@ -26,9 +26,12 @@ const SearchInput = ({ searchKeyword, setSearchKeyword }) => {
       <input
         type="text"
         placeholder="Search"
-        className="py-2 pl-10 pr-4 rounded-sm ring-0 focus:ring-2 focus:outline-none bg-[#ECE6F0] w-full"
+        className={`py-2 pl-10 pr-4 rounded-sm ring-0 focus:ring-2 focus:outline-none bg-[#ECE6F0] w-full ${
+          fetchingProducts ? "cursor-not-allowed" : ""
+        }`}
         value={localSearch}
         onChange={handleChange}
+        disabled={fetchingProducts}
       />
     </div>
   );

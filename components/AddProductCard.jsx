@@ -7,7 +7,7 @@ const AddProductCard = ({ setShowProductForm = () => {} }) => {
     <>
       <div className="sm:flex hidden">
         <button
-          className="flex flex-col justify-center gap-4 py-8 sm:px-8 px-4 w-full  items-center "
+          className="flex flex-col justify-center gap-4 py-8 px-4 w-full  items-center "
           onClick={() => setShowProductForm(true)}
         >
           <div className="flex gap-1 justify-center items-center bg-gray-100 border-2 border-dashed h-full border-mainButtonColor rounded-sm hover:bg-gray-200 cursor-pointer  duration-100 ease-in-out transition-all w-full">

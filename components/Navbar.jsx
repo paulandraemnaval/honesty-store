@@ -96,7 +96,7 @@ const Navbar = () => {
   return (
     <nav>
       {/* Desktop nav */}
-      <div className="px-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[14rem]">
+      <div className="px-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[12rem]">
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
           Honesty Store
         </p>
@@ -139,7 +139,10 @@ const Navbar = () => {
               width={25}
               className="object-contain"
             />
-            <Link href={href} className="flex-1 items-center ml-4">
+            <Link
+              href={href}
+              className="flex-1 items-center flex  text-sm ml-4"
+            >
               {label}
             </Link>
           </div>
@@ -148,40 +151,62 @@ const Navbar = () => {
         {/* Manage Button */}
         <div className={`w-full`}>
           <div
-            className={`w-full flex  p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm 
-            `}
+            className={`w-full flex p-2 cursor-pointer ${
+              showManage
+                ? "hover:bg-[#5A96F5] hover:text-white bg-mainButtonColor rounded-b-none"
+                : "hover:bg-mainButtonColor hover:text-white"
+            } transition-all duration-100 rounded-sm`}
             onClick={() => setShowManage((prev) => !prev)}
           >
             <Image
-              src={managementIcon}
+              src={showManage ? managementIconSelected : managementIcon}
               alt="manage_icon"
               height={20}
               width={25}
             />
-            <span className="flex-1 items-center ml-4 ">Manage</span>
+            <span
+              className={`flex-1 items-center ml-4 text-sm flex ${
+                showManage ? "text-white" : "text-black"
+              }`}
+            >
+              Manage
+            </span>
           </div>
 
           {/* Manage Links (Expanded Menu) */}
-          {showManage &&
-            manageLinks.map(({ href, label }) => (
-              <div
-                key={href}
-                className={`w-full flex py-[0.25rem] cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 ${
-                  pathName === href ? "bg-mainButtonColor text-white" : ""
-                }`}
-              >
-                <Link href={href} className="flex-1 items-center ml-4 ">
-                  {label}
-                </Link>
-              </div>
-            ))}
+          <div
+            className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
+              showManage
+                ? "max-h-[300px] scale-y-100 opacity-100"
+                : "max-h-0 scale-y-0 opacity-0"
+            } origin-top`}
+          >
+            <div className="bg-mainButtonColor p-2">
+              {manageLinks.map(({ href, label }) => (
+                <div
+                  key={href}
+                  className={`w-full flex py-2 cursor-pointer hover:bg-[#5A96F5] text-white transition-all duration-100 text-sm rounded-md mb-[0.2rem] ${
+                    pathName === href ? "bg-[#5A96F5] text-white" : ""
+                  }`}
+                >
+                  <Link href={href} className="flex-1 items-center ml-4">
+                    {label}
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Manage Accounts Button */}
         {user?.account_role === "1" && (
           <div className={`w-full`}>
             <div
-              className={`w-full flex bg-white p-2 cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 rounded-sm ${
+              className={`w-full flex p-2 cursor-pointer ${
+                showManageAccounts
+                  ? "hover:bg-[#5A96F5] hover:text-white bg-mainButtonColor rounded-b-none"
+                  : "hover:bg-mainButtonColor hover:text-white"
+              } transition-all duration-100 rounded-sm text-sm ${
                 pathName.startsWith("/admin/user/manage_accounts")
                   ? "text-navbarSelected"
                   : ""
@@ -189,28 +214,49 @@ const Navbar = () => {
               onClick={() => setShowManageAccounts((prev) => !prev)}
             >
               <Image
-                src={accountManagementIcon}
+                src={
+                  showManageAccounts
+                    ? accountManagementIconSelected
+                    : accountManagementIcon
+                }
                 alt="manage_accounts_icon"
                 height={20}
                 width={25}
               />
-              <span className="flex-1 items-center ml-4 ">Manage Accounts</span>
+              <span
+                className={`flex-1 items-center ml-4 flex justify-center ${
+                  showManageAccounts ? "text-white" : "text-black"
+                }`}
+              >
+                Manage Accounts
+              </span>
             </div>
 
             {/* Manage Accounts Links (Expanded Menu) */}
-            {showManageAccounts &&
-              manageAccountsLinks.map(({ href, label }) => (
-                <div
-                  key={href}
-                  className={`w-full flex py-[0.25rem] cursor-pointer hover:bg-mainButtonColor hover:text-white transition-all duration-100 ${
-                    pathName === href ? "text-navbarSelected" : ""
-                  }`}
-                >
-                  <Link href={href} className="flex-1 items-center ml-4 ">
-                    {label}
-                  </Link>
-                </div>
-              ))}
+            <div
+              className={`overflow-hidden transition-all duration-300 ease-in-out transform ${
+                showManageAccounts
+                  ? "max-h-[300px] scale-y-100 opacity-100"
+                  : "max-h-0 scale-y-0 opacity-0"
+              } origin-top`}
+            >
+              <div className="bg-mainButtonColor p-2">
+                {manageAccountsLinks.map(({ href, label }) => (
+                  <div
+                    key={href}
+                    className={`w-full flex py-2 cursor-pointer bg-mainButtonColor text-white hover:bg-[#5A96F5] transition-all duration-100 text-sm rounded-md mb-[0.2rem] ${
+                      pathName === href
+                        ? "text-navbarSelected bg-[#5A96F5]"
+                        : ""
+                    }`}
+                  >
+                    <Link href={href} className="flex-1 items-center ml-4">
+                      {label}
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -304,15 +350,18 @@ const Navbar = () => {
           </div>
 
           {/* Manage Dropdown (Expanded Menu) */}
+          {/* Manage Dropdown (Mobile) */}
           <div
-            className={`absolute bottom-full left-0 w-full bg-white transition-all duration-300 ease-in-out ${
-              showManage ? "flex flex-col" : "hidden"
-            }`}
+            className={`absolute bottom-full left-0 w-full bg-white overflow-hidden transition-all duration-300 ease-in-out transform ${
+              showManage
+                ? "max-h-[300px] scale-y-100 opacity-100"
+                : "max-h-0 scale-y-0 opacity-0"
+            } origin-bottom`}
           >
             {manageLinks.map(({ href, label }) => (
               <div
                 key={href}
-                className={`w-full flex  p-2 cursor-pointer ${
+                className={`w-full flex  p-2 cursor-pointer hover:bg-mainButtonColor text-black transition-all duration-100 ${
                   pathName === href ? "bg-mainButtonColor text-white" : ""
                 }`}
               >
@@ -329,9 +378,11 @@ const Navbar = () => {
           {/* Manage Accounts Dropdown (Expanded Menu) */}
           {user?.account_role === "1" && (
             <div
-              className={`absolute bottom-full left-0 w-full bg-white  ${
-                showManageAccounts ? "flex flex-col" : "hidden"
-              }`}
+              className={`absolute bottom-full left-0 w-full bg-white overflow-hidden transition-all duration-300 ease-in-out transform ${
+                showManageAccounts
+                  ? "max-h-[300px] scale-y-100 opacity-100"
+                  : "max-h-0 scale-y-0 opacity-0"
+              } origin-bottom`}
             >
               {manageAccountsLinks.map(({ href, label }) => (
                 <div
