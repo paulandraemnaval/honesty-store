@@ -261,7 +261,9 @@ const Navbar = () => {
         )}
       </div>
       {/* Mobile nav */}
+
       {/*--------------------------------mobile nav----------------------------------------*/}
+
       <div className="sm:hidden fixed bottom-0 w-full z-10 bg-white">
         <div className="relative">
           <div className="flex w-full py-2 px-2 justify-between">
@@ -312,7 +314,8 @@ const Navbar = () => {
             >
               <Image
                 src={
-                  pathName.includes("manage") || pathName.includes("report")
+                  pathName.includes("create_report") ||
+                  pathName.includes("create_audit")
                     ? managementIconSelected
                     : managementIcon
                 }

@@ -218,7 +218,12 @@ const ProductCard = ({
                   />
                 </button>
               </div>
-              <div className="sm:hidden flex">
+              <div
+                className="sm:hidden flex"
+                onClick={() => {
+                  console.log("lol");
+                }}
+              >
                 <Link
                   className="bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
                   href={`/admin/user/manage/create_inventory/${product.product_name}`}
