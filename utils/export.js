@@ -66,18 +66,32 @@ export const exportSheetToPDF = async (report, sheetTitle) => {
 
 //   xlsxStream.pipe(writableStream);
 // };
+const splitDate = (title) => {
+  // Assuming the title format is "Some Title - MM/DD/YY - MM/DD/YY"
+  const datePattern = /(\d{1,2}\/\d{1,2}\/\d{2}) - (\d{1,2}\/\d{1,2}\/\d{2})/;
+  const match = title.match(datePattern);
 
-const splitDate = (date) => {
-  const dateString = "11/15/24 - 12/01/24";
+  if (match) {
+    // Extract the date strings
+    const startDateString = match[1];
+    const endDateString = match[2];
 
-  // Split the string to get the two date parts
-  const dateParts = dateString.split(" - ");
+    // Parse the dates manually to avoid timezone issues
+    const startParts = startDateString.split("/");
+    const endParts = endDateString.split("/");
 
-  // Convert the date strings into Date objects
-  const firstDate = new Date(dateParts[0]);
-  const secondDate = new Date(dateParts[1]);
+    // Create Date objects using Date.UTC
+    const firstDate = new Date(
+      Date.UTC(2000 + parseInt(startParts[2]), startParts[0] - 1, startParts[1])
+    );
+    const secondDate = new Date(
+      Date.UTC(2000 + parseInt(endParts[2]), endParts[0] - 1, endParts[1])
+    );
 
-  return { start: firstDate, end: secondDate };
+    return { start: firstDate, end: secondDate };
+  } else {
+    return { start: null, end: null }; // or handle it as needed
+  }
 };
 
 export const getProfitData = async (report) => {
@@ -107,8 +121,9 @@ export const getProfitData = async (report) => {
         }
       }
     }
+    const date = splitDate(sheet.title);
 
-    profitData.push({ date: splitDate(sheet.title), total });
+    profitData.push({ date, total });
   }
 
   return profitData; // Return the collected sales data
