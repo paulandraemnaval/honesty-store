@@ -63,6 +63,14 @@ const InventoryReport = ({
     return !Object.values(errors).some((error) => error);
   };
 
+  const formatDate = (date) => {
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   const handleCreateInventoryReport = async () => {
     if (!validateDates()) return;
     try {
@@ -72,8 +80,32 @@ const InventoryReport = ({
       const request = await fetch(
         `/api/admin/date?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
       );
-      const response = await request.json();
-      console.log(response);
+      if (request.ok) {
+        const blob = await request.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Inventory Report from ${formatDate(start)} - ${formatDate(
+          end
+        )}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success("Inventory report created successfully", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      } else {
+        toast.error("No data found for the selected dates", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
     } catch (err) {
       console.error(err);
     } finally {

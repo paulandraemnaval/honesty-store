@@ -29,7 +29,6 @@ const ProductForm = ({
     product_uom: "\u00A0",
     product_reorder_point: "\u00A0",
     product_weight: "\u00A0",
-    product_weight_unit: "\u00A0",
     product_dimensions: "\u00A0",
   });
 
@@ -100,9 +99,6 @@ const ProductForm = ({
         Number(formData.get("product_weight")) > 0
           ? "\u00A0"
           : "Weight must be greater than 0.",
-      product_weight_unit: formData.get("product_weight_unit").trim()
-        ? "\u00A0"
-        : "Weight unit is required.",
       product_dimensions: formData.get("product_dimensions").trim()
         ? "\u00A0"
         : "Dimensions are required.",
@@ -134,12 +130,6 @@ const ProductForm = ({
     const formData = new FormData(e.target);
     formData.append("file", image.file);
     formData.append("product_category", selectedCategory);
-
-    const weight = `${formData.get("product_weight")} ${formData.get(
-      `product_weight_unit`
-    )}`;
-    formData.delete("product_weight_unit");
-    formData.set("product_weight", weight);
 
     setLoading(true);
     try {
@@ -177,12 +167,6 @@ const ProductForm = ({
     if (image.file) formData.append("file", image.file);
     formData.append("url", product?.product_image_url);
     formData.append("product_category", selectedCategory);
-
-    const weight = `${formData.get("product_weight")} ${formData.get(
-      "product_weight_unit"
-    )}`;
-    formData.delete("product_weight_unit");
-    formData.set("product_weight", weight);
 
     setLoading(true);
     try {
@@ -232,11 +216,6 @@ const ProductForm = ({
   const getHeaderText = () => {
     if (productID) return `Edit ${product?.product_name || ""}`;
     return "Create a new product";
-  };
-
-  const getSubHeaderText = () => {
-    if (productID) return "Edit product details";
-    return "Fill in the details to create a new product";
   };
 
   const parseWeight = (productWeight) => {
@@ -289,21 +268,23 @@ const ProductForm = ({
   };
 
   return (
-    <>
-      <div className="w-full sm:flex hidden px-1 mb-2 py-2">
+    <div className="relative">
+      <div className="w-full sm:flex hidden p-6 mb-2 sticky top-0 bg-modalTopBar z-10">
         <div className="w-full">
           <h1 className="text-xl font-bold mr-auto">{getHeaderText()}</h1>
-          <h2 className="text-sm text-gray-600">{getSubHeaderText()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "
-          onClick={() => setShowProductForm(false)}
+          onClick={() => {
+            setShowProductForm(false);
+            setEditingProductID("");
+          }}
         >
           <Image
             src={closeIcon}
             alt="close icon"
-            width={30}
-            height={30}
+            width={40}
+            height={40}
             className="self-end"
           />
         </div>
@@ -311,7 +292,7 @@ const ProductForm = ({
 
       <form
         onSubmit={handleSubmit}
-        className="flex flex-col w-full h-fit py-2 px-1 z-0"
+        className="flex flex-col w-full h-fit p-6 z-0"
       >
         <Image
           src={image.url || product?.product_image_url || placeholderImage}
@@ -452,24 +433,6 @@ const ProductForm = ({
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_weight}
         </p>
-        <label htmlFor="">
-          Product Weight Unit
-          <span className="text-red-600">*</span>
-        </label>
-        <input
-          type="text"
-          name="product_weight_unit"
-          placeholder="e.g. kg, g, lbs, etc."
-          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
-            loading ? "cursor-not-allowed" : ""
-          }`}
-          id="product_weight_unit"
-          defaultValue={""}
-          disabled={loading}
-        />
-        <p className="text-red-500 text-sm mb-2">
-          {validationMessages.product_weight_unit}
-        </p>
         <label htmlFor="product_dimension">
           Product Dimensions<span className="text-red-600">*</span>
         </label>
@@ -523,7 +486,7 @@ const ProductForm = ({
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

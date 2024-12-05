@@ -16,6 +16,7 @@ const CreateInventory = ({
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dataLoading, setDataLoading] = useState(false);
+  const [dataLoading2, setDataLoading2] = useState(false);
   const [supplierQuery, setSupplierQuery] = useState("");
   const [wholesalePrice, setWholesalePrice] = useState("");
   const [profitMargin, setProfitMargin] = useState("");
@@ -34,6 +35,7 @@ const CreateInventory = ({
   const [inventory, setInventory] = useState({});
   const [manualProfitMargin, setManualProfitMargin] = useState(false);
 
+  //for editing inventories
   useEffect(() => {
     if (!inventoryID) return;
     const fetchInventory = async () => {
@@ -110,11 +112,12 @@ const CreateInventory = ({
     }
   }, [wholesalePrice, profitMargin, manualRetailPrice]);
 
+  //for creating a new inventory for a product
   useEffect(() => {
     if (!productName) return;
     const fetchProduct = async () => {
       try {
-        setDataLoading(true);
+        setDataLoading2(true);
         const response = await fetch(`/api/admin/query?product=${productName}`);
         const data = await response.json();
         setSelectedProduct(
@@ -124,7 +127,7 @@ const CreateInventory = ({
         console.error("Failed to fetch product: ", error);
         setSelectedProduct(null);
       } finally {
-        setDataLoading(false);
+        setDataLoading2(false);
       }
     };
     fetchProduct();
@@ -252,7 +255,7 @@ const CreateInventory = ({
       });
       return;
     }
-    if (inventoryID) patchInventory(e);
+    if (inventoryID && productName) patchInventory(e);
     else postInventory(e);
   };
 
@@ -344,30 +347,20 @@ const CreateInventory = ({
   };
 
   const getHeaderMsg = () => {
-    if (inventoryID) return "Edit an existing inventory";
+    if (inventoryID) return `Edit an existing inventory of ${productName}`;
 
     return `Create an inventory for ${productName}`;
   };
 
-  const getSubheaderMsg = () => {
-    if (inventoryID) {
-      return `Edit Inventory of a product`;
-    } else if (productName) {
-      return `Make Inventory for ${productName}`;
-    }
-    return "Make Inventory";
-  };
-
-  if (dataLoading) {
+  if (dataLoading || dataLoading2) {
     return <Loading />;
   }
 
   return (
-    <>
-      <div className="w-full sm:flex hidden px-1 mb-2">
+    <div className="relative">
+      <div className="w-full sm:flex hidden p-6 mb-2 sticky top-0 bg-modalTopBar z-10">
         <div className="w-full">
-          <h1 className="text-2xl font-bold mr-auto">{getHeaderMsg()}</h1>
-          <h2 className="text-sm text-gray-600">{getSubheaderMsg()}</h2>
+          <h1 className="text-xl font-bold mr-auto">{getHeaderMsg()}</h1>
         </div>
         <div
           className="w-fit h-fit cursor-pointer "
@@ -389,7 +382,7 @@ const CreateInventory = ({
       </div>
       <form
         onSubmit={(e) => handleSubmit(e)}
-        className="flex flex-col w-full h-fit px-1 py-2"
+        className="flex flex-col w-full h-fit p-6 z-0"
       >
         <label htmlFor="inventory_supplier" className="ml-1">
           Supplier<span className="text-red-600">*</span>
@@ -644,7 +637,7 @@ const CreateInventory = ({
           )}
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

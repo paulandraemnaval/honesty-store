@@ -23,6 +23,7 @@ const MobileFilter = ({
   setMobileFilterExpanded = () => {},
   setShowInventoryReport = () => {},
   mobileFilterExpanded = false,
+  fetchingProducts = false,
 }) => {
   const pathname = usePathname();
 
@@ -476,7 +477,11 @@ const MobileFilter = ({
             {/* Apply Button */}
             <div className="w-full px-4 py-2 mt-auto flex flex-row-reverse z-50">
               <button
-                className="bg-mainButtonColor text-white p-2 rounded-md"
+                className={`${
+                  fetchingProducts
+                    ? "bg-mainButtonColorDisabled"
+                    : "bg-mainButtonColor"
+                } text-white p-2 rounded-md`}
                 onClick={handleApplyFilters}
               >
                 Apply Filter

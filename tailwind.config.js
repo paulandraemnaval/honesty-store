@@ -26,6 +26,8 @@ module.exports = {
         darkButtonBorder: "#8AB4F8",
         productInventoryEditable: "#DCE8F6",
         productInventoryEditableBorder: "#4285F4",
+
+        modalTopBar: "#3fccf1",
       },
     },
   },

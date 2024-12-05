@@ -249,20 +249,13 @@ const CategoryForm = ({
     return categoryID ? "Update Category" : "Create Category";
   };
 
-  const getSubheaderMsg = () => {
-    return categoryID
-      ? `Edit the details of category ${category?.category_name}`
-      : "Create a new category for products";
-  };
-
   if (dataLoading) return <Loading />;
 
   return (
-    <>
-      <div className="w-full sm:flex hidden px-1 mb-2 py-2">
+    <div className="relative">
+      <div className="w-full sm:flex hidden p-6 mb-2 sticky top-0 bg-modalTopBar z-10">
         <div className="w-full">
           <h1 className="text-xl font-bold mr-auto">{getHeaderMsg()}</h1>
-          <h2 className="text-sm text-gray-600">{getSubheaderMsg()}</h2>
         </div>
         <div
           className="w-fit h-fit cursor-pointer"
@@ -283,7 +276,7 @@ const CategoryForm = ({
       <form
         action=""
         onSubmit={(e) => handleSubmit(e)}
-        className="flex flex-col px-1 py-2"
+        className="flex flex-col w-full h-fit p-6 z-0"
       >
         <Image
           src={image?.url || image_placeholder}
@@ -374,7 +367,7 @@ const CategoryForm = ({
           )}
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

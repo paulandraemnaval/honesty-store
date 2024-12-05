@@ -12,6 +12,7 @@ const ProductInventories = ({
   setShowProductInventories = () => {},
   setShowInventoryForm = () => {},
   setEditingInventoryID = () => {},
+  setProductName = () => {},
 }) => {
   const [loading, setLoading] = useState(false);
   const [productInventories, setProductInventories] = useState([]);
@@ -60,8 +61,8 @@ const ProductInventories = ({
   }
 
   return (
-    <>
-      <div className="w-full flex sm:px-1 mb-2 sm:py-2">
+    <div className="relative">
+      <div className="w-full sm:flex hidden p-6 mb-2 sticky top-0 bg-modalTopBar z-10">
         <div className="w-full flex gap-2 items-center">
           <Link
             href="/admin/user/products"
@@ -71,11 +72,8 @@ const ProductInventories = ({
           </Link>
           <div className="flex flex-col">
             <h1 className="text-2xl font-bold mr-auto">
-              {product?.product_name}
+              {`Inventories of ${product?.product_name}`}
             </h1>
-            <h2 className="text-sm text-gray-600">
-              view and edit the inventories of a product
-            </h2>
           </div>
         </div>
 
@@ -92,9 +90,8 @@ const ProductInventories = ({
           />
         </div>
       </div>
-      <div className="w-full border mb-2"></div>
 
-      <div>
+      <div className="p-6">
         {productInventories.length === 0 && <div>No inventories found</div>}
         {productInventories.length > 0 && (
           <div className="h-full  flex flex-col">
@@ -140,6 +137,7 @@ const ProductInventories = ({
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent toggling expand on edit click
                           setEditingInventoryID(inventory.inventory_id);
+                          setProductName(product?.product_name);
                           setShowProductInventories(false);
                           setShowInventoryForm(true);
                         }}
@@ -230,7 +228,7 @@ const ProductInventories = ({
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
