@@ -18,7 +18,10 @@ export default function RootLayout({ children }) {
           property="og:description"
           content="The best store with the best prices!"
         />
-        <meta property="og:image" content="/metaIcons/open_graph_icon.png" />
+        <meta
+          property="og:image"
+          content="https://firebasestorage.googleapis.com/v0/b/fir-prac-3866d.appspot.com/o/undefined%2Fopen_graph_icon.png?alt=media&token=4f0a1ee3-f1c6-46a6-bd14-b37b83dbb0bc"
+        />
         <meta property="og:url" content="https://honesty-store.vercel.app" />
         <meta property="og:type" content="website" />
       </head>
