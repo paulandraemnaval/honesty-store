@@ -29,7 +29,7 @@ const userPage = () => {
     fetchDashboardData();
   }, []);
 
-  const chartHeight = 260; // Define a consistent height for both charts
+  const chartHeight = 250; // Define a consistent height for both charts
 
   const formatRevenue = (data) => {
     if (data > 1000) {
@@ -39,7 +39,7 @@ const userPage = () => {
   };
 
   return (
-    <div className="w-full px-4 py-2 flex flex-col sm:h-[calc(100vh-6rem)] h-[calc(100vh-10rem)] mt-2 z-0 custom-scrollbar">
+    <div className="w-full px-4 py-2 flex flex-col sm:h-[calc(100vh-7rem)] h-[calc(100vh-10rem)] mt-2 z-0 custom-scrollbar">
       {/* Header Section */}
       <div className="px-4">
         <span className="flex gap-2 items-center mb-2">
@@ -87,7 +87,7 @@ const userPage = () => {
           <div className="flex flex-col p-2 rounded-lg shadow-lg border border-gray-700 flex-1 ">
             <p className="text-xl font-semibold mb-4">Profit</p>
             {loading ? (
-              <div className="flex justify-center items-center h-[260px]">
+              <div className="flex justify-center items-center h-[250px]">
                 <ButtonLoading size="l" color="mainButtonColor" />
               </div>
             ) : (
@@ -108,7 +108,7 @@ const userPage = () => {
                   },
                 ]}
                 height={chartHeight}
-                margin={{ left: 60, right: 60, top: 30, bottom: 60 }}
+                margin={{ left: 40, right: 40, top: 10, bottom: 50 }}
               />
             )}
           </div>
@@ -117,7 +117,7 @@ const userPage = () => {
           <div className="flex flex-col p-2 rounded-lg shadow-lg border border-gray-700 flex-1 ">
             <p className="text-xl font-semibold mb-2">Sales</p>
             {loading ? (
-              <div className="flex justify-center items-center h-[260px]">
+              <div className="flex justify-center items-center h-[250px]">
                 <ButtonLoading size="l" color="mainButtonColor" />
               </div>
             ) : (
@@ -138,7 +138,7 @@ const userPage = () => {
                   },
                 ]}
                 height={chartHeight}
-                margin={{ left: 60, right: 60, top: 30, bottom: 60 }}
+                margin={{ left: 40, right: 40, top: 10, bottom: 50 }}
               />
             )}
           </div>
