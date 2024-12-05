@@ -313,12 +313,7 @@ const Navbar = () => {
             >
               <Image
                 src={
-<<<<<<< HEAD
-                  pathName.includes("create_report") ||
-                  pathName.includes("create_audit")
-=======
                   pathName.includes("manage/") || pathName.includes("report")
->>>>>>> 712af359f3047e8ea747bac371041d0a3ecd7fee
                     ? managementIconSelected
                     : managementIcon
                 }
