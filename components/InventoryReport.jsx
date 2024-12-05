@@ -64,10 +64,11 @@ const InventoryReport = ({
   };
 
   const formatDate = (date) => {
-    const options = { year: "2-digit", month: "2-digit", day: "2-digit" };
-    return new Intl.DateTimeFormat("en-US", options)
-      .format(date)
-      .replace(/\//g, "-");
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
   const handleCreateInventoryReport = async () => {
@@ -79,26 +80,32 @@ const InventoryReport = ({
       const request = await fetch(
         `/api/admin/date?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
       );
-      const response = await request.arrayBuffer();
-      const buffer = Buffer.from(response);
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(new Blob([buffer]));
-      link.download = `Inventories from ${formatDate(start)} to ${formatDate(
-        end
-      )}.pdf`;
-      link.click();
-      document.removeChild(link);
-
-      setStartDate(null);
-      setEndDate(null);
-
-      toast.success("Inventory report created successfully", {
-        duration: 3000,
-        style: {
-          fontSize: "1.2rem",
-          padding: "16px",
-        },
-      });
+      if (request.ok) {
+        const blob = await request.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Inventory Report from ${formatDate(start)} - ${formatDate(
+          end
+        )}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        toast.success("Inventory report created successfully", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      } else {
+        toast.error("No data found for the selected dates", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
     } catch (err) {
       console.error(err);
     } finally {

@@ -12,7 +12,7 @@ const ReportForm = () => {
   const [expandedStates, setExpandedStates] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [downloading, setDownloading] = useState(false);
+  const [downloadingStates, setDownloadingStates] = useState({});
 
   useEffect(() => {
     const getReports = async () => {
@@ -36,20 +36,13 @@ const ReportForm = () => {
     };
     getReports();
   }, [refresh]);
-
-  const formatDate = (date) => {
-    return new Date(date.seconds * 1000)
-      .toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "2-digit",
-      })
-      .replace(/\//g, "-");
-  };
-
   const handleExportPDF = async (reportID, startDate, lastUpdated) => {
     try {
-      setDownloading(true);
+      setDownloadingStates((prevStates) => ({
+        ...prevStates,
+        [reportID]: true,
+      }));
+
       console.log("Downloading report", reportID);
       const response = await fetch(`/api/admin/sheets/${reportID}`);
       const blob = await response.blob();
@@ -78,7 +71,10 @@ const ReportForm = () => {
       });
       console.log(err);
     } finally {
-      setDownloading(false);
+      setDownloadingStates((prevStates) => ({
+        ...prevStates,
+        [reportID]: false,
+      }));
     }
   };
 
@@ -150,7 +146,7 @@ const ReportForm = () => {
                 <div className="flex flex-row-reverse">
                   <button
                     className={`text-white ${
-                      downloading
+                      downloadingStates[report.report_id]
                         ? "cursor-not-allowed bg-mainButtonColorDisabled"
                         : "cursor-pointer bg-mainButtonColor"
                     } p-2 rounded-md w-fit`}
@@ -161,9 +157,9 @@ const ReportForm = () => {
                         formattedLastUpdatedDate
                       )
                     }
-                    disabled={downloading}
+                    disabled={downloadingStates[report.report_id]}
                   >
-                    {downloading ? (
+                    {downloadingStates[report.report_id] ? (
                       <ButtonLoading>Downloading...</ButtonLoading>
                     ) : (
                       "Export PDF"
