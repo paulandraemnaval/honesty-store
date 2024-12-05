@@ -50,8 +50,9 @@ const ProductInfo = ({ productID = "", productPrice = "" }) => {
       </div>
 
       <div className="w-full text-xl text-gray-700">
-        <span className="font-semibold text-gray-700">
-          Price: {productPrice}
+        Price:
+        <span className="font-bold text-2xl ml-2 text-gray-700">
+          {productPrice}
         </span>
       </div>
 
