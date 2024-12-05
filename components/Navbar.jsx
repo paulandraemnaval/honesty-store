@@ -94,7 +94,7 @@ const Navbar = () => {
   ];
 
   return (
-    <nav>
+    <nav className="z-50">
       {/* Desktop nav */}
       <div className="px-2 sm:flex hidden h-full items-center flex-col bg-navbarColor gap-3 py-4 w-[12rem]">
         <p className="text-center font-bold text-2xl bg-gradient-to-r from-gradientStart to-gradientEnd bg-clip-text text-transparent flex-start">
@@ -280,7 +280,7 @@ const Navbar = () => {
                     ? "bg-mainButtonColor"
                     : href === pathName
                     ? "bg-mainButtonColor"
-                    : ""
+                    : "bg-white"
                 }`}
                 onClick={() => {
                   setShowManage(false);
@@ -301,8 +301,7 @@ const Navbar = () => {
               className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md 
               ${
                 pathName.includes("create_audit") ||
-                pathName.includes("create_report") ||
-                pathName.includes("manage_account")
+                pathName.includes("create_report")
                   ? "bg-mainButtonColor"
                   : ""
               }
@@ -314,8 +313,12 @@ const Navbar = () => {
             >
               <Image
                 src={
+<<<<<<< HEAD
                   pathName.includes("create_report") ||
                   pathName.includes("create_audit")
+=======
+                  pathName.includes("manage/") || pathName.includes("report")
+>>>>>>> 712af359f3047e8ea747bac371041d0a3ecd7fee
                     ? managementIconSelected
                     : managementIcon
                 }
@@ -329,7 +332,7 @@ const Navbar = () => {
             {user?.account_role === "1" && (
               <div
                 className={`p-4 flex-1 flex items-center justify-center cursor-pointer rounded-md ${
-                  pathName === "/admin/user/manage_accounts/create"
+                  pathName.includes("manage_account")
                     ? "bg-mainButtonColor"
                     : ""
                 }`}
