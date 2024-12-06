@@ -16,11 +16,14 @@ export default function RootLayout({ children }) {
       </head>
       <body className="bg-backgroundMain">
         <Head>
-          {/* Basic metadata */}
-          <title>{metadata.title}</title>
-          <meta name="description" content={metadata.description} />
+          {/* Basic Metadata */}
+          <title>Honesty Store</title>
+          <meta
+            name="description"
+            content="Get the best prices on the products!"
+          />
 
-          {/* Open Graph metadata */}
+          {/* Open Graph Metadata */}
           <meta property="og:title" content="Honesty Store" />
           <meta
             property="og:description"
@@ -28,14 +31,14 @@ export default function RootLayout({ children }) {
           />
           <meta
             property="og:image"
-            content="https://firebasestorage.googleapis.com/v0/b/fir-prac-3866d.appspot.com/o/undefined%2Fopen_graph_icon.png?alt=media&token=8b96e64b-0b76-4eb9-8953-251f634b71c5"
+            content="https://honesty-store.vercel.app/metaIcons/open_graph_icon.png"
           />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta property="og:url" content="https://honesty-store.vercel.app" />
           <meta property="og:type" content="website" />
 
-          {/* Twitter Card metadata */}
+          {/* Twitter Card Metadata */}
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:title" content="Honesty Store" />
           <meta
@@ -44,7 +47,7 @@ export default function RootLayout({ children }) {
           />
           <meta
             name="twitter:image"
-            content="https://firebasestorage.googleapis.com/v0/b/fir-prac-3866d.appspot.com/o/undefined%2Fopen_graph_icon.png?alt=media&token=8b96e64b-0b76-4eb9-8953-251f634b71c5"
+            content="https://honesty-store.vercel.app/metaIcons/open_graph_icon.png"
           />
         </Head>
 
