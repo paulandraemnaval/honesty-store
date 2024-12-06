@@ -31,8 +31,8 @@ export default function RootLayout({ children }) {
           content="https://honesty-store.vercel.app/metaIcons/open_graph_icon.png"
         />
         <meta property="og:imgage:type" content="image/png" />
-        <meta property="og:image:width" content="300" />
-        <meta property="og:image:height" content="300" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:url" content="https://honesty-store.vercel.app" />
         <meta property="og:type" content="website" />
 
