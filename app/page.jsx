@@ -16,6 +16,7 @@ const Page = () => {
   const [fetchingProducts, setFetchingProducts] = useState(true);
   const [showingProduct, setShowingProduct] = useState("");
   const [productPrice, setProductPrice] = useState("");
+  const [mobileFilterExpanded, setMobileFilterExpanded] = useState(false);
 
   return (
     <>
@@ -26,7 +27,7 @@ const Page = () => {
         {/* Modal */}
         {showingProduct && (
           <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="flex justify-center items-center relative bg-white rounded-lg shadow-lg w-[90vw] sm:w-[60vw] max-w-[800px] min-h-[90vh] overflow-y-auto p-6 rise-and-fade">
+            <div className="flex justify-center items-center relative bg-white rounded-lg shadow-lg sm:w-[60vw] w-[85vw] h-[85vh] overflow-y-auto p-6 rise-and-fade">
               {/* Close Button */}
               <button
                 onClick={() => setShowingProduct("")}
@@ -61,12 +62,14 @@ const Page = () => {
                 fetchingProducts={fetchingProducts}
               />
             </div>
-            <div className="sm:hidden block z-20">
+            <div className="sm:hidden block z-30">
               <MobileFilter
                 setSelectedCategory={setSelectedCategory}
                 selectedCategory={selectedCategory}
                 setSortPriceAsc={setSortPriceAsc}
                 fetchingProducts={fetchingProducts}
+                setMobileFilterExpanded={setMobileFilterExpanded}
+                mobileFilterExpanded={mobileFilterExpanded}
               />
             </div>
           </div>
