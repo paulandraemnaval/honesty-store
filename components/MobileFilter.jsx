@@ -113,8 +113,6 @@ const MobileFilter = ({
               return prev;
             });
             setMobileFilterExpanded(true);
-            console.log(mobileFilterExpanded);
-            console.log("lamaw");
           }}
         >
           <Image src={FilterIcon} height={25} width={25} alt="filter_icon" />

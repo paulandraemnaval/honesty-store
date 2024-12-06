@@ -87,8 +87,6 @@ const ProductList = ({
           data?.inventories[data.inventories.length - 1]?.inventory.inventory_id
         );
 
-        console.log("data", data);
-
         setProductsWithNoInventories(data?.noInventory);
       } catch (error) {
         console.log("Failed to fetch products:", error);
