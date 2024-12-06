@@ -28,7 +28,7 @@ export default function RootLayout({ children }) {
           />
           <meta
             property="og:image"
-            content="https://honesty-store.vercel.app/metaIcons/open_graph_icon.png"
+            content="https://firebasestorage.googleapis.com/v0/b/fir-prac-3866d.appspot.com/o/undefined%2Fopen_graph_icon.png?alt=media&token=8b96e64b-0b76-4eb9-8953-251f634b71c5"
           />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
@@ -44,7 +44,7 @@ export default function RootLayout({ children }) {
           />
           <meta
             name="twitter:image"
-            content="https://honesty-store.vercel.app/metaIcons/open_graph_icon.png"
+            content="https://firebasestorage.googleapis.com/v0/b/fir-prac-3866d.appspot.com/o/undefined%2Fopen_graph_icon.png?alt=media&token=8b96e64b-0b76-4eb9-8953-251f634b71c5"
           />
         </Head>
 
