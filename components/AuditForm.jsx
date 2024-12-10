@@ -13,7 +13,7 @@ const AuditForm = () => {
   const [loading, setLoading] = useState(true);
   const [showSummary, setShowSummary] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [refreshForm, setRefreshForm] = useState(false); // New state to trigger re-render
+  const [refreshForm, setRefreshForm] = useState(false);
 
   useEffect(() => {
     const getInventories = async () => {
@@ -32,13 +32,13 @@ const AuditForm = () => {
       }
     };
     getInventories();
-  }, [refreshForm]); // Re-fetch inventories when the form is refreshed
+  }, [refreshForm]);
 
   const handleQuantityChange = (inventoryId, value) => {
-    setQuantities({
-      ...quantities,
-      [inventoryId]: value,
-    });
+    setQuantities((prev) => ({
+      ...prev,
+      [inventoryId]: value === quantities[inventoryId] ? "" : value,
+    }));
   };
 
   const validateQuantities = () => {
@@ -247,6 +247,7 @@ const AuditFormField = ({
     </div>
   );
 };
+
 const Summary = ({
   submitAudit,
   inventories,
@@ -267,29 +268,42 @@ const Summary = ({
             <div className="w-8 flex items-center justify-center"></div>
             <div className="flex-1 text-center">New</div>
           </div>
-          {inventories.map((prdwinv) => (
-            <div
-              key={prdwinv.inventory.inventory_id}
-              className="flex items-center p-2 border-b border-gray-200"
-            >
-              <div className="flex-1 truncate">
-                {prdwinv.product.product_name}
+          {inventories
+            .filter(
+              (prdwinv) =>
+                Object.keys(quantities).includes(
+                  prdwinv.inventory.inventory_id
+                ) &&
+                Number(quantities[prdwinv.inventory.inventory_id]) !==
+                  prdwinv.inventory.inventory_total_units
+            )
+            .map((prdwinv) => (
+              <div
+                key={prdwinv.inventory.inventory_id}
+                className="flex items-center p-2 border-b border-gray-200"
+              >
+                <div className="flex-1 truncate">
+                  {prdwinv.product.product_name}
+                </div>
+                <div className="flex-1 text-center">
+                  {prdwinv.inventory.inventory_total_units}
+                </div>
+                <div className="w-8 flex items-center justify-center">
+                  <span className="text-xl text-mainButtonColor">→</span>
+                </div>
+                <div className="flex-1 text-center">
+                  {quantities[prdwinv.inventory.inventory_id] || ""}
+                </div>
               </div>
-              <div className="flex-1 text-center">
-                {prdwinv.inventory.inventory_total_units}
-              </div>
-              <div className="w-8 flex items-center justify-center">
-                <span className="text-xl text-mainButtonColor">→</span>
-              </div>
-              <div className="flex-1 text-center">
-                {quantities[prdwinv.inventory.inventory_id] || "-"}
-              </div>
-            </div>
-          ))}
+            ))}
         </div>
         <div className="flex justify-between mt-4 w-full">
           <button
-            className={`bg-gray-300 text-black py-2 px-4 rounded-md hover:bg-gray-400 cursor-pointer`}
+            className={` text-black py-2 px-4 rounded-md ${
+              isProcessing
+                ? "cursor-not-allowed bg-gray-200 hover:bg-gray-200"
+                : "cursor-pointer bg-gray-300 hover:bg-gray-400"
+            }`}
             onClick={() => {
               handleShowSummary();
             }}

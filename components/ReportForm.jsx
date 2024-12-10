@@ -36,6 +36,7 @@ const ReportForm = () => {
     };
     getReports();
   }, [refresh]);
+
   const handleExportPDF = async (reportID, startDate, lastUpdated) => {
     try {
       setDownloadingStates((prevStates) => ({
@@ -203,8 +204,6 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
     try {
       setIsProcessing(true);
       const formData = new FormData();
-      formData.append("cashInflow", cashInflowValue);
-      formData.append("cashOutflow", cashOutflowValue);
       const request = await fetch("/api/admin/report", {
         method: "POST",
         body: formData,
@@ -306,7 +305,7 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
           className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border  ${
             errorMessages.cashInflow ? "border-red-500" : "border-gray-300"
           }`}
-          name="cashInflow"
+          name="cash_inflow"
         />
         {errorMessages.cashInflow && (
           <p className="text-red-500 text-sm mt-2">
@@ -325,7 +324,7 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
           className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border  ${
             errorMessages.cashOutflow ? "border-red-500" : "border-gray-300"
           }`}
-          name="cashOutflow"
+          name="cash_outflow"
         />
         {errorMessages.cashOutflow && (
           <p className="text-red-500 text-sm mt-2">
