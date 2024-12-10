@@ -288,7 +288,7 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
   };
 
   return (
-    <div className="fixed  h-full sm:w-[calc(100vw-14rem)] w-full bg-black bg-opacity-50 flex justify-center items-center top-0 right-0">
+    <div className="fixed  h-full sm:w-[calc(100vw-12rem)] w-full bg-black bg-opacity-50 flex justify-center items-center top-0 right-0">
       <form
         className="w-[20rem] gap-2 flex flex-col shadow-md rounded-md p-4 bg-white"
         onSubmit={(e) => handleCreateReport(e)}
