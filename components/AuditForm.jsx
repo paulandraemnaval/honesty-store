@@ -255,6 +255,13 @@ const Summary = ({
   isProcessing,
   handleShowSummary,
 }) => {
+  const inv = inventories.filter(
+    (prdwinv) =>
+      Object.keys(quantities).includes(prdwinv.inventory.inventory_id) &&
+      Number(quantities[prdwinv.inventory.inventory_id]) !==
+        prdwinv.inventory.inventory_total_units
+  );
+
   return (
     <div className="fixed  h-full sm:w-[calc(100vw-14rem)] w-full bg-black bg-opacity-50 flex justify-center items-center top-0 right-0 ">
       <div className="w-[40rem] max-h-[80vh] rounded-md shadow-md py-6 px-4 bg-white overflow-hidden relative mt-0 sm:mt-20">
@@ -268,16 +275,12 @@ const Summary = ({
             <div className="w-8 flex items-center justify-center"></div>
             <div className="flex-1 text-center">New</div>
           </div>
-          {inventories
-            .filter(
-              (prdwinv) =>
-                Object.keys(quantities).includes(
-                  prdwinv.inventory.inventory_id
-                ) &&
-                Number(quantities[prdwinv.inventory.inventory_id]) !==
-                  prdwinv.inventory.inventory_total_units
-            )
-            .map((prdwinv) => (
+          {inv.length === 0 ? (
+            <div className="flex justify-center items-center p-4">
+              <p className="text-black">No changes made</p>
+            </div>
+          ) : (
+            inv.map((prdwinv) => (
               <div
                 key={prdwinv.inventory.inventory_id}
                 className="flex items-center p-2 border-b border-gray-200"
@@ -295,7 +298,8 @@ const Summary = ({
                   {quantities[prdwinv.inventory.inventory_id] || ""}
                 </div>
               </div>
-            ))}
+            ))
+          )}
         </div>
         <div className="flex justify-between mt-4 w-full">
           <button
@@ -316,7 +320,9 @@ const Summary = ({
               isProcessing
                 ? "bg-mainButtonColorDisabled cursor-not-allowed"
                 : "bg-mainButtonColor  hover:bg-mainButtonColorHover"
-            }`}
+            } 
+            ${inv.length === 0 ? "hidden" : ""}    
+            `}
             onClick={(e) => {
               e.stopPropagation();
               submitAudit(e);
