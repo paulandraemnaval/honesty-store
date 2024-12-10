@@ -24,6 +24,8 @@ const ProductList = ({
   setShowProductInventories = () => {},
   setShowInventoryReport = () => {},
   setFetchingProducts = () => {},
+  setShowingProduct = () => {},
+  setProductPrice = () => {},
 }) => {
   const [productsWithInventories, setProductsWithInventories] = useState([]);
 
@@ -293,7 +295,13 @@ const ProductList = ({
                   cardkey={prdwinv.product_id}
                   pathName={pathname}
                   editingProductID={editingProductID}
-                  productPrice={`₱${prdwinv.inventory.inventory_retail_price}`}
+                  productPrice={
+                    Number(prdwinv.inventory.inventory_retail_price) % 1 === 0
+                      ? `₱${prdwinv.inventory.inventory_retail_price}`
+                      : `₱${Number(
+                          prdwinv.inventory.inventory_retail_price
+                        ).toFixed(2)}`
+                  }
                   productStock={`${prdwinv.inventory.inventory_total_units} units`}
                   productInventoryExpiration={expirationDate}
                   product={prdwinv.product}
@@ -303,6 +311,8 @@ const ProductList = ({
                   setEditingProductID={setEditingProductID}
                   setShowProductInventories={setShowProductInventories}
                   setShowInventoryReport={setShowInventoryReport}
+                  setShowingProduct={setShowingProduct}
+                  setProductPrice={setProductPrice}
                 />
               );
             })

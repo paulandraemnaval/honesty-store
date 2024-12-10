@@ -20,6 +20,8 @@ const ProductCard = ({
   setEditingProductID = () => {},
   setShowProductInventories = () => {},
   setShowInventoryReport = () => {},
+  setShowingProduct = () => {},
+  setProductPrice = () => {},
 }) => {
   const hasNoInventory = productStock === "No inventory";
 
@@ -50,9 +52,13 @@ const ProductCard = ({
       key={cardkey}
       className={`relative p-4 rounded-sm shadow-lg border-2 ${
         hasNoInventory ? "bg-gray-100" : "bg-white"
-      }`}
+      } sm:hover:shadow-xl duration-200 ease-in-out transition-all scale-100 sm:hover:scale-105 sm:hover:bg-slate-100`}
+      onClick={(e) => {
+        e.stopPropagation();
+        setShowingProduct(product.product_id);
+        setProductPrice(productPrice);
+      }}
     >
-      {/* Overlay for No Inventory */}
       {hasNoInventory && (
         <div className="absolute inset-0 bg-gray-200 bg-opacity-10 z-10 pointer-events-none"></div>
       )}
@@ -99,7 +105,8 @@ const ProductCard = ({
           {/* Mobile Dropdown */}
           <div
             className="bg-mainButtonColor p-2 w-full h-fit flex sm:hidden flex-col gap-2 ml-auto"
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setEditingProductID("");
             }}
           >
@@ -129,7 +136,7 @@ const ProductCard = ({
         </div>
       )}
 
-      <div className="flex flex-col justify-center z-20">
+      <div className="flex flex-col justify-center h-full z-20">
         {pathName.includes("admin") && (
           <div className="flex">
             <div
@@ -151,7 +158,8 @@ const ProductCard = ({
             </div>
             <div
               className="object-cover p-1 rounded-md flex"
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setEditingProductID(product.product_id);
                 setShowInventoryReport(false);
               }}
@@ -166,18 +174,24 @@ const ProductCard = ({
             </div>
           </div>
         )}
-        <div className="flex justify-center sm:h-[10rem] h-[6rem]">
+        <div className="flex justify-center ">
           <Image
             src={product.product_image_url || PlaceholderImage}
-            alt={product.product_name}
+            alt={product.product_name || "Product Image"}
             width={150}
             height={170}
-            className="object-scale-down"
+            className="object-scale-down "
           />
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col mt-auto">
           <span className="text-base truncate">{product.product_name}</span>
-          <span className="text-lg font-semibold">{productPrice}</span>
+          <span
+            className={`text-lg font-semibold ${
+              pathName.includes("admin") ? "" : "ml-auto"
+            } `}
+          >
+            {productPrice}
+          </span>
         </div>
         <div className="flex justify-center items-center gap-2">
           {pathName === "/admin/user/products" && (
@@ -188,7 +202,8 @@ const ProductCard = ({
               <div className="sm:flex hidden">
                 <button
                   className="bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
-                  onClick={() => {
+                  onClick={(e) => {
+                    e.stopPropagation();
                     setProductName(product.product_name);
                     setShowInventoryForm(true);
                     console.log(product.product_name);
@@ -203,7 +218,12 @@ const ProductCard = ({
                   />
                 </button>
               </div>
-              <div className="sm:hidden flex">
+              <div
+                className="sm:hidden flex"
+                onClick={() => {
+                  console.log("lol");
+                }}
+              >
                 <Link
                   className="bg-gray-100 object-cover p-1 rounded-md flex border-dashed border-2 border-mainButtonColor"
                   href={`/admin/user/manage/create_inventory/${product.product_name}`}

@@ -23,7 +23,7 @@ const MobileFilter = ({
   setMobileFilterExpanded = () => {},
   setShowInventoryReport = () => {},
   mobileFilterExpanded = false,
-  fetchingProducts = false,
+  fetchingProducts = true,
 }) => {
   const pathname = usePathname();
 
@@ -106,13 +106,15 @@ const MobileFilter = ({
     <>
       <div className="flex">
         <div
-          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor  rounded-sm font-semibold text-white"
+          className="object-cover flex gap-1 items-center justify-center px-2 py-2 bg-mainButtonColor  rounded-sm font-semibold text-white z-30"
           onClick={() => {
             setShowInventoryReport((prev) => {
               if (prev === true) return !prev;
               return prev;
             });
-            setMobileFilterExpanded((prev) => !prev);
+            setMobileFilterExpanded(true);
+            console.log(mobileFilterExpanded);
+            console.log("lamaw");
           }}
         >
           <Image src={FilterIcon} height={25} width={25} alt="filter_icon" />
@@ -129,7 +131,7 @@ const MobileFilter = ({
             pathname.includes("admin")
               ? "h-[calc(100vh-9.5rem)] top-[5rem]"
               : "h-[calc(100vh-4rem)] top-[4rem]"
-          } w-[100vw] fixed  right-0 bg-[rgba(120,120,120,0.75)] flex flex-col items-end z-10 `}
+          } w-[100vw] fixed  right-0 bg-[rgba(120,120,120,0.75)] flex flex-col items-end z-50 `}
         >
           <div className="w-[85vw] flex flex-col bg-white h-full overflow-y-auto">
             {/* Header */}
