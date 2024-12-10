@@ -263,7 +263,7 @@ const Summary = ({
   );
 
   return (
-    <div className="fixed  h-full sm:w-[calc(100vw-14rem)] w-full bg-black bg-opacity-50 flex justify-center items-center top-0 right-0 ">
+    <div className="fixed  h-full sm:w-[calc(100vw-12rem)] w-full bg-black bg-opacity-50 flex justify-center items-center top-0 right-0 ">
       <div className="w-[40rem] max-h-[80vh] rounded-md shadow-md py-6 px-4 bg-white overflow-hidden relative mt-0 sm:mt-20">
         <h2 className="text-xl font-semibold mb-4 text-center">
           Audit Summary
