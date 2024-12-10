@@ -204,6 +204,8 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
     try {
       setIsProcessing(true);
       const formData = new FormData();
+      formData.append("cash_inflow", cashInflowValue);
+      formData.append("cash_outflow", cashOutflowValue);
       const request = await fetch("/api/admin/report", {
         method: "POST",
         body: formData,
