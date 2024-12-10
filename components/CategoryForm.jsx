@@ -12,6 +12,8 @@ const CategoryForm = ({
   setShowCategoryForm = () => {},
   categoryID = "",
   redirectURL = "",
+  setDeleteFunc = () => {},
+  setShowDeleteModal = () => {},
 }) => {
   const router = useRouter();
   const [image, setImage] = useState({
@@ -359,8 +361,11 @@ const CategoryForm = ({
           {categoryID && (
             <button
               type="button"
-              className="text-red-600 white w-fit p-2 "
-              onClick={() => handleCategoryDelete(categoryID)}
+              className="text-red-600 white w-fit p-2 bg-transparent"
+              onClick={() => {
+                setDeleteFunc(() => () => handleCategoryDelete(categoryID));
+                setShowDeleteModal(true);
+              }}
             >
               Delete Category
             </button>

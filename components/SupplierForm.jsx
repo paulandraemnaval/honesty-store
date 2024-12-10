@@ -12,6 +12,8 @@ const SupplierForm = ({
   setShowSupplierForm,
   supplierID = "",
   redirectURL = "",
+  setDeleteFunc = () => {},
+  setShowDeleteModal = () => {},
 }) => {
   const router = useRouter();
   const [validationMessages, setValidationMessages] = useState({
@@ -177,11 +179,7 @@ const SupplierForm = ({
         });
       }
     } catch (err) {
-      console.error("Failed to delete supplier. Please try again");
-      toast.error("Failed to delete supplier. Please try again later.", {
-        duration: 3000,
-        style: { fontSize: "1.2rem", padding: "16px" },
-      });
+      console.error(err);
     }
   };
 
@@ -303,8 +301,11 @@ const SupplierForm = ({
           {supplierID && (
             <button
               type="button"
-              className="text-red-600 bg-white p-2"
-              onClick={() => handleSupplierDelete(supplierID)}
+              className="text-red-600 p-2"
+              onClick={() => {
+                setDeleteFunc(() => () => handleSupplierDelete(supplierID));
+                setShowDeleteModal(true);
+              }}
             >
               Delete Supplier
             </button>

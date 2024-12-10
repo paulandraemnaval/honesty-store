@@ -11,6 +11,8 @@ const CreateInventory = ({
   inventoryID = "",
   setEditingInventoryID = () => {},
   setShowProductInventories = () => {},
+  setDeleteFunc = () => {},
+  setShowDeleteModal = () => {},
 }) => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
@@ -628,7 +630,8 @@ const CreateInventory = ({
             <button
               className="bg-transparent text-red-600 rounded-lg p-2"
               onClick={() => {
-                handleDelete();
+                setDeleteFunc(() => handleDelete);
+                setShowDeleteModal(true);
               }}
               type="button"
             >

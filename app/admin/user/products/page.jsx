@@ -7,7 +7,7 @@ import MobileFilter from "@components/MobileFilter";
 import Loading from "@components/Loading";
 import InventoryReport from "@components/InventoryReport";
 import ProductList from "@components/ProductList";
-
+import DeleteModal from "@components/DeleteModal";
 const InventoryForm = lazy(() => import("@components/InventoryForm"));
 const ProductForm = lazy(() => import("@components/ProductForm"));
 const CategoryForm = lazy(() => import("@components/CategoryForm"));
@@ -45,6 +45,9 @@ const productspage = () => {
 
   const [fetchingProducts, setFetchingProducts] = useState(true);
 
+  const [deleteFunc, setDeleteFunc] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const showPopover =
     showInventoryForm ||
     showProductForm ||
@@ -52,6 +55,9 @@ const productspage = () => {
     showSupplierForm ||
     showProductInventories;
 
+  useEffect(() => {
+    console.log("deleteFunc changed", deleteFunc);
+  }, [deleteFunc]);
   return (
     <div className="w-full px-2 flex sm:h-[calc(100vh-5rem)] h-[calc(100vh-9.5rem)] relative">
       {showPopover && (
@@ -65,6 +71,8 @@ const productspage = () => {
                   inventoryID={editingInventoryID}
                   setEditingInventoryID={setEditingInventoryID}
                   setShowProductInventories={setShowProductInventories}
+                  setDeleteFunc={setDeleteFunc}
+                  setShowDeleteModal={setShowDeleteModal}
                 />
               )}
 
@@ -73,6 +81,8 @@ const productspage = () => {
                   productID={editingProductID}
                   setShowProductForm={setShowProductForm}
                   setEditingProductID={setEditingProductID}
+                  setDeleteFunc={setDeleteFunc}
+                  setShowDeleteModal={setShowDeleteModal}
                 />
               )}
 
@@ -81,6 +91,8 @@ const productspage = () => {
                   setShowCategoryForm={setShowCategoryForm}
                   categoryID={editingCategoryID}
                   redirectURL=""
+                  setDeleteFunc={setDeleteFunc}
+                  setShowDeleteModal={setShowDeleteModal}
                 />
               )}
 
@@ -89,6 +101,8 @@ const productspage = () => {
                   setShowSupplierForm={setShowSupplierForm}
                   supplierID={editingSupplierID}
                   redirectURL=""
+                  setDeleteFunc={setDeleteFunc}
+                  setShowDeleteModal={setShowDeleteModal}
                 />
               )}
 
@@ -99,7 +113,20 @@ const productspage = () => {
                   setShowInventoryForm={setShowInventoryForm}
                   setEditingInventoryID={setEditingInventoryID}
                   setProductName={setProductName}
+                  setDeleteFunc={setDeleteFunc}
+                  setShowDeleteModal={setShowDeleteModal}
                 />
+              )}
+              {showDeleteModal && (
+                <div className="sticky h-full z-10 inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                  <div className="bg-white rounded-lg shadow-lg w-fit h-fit p-6">
+                    <DeleteModal
+                      setShowDeleteModal={setShowDeleteModal}
+                      handleDeleteEntity={deleteFunc}
+                      setDeleteFunc={setDeleteFunc}
+                    />
+                  </div>
+                </div>
               )}
             </Suspense>
           </div>

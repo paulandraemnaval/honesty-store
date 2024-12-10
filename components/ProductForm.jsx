@@ -10,6 +10,8 @@ const ProductForm = ({
   productID = "",
   setShowProductForm = () => {},
   setEditingProductID = () => {},
+  setShowDeleteModal = () => {},
+  setDeleteFunc = () => {},
 }) => {
   const [image, setImage] = useState({
     file: null,
@@ -477,13 +479,25 @@ const ProductForm = ({
               "Add Product"
             )}
           </button>
-          <button
-            className="rounded-lg bg-transparent text-red-600 p-2"
-            type="button"
-            onClick={() => handleDelete()}
-          >
-            Delete Product
-          </button>
+          {productID && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowDeleteModal(true);
+                setDeleteFunc(() => handleDelete);
+              }}
+              className={`w-fit p-2 bg-transparent text-red-600 rounded-md text-sm flex items-center justify-center gap-1 ${
+                loading ? "opacity-60" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? (
+                <ButtonLoading>Processing...</ButtonLoading>
+              ) : (
+                "Delete Product"
+              )}
+            </button>
+          )}
         </div>
       </form>
     </div>
