@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import downArrow from "@public/icons/down_arrow_icon.png";
 import upArrow from "@public/icons/up_arrow_icon.png";
@@ -12,7 +12,32 @@ const ReportForm = () => {
   const [expandedStates, setExpandedStates] = useState({});
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [lastVisible, setLastVisible] = useState(null);
   const [downloadingStates, setDownloadingStates] = useState({});
+  const [fetchMoreReports, setFetchMoreReports] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          getMoreReports();
+        }
+      },
+      { threshold: 1 }
+    );
+
+    if (sentinelRef.current) {
+      observer.observe(sentinelRef.current);
+    }
+
+    return () => {
+      if (sentinelRef.current) {
+        observer.unobserve(sentinelRef.current);
+      }
+    };
+  }, [lastVisible, fetchMoreReports]);
 
   useEffect(() => {
     const getReports = async () => {
@@ -27,6 +52,7 @@ const ReportForm = () => {
         const data = await response.json();
         if (response.ok) {
           setReports(Array.isArray(data?.reports) ? data.reports : []);
+          setLastVisible(data?.reports[data?.reports.length - 1]?.report_id);
         } else setReports([]);
       } catch (err) {
         console.log(err);
@@ -90,98 +116,134 @@ const ReportForm = () => {
     setShowFlowUI((prev) => !prev);
   };
 
+  const getMoreReports = async () => {
+    if (!fetchMoreReports) return;
+    setLoadingMore(true);
+    try {
+      const response = await fetch("/api/admin/report", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lastVisible }),
+      });
+      const data = await response.json();
+
+      if (response.ok && data?.reports.length > 0) {
+        setReports((prevReports) => [...prevReports, ...data.reports]);
+        setLastVisible(data?.reports[data?.reports.length - 1]?.report_id);
+      } else {
+        setFetchMoreReports((prev) => !prev);
+        return;
+      }
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   if (loading) {
     return <Loading />;
   }
   return (
-    <div className="gap-2 flex flex-col">
-      <h1 className="text-lg">Report History</h1>
-      {reports?.map((report) => {
-        const startDate = new Date(report.report_start_date.seconds * 1000);
-        const lastUpdatedDate = new Date(
-          report.report_last_updated.seconds * 1000
-        );
+    <div className="gap-2 flex flex-col py-4">
+      <div className="flex w-full items-center justify-between">
+        <h1 className="text-lg">Report History</h1>
+        <button
+          className="text-white bg-mainButtonColor p-2 rounded-md w-fit self-end"
+          onClick={() => handleShowCFUI()}
+        >
+          Create Report
+        </button>
+      </div>
+      <div className="flex-1 gap-2  flex flex-col">
+        {reports?.map((report, index) => {
+          const startDate = new Date(report.report_start_date.seconds * 1000);
+          const lastUpdatedDate = new Date(
+            report.report_last_updated.seconds * 1000
+          );
 
-        const formattedStartDate = startDate.toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "2-digit",
-        });
-        const formattedLastUpdatedDate = lastUpdatedDate.toLocaleDateString(
-          "en-US",
-          {
+          const formattedStartDate = startDate.toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
             day: "2-digit",
-          }
-        );
+          });
+          const formattedLastUpdatedDate = lastUpdatedDate.toLocaleDateString(
+            "en-US",
+            {
+              year: "numeric",
+              month: "short",
+              day: "2-digit",
+            }
+          );
 
-        return (
-          <div key={report.report_id}>
-            <div
-              className={`w-full border rounded-sm p-4 flex flex-col sm:hover:bg-gray-100 cursor-pointer transition-colors bg-white`}
-              onClick={() => toggleExpand(report.report_id)}
-            >
-              <div className="flex items-center">
-                <span className="mr-auto">
-                  {`${formattedStartDate} - ${formattedLastUpdatedDate}`}
-                </span>
-                <Image
-                  src={expandedStates[report.report_id] ? upArrow : downArrow}
-                  alt="arrow"
-                  height={20}
-                  width={20}
-                />
+          return (
+            <div key={index}>
+              <div
+                className={`w-full border rounded-sm p-4 flex flex-col sm:hover:bg-gray-100 cursor-pointer transition-colors bg-white`}
+                onClick={() => toggleExpand(report.report_id)}
+              >
+                <div className="flex items-center">
+                  <span className="mr-auto">
+                    {`${formattedStartDate} - ${formattedLastUpdatedDate}`}
+                  </span>
+                  <Image
+                    src={expandedStates[report.report_id] ? upArrow : downArrow}
+                    alt="arrow"
+                    height={20}
+                    width={20}
+                  />
+                </div>
               </div>
+              {expandedStates[report.report_id] && (
+                <div className="p-4 bg-gray-50 shadow-md flex flex-col">
+                  <div className="mb-2">
+                    <span className="font-semibold">Cash Inflow:</span>{" "}
+                    {report.report_cash_inflow}
+                  </div>
+                  <div className="mb-2">
+                    <span className="font-semibold">Cash Outflow:</span>{" "}
+                    {report.report_cash_outflow}
+                  </div>
+                  <div className="flex flex-row-reverse">
+                    <button
+                      className={`text-white ${
+                        downloadingStates[report.report_id]
+                          ? "cursor-not-allowed bg-mainButtonColorDisabled"
+                          : "cursor-pointer bg-mainButtonColor"
+                      } p-2 rounded-md w-fit`}
+                      onClick={() =>
+                        handleExportPDF(
+                          report.report_id,
+                          formattedStartDate,
+                          formattedLastUpdatedDate
+                        )
+                      }
+                      disabled={downloadingStates[report.report_id]}
+                    >
+                      {downloadingStates[report.report_id] ? (
+                        <ButtonLoading>Downloading...</ButtonLoading>
+                      ) : (
+                        "Export PDF"
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-            {expandedStates[report.report_id] && (
-              <div className="p-4 bg-gray-50 shadow-md flex flex-col">
-                <div className="mb-2">
-                  <span className="font-semibold">Cash Inflow:</span>{" "}
-                  {report.report_cash_inflow}
-                </div>
-                <div className="mb-2">
-                  <span className="font-semibold">Cash Outflow:</span>{" "}
-                  {report.report_cash_outflow}
-                </div>
-                <div className="flex flex-row-reverse">
-                  <button
-                    className={`text-white ${
-                      downloadingStates[report.report_id]
-                        ? "cursor-not-allowed bg-mainButtonColorDisabled"
-                        : "cursor-pointer bg-mainButtonColor"
-                    } p-2 rounded-md w-fit`}
-                    onClick={() =>
-                      handleExportPDF(
-                        report.report_id,
-                        formattedStartDate,
-                        formattedLastUpdatedDate
-                      )
-                    }
-                    disabled={downloadingStates[report.report_id]}
-                  >
-                    {downloadingStates[report.report_id] ? (
-                      <ButtonLoading>Downloading...</ButtonLoading>
-                    ) : (
-                      "Export PDF"
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
+          );
+        })}
+        {fetchMoreReports && (
+          <div id="sentinel" ref={sentinelRef} className="border w-full"></div>
+        )}
+        {loadingMore && (
+          <div className="flex justify-center items-center h-12">
+            <Loading />
           </div>
-        );
-      })}
-
+        )}
+      </div>
       {showFlowUI && (
         <FlowUI handleShowCFUI={handleShowCFUI} setRefresh={setRefresh} />
       )}
-      <button
-        className="text-white bg-mainButtonColor p-2 rounded-md w-fit self-end"
-        onClick={() => handleShowCFUI()}
-      >
-        Create Report
-      </button>
     </div>
   );
 };
