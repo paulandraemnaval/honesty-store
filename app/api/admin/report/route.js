@@ -203,12 +203,12 @@ export async function PATCH(request) {
       }
       q = query(
         reportRef,
-        orderBy("report_timestamp"),
+        orderBy("report_timestamp", "desc"),
         startAfter(lastDocSnapshot),
         limit(10)
       );
     } else {
-      q = query(reportRef, orderBy("report_timestamp"), limit(10));
+      q = query(reportRef, orderBy("report_timestamp", "desc"), limit(10));
     }
     const snapshot = await getDocs(q);
     const reports = snapshot.docs.map((doc) => doc.data());
