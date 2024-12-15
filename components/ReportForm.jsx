@@ -414,8 +414,11 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
           </button>
           <button
             type="button"
-            className="p-2 rounded text-black"
+            className={`p-2 rounded-md ${
+              isProcessing ? "bg-gray-300" : "bg-transparent"
+            } text-black`}
             onClick={() => handleShowCFUI()}
+            disabled={isProcessing}
           >
             Cancel
           </button>

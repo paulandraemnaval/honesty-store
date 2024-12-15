@@ -23,15 +23,12 @@ const ProductForm = ({
   const [dataLoading, setDataLoading] = useState(false);
   const [categoryName, setCategoryName] = useState("");
   const [categoryValid, setCategoryValid] = useState(false);
+  const [manualRP, setManualRP] = useState(false);
   const [validationMessages, setValidationMessages] = useState({
     image_input: "\u00A0",
     product_name: "\u00A0",
     product_category: "\u00A0",
-    product_sku: "\u00A0",
-    product_uom: "\u00A0",
     product_reorder_point: "\u00A0",
-    product_weight: "\u00A0",
-    product_dimensions: "\u00A0",
   });
 
   const handleImage = (e) => {
@@ -87,23 +84,10 @@ const ProductForm = ({
       product_category: categoryValid
         ? "\u00A0"
         : "Invalid Category. Please select from the dropdown.",
-      product_sku: formData.get("product_sku").trim()
-        ? "\u00A0"
-        : "Product SKU is required.",
-      product_uom: formData.get("product_uom").trim()
-        ? "\u00A0"
-        : "Product UOM is required.",
       product_reorder_point:
         Number(formData.get("product_reorder_point")) > 0
           ? "\u00A0"
           : "Reorder point must be greater than 0.",
-      product_weight:
-        Number(formData.get("product_weight")) > 0
-          ? "\u00A0"
-          : "Weight must be greater than 0.",
-      product_dimensions: formData.get("product_dimensions").trim()
-        ? "\u00A0"
-        : "Dimensions are required.",
     };
 
     setValidationMessages(messages);
@@ -336,6 +320,7 @@ const ProductForm = ({
         <label htmlFor="file">
           Product Image<span className="text-red-600">*</span>
         </label>
+
         <input
           id="file"
           type="file"
@@ -359,9 +344,7 @@ const ProductForm = ({
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.image_input}
         </p>
-        <label htmlFor="product_sku">
-          Product SKU<span className="text-red-600">*</span>
-        </label>
+        <label htmlFor="product_sku">Product SKU</label>
         <input
           type="text"
           name="product_sku"
@@ -376,9 +359,7 @@ const ProductForm = ({
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_sku}
         </p>
-        <label htmlFor="product_uom">
-          Product UOM<span className="text-red-600">*</span>
-        </label>
+        <label htmlFor="product_uom">Product UOM</label>
         <input
           type="text"
           name="product_uom"
@@ -394,29 +375,50 @@ const ProductForm = ({
           {validationMessages.product_uom}
         </p>
         <label htmlFor="product_reorder_point">
-          Product Reorder Point<span className="text-red-600">*</span>
+          Product Reorder Point
+          {manualRP && <span className="text-red-600">*</span>}
         </label>
         <input
           type="text"
           name="product_reorder_point"
           placeholder="e.g. 10"
-          className={`h-fit p-2 rounded-lg outline-none focus:ring-mainButtonColor focus:ring-1 border border-gray-300 ${
+          className={`h-fit p-2 rounded-lg outline-none border border-gray-300 ${
             loading ? "cursor-not-allowed" : ""
-          }`}
+          } ${
+            manualRP
+              ? "focus:ring-mainButtonColor focus:ring-1"
+              : "bg-gray-100 text-gray-500"
+          }
+            `}
           id="product_reorder_point"
-          defaultValue={product?.product_reorder_point || ""}
+          defaultValue={
+            product?.product_reorder_point
+              ? product?.product_reorder_point
+              : !manualRP
+              ? 10
+              : ""
+          }
+          readOnly={!manualRP}
           disabled={loading}
           onInput={(e) => {
+            if (manualRP) return;
             const match = e.target.value.match(/^\d*$/) || [""];
             if (match) e.target.value = match[0];
           }}
         />
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={manualRP}
+            onChange={() => setManualRP((prev) => !prev)}
+            id="manual_rp"
+          ></input>
+          <label htmlFor="manual_rp">Set Manual Reorder Point</label>
+        </div>
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_reorder_point}
         </p>
-        <label htmlFor="product_weight">
-          Product Weight<span className="text-red-600">*</span>
-        </label>
+        <label htmlFor="product_weight">Product Weight</label>
         <input
           type="text"
           name="product_weight"
@@ -435,9 +437,7 @@ const ProductForm = ({
         <p className="text-red-500 text-sm mb-2">
           {validationMessages.product_weight}
         </p>
-        <label htmlFor="product_dimension">
-          Product Dimensions<span className="text-red-600">*</span>
-        </label>
+        <label htmlFor="product_dimension">Product Dimensions</label>
         <input
           type="text"
           name="product_dimensions"
@@ -536,7 +536,9 @@ const CategoryInput = ({
       );
       const data = await response.json();
       const categories = Array.isArray(data?.data) ? data.data : [];
-      setCategoryQueryResults(categories);
+      setCategoryQueryResults(
+        categories.filter((category) => category.category_soft_deleted !== true)
+      );
     } catch (err) {
       console.error("Error fetching categories:", err);
       setCategoryQueryResults([]);
@@ -604,22 +606,24 @@ const CategoryInput = ({
           )}
           {categoryQueryResults.length > 0 && (
             <ul>
-              {categoryQueryResults.map((category, index) => (
-                <li
-                  key={category.category_id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCategorySelect(category);
-                  }}
-                  className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
-                    index === categoryQueryResults.length - 1
-                      ? "rounded-b-lg"
-                      : ""
-                  }`}
-                >
-                  {category.category_name}
-                </li>
-              ))}
+              {categoryQueryResults.map((category, index) => {
+                return (
+                  <li
+                    key={category.category_id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCategorySelect(category);
+                    }}
+                    className={`p-2 cursor-pointer bg-gray-100 hover:bg-gray-200 ${
+                      index === categoryQueryResults.length - 1
+                        ? "rounded-b-lg"
+                        : ""
+                    }`}
+                  >
+                    {category.category_name}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
