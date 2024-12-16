@@ -283,6 +283,17 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
             padding: "16px",
           },
         });
+      } else if (request.status === 404) {
+        toast.error(
+          "Cannot create a report in the same day. Please try again tomorrow",
+          {
+            duration: 4000,
+            style: {
+              fontSize: "1.2rem",
+              padding: "16px",
+            },
+          }
+        );
       } else {
         toast.error("Failed to create report", {
           duration: 3000,
