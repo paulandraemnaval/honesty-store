@@ -37,8 +37,20 @@ export async function POST(request) {
     let report_start_date;
 
     if (await checkCollectionExists("Report")) {
-      console.log("create");
       report_start_date = await getLastReportEndDate();
+      await report1.loadInfo();
+
+      const end = new Date();
+      const sheetCheck =
+        report1.sheetsByTitle[
+          `${formatDate(report_start_date)} - ${formatDate(end)}`
+        ];
+      if (sheetCheck) {
+        return NextResponse.json(
+          { message: "Report already created for the same date range." },
+          { status: 404 }
+        );
+      }
     } else {
       const inventoryRef = collection(db, "Inventory");
       if (!(await checkCollectionExists("Inventory"))) {
@@ -136,6 +148,7 @@ export async function POST(request) {
       await Promise.all(updatePromises);
 
       await generateReport(reportDoc.id);
+
       const start = new Date(report_start_date);
       const end = new Date();
 
@@ -190,12 +203,12 @@ export async function PATCH(request) {
       }
       q = query(
         reportRef,
-        orderBy("report_timestamp"),
+        orderBy("report_timestamp", "desc"),
         startAfter(lastDocSnapshot),
         limit(10)
       );
     } else {
-      q = query(reportRef, orderBy("report_timestamp"), limit(10));
+      q = query(reportRef, orderBy("report_timestamp", "desc"), limit(10));
     }
     const snapshot = await getDocs(q);
     const reports = snapshot.docs.map((doc) => doc.data());

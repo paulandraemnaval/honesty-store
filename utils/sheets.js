@@ -43,6 +43,16 @@ export const generateReport = async (reportId) => {
 
     await report1.loadInfo();
 
+    const sheetCheck =
+      report1.sheetsByTitle[
+        `${formatDate(reportDb.report_start_date.toDate())} - ${formatDate(
+          reportDb.report_end_date.toDate()
+        )}`
+      ];
+    if (sheetCheck) {
+      return null;
+    }
+
     const sheet = await report1.addSheet({
       title: `${formatDate(reportDb.report_start_date.toDate())} - ${formatDate(
         reportDb.report_end_date.toDate()
