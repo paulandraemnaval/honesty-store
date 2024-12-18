@@ -10,6 +10,8 @@ import ButtonLoading from "@components/ButtonLoading";
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
+export const dynamic = "force-dynamic";
+
 const userPage = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
@@ -18,7 +20,14 @@ const userPage = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/admin/dashboard");
+        const response = await fetch("/api/admin/dashboard", {
+          headers: {
+            "Cache-Control": "no-store",
+          },
+          next: {
+            revalidate: 0,
+          },
+        });
         const data = await response.json();
         setData(data ? data?.data : null);
         if (!response.ok) {
