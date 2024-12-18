@@ -117,7 +117,7 @@ const InventoryReport = ({
     <div className="relative w-full flex-1 flex justify-end">
       <button
         className={`bg-mainButtonColor p-1 text-white text-sm truncate self-end object-cover h-10 w-10 rounded-md ${
-          showInventoryReport ? "z-20 " : "z-0 "
+          showInventoryReport ? "z-20 sm:z-0" : "z-0"
         }`}
         onClick={() => {
           setShowInventoryReport((prev) => !prev);
@@ -134,7 +134,7 @@ const InventoryReport = ({
           <div className="fixed inset-0 bg-[rgba(120,120,120,0.75)] z-10 sm:hidden h-[calc(100vh-4.5rem)]" />
 
           {/* Inventory Report */}
-          <div className="absolute top-12 sm:right-0 -right-[3.25rem] rounded-md shadow-lg bg-white px-6 py-4 w-[calc(100vw-1rem)] sm:w-[20rem] flex flex-col z-20">
+          <div className="absolute top-12 sm:right-0 -right-[3.25rem] rounded-md shadow-lg bg-white px-6 py-4 w-[calc(100vw-1rem)] sm:w-[20rem] flex flex-col z-10">
             <span className="text-lg font-semibold">
               Generate Inventory Report
             </span>
