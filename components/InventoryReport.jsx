@@ -193,7 +193,7 @@ const InventoryReport = ({
               {loading ? (
                 <ButtonLoading>Processing...</ButtonLoading>
               ) : (
-                "Create Inventory Report"
+                "Generate Inventory Report"
               )}
             </button>
           </div>
