@@ -75,7 +75,7 @@ const HeaderBar = () => {
         />
       </div>
       {userMenuVisible && (
-        <div className="absolute top-[4rem] right-4 bg-white rounded-tr-none rounded-tl-sm rounded-br-sm rounded-bl-sm shadow-md p-2 w-[14rem] flex flex-col gap-2 z-20">
+        <div className="absolute top-[4rem] right-4 bg-white rounded-tr-none rounded-tl-sm rounded-br-sm rounded-bl-sm shadow-md p-2 w-[14rem] flex flex-col gap-2 z-50">
           <div className="roudned-md p-2 shadow-md bg-mainButtonColor">
             <p className="text-xl text-gray-800 font-semibold">
               Hello, {user?.account_name}

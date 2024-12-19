@@ -18,9 +18,7 @@ const SupplierForm = ({
   const router = useRouter();
   const [validationMessages, setValidationMessages] = useState({
     supplier_name: "\u00A0",
-    supplier_contact_person: "\u00A0",
     supplier_contact_number: "\u00A0",
-    supplier_email_address: "\u00A0",
   });
   const [loading, setLoading] = useState(false);
   const [supplier, setSupplier] = useState(null);
@@ -50,17 +48,9 @@ const SupplierForm = ({
       supplier_name: formdata.get("supplier_name").trim()
         ? "\u00A0"
         : "Supplier name is required.",
-      supplier_contact_person: formdata.get("supplier_contact_person").trim()
-        ? "\u00A0"
-        : "Contact person is required.",
       supplier_contact_number: formdata.get("supplier_contact_number").trim()
         ? "\u00A0"
         : "Contact number is required.",
-      supplier_email_address: /\S+@\S+\.\S+/.test(
-        formdata.get("supplier_email_address")
-      )
-        ? "\u00A0"
-        : "Valid email address is required.",
     };
 
     setValidationMessages(messages);
@@ -230,9 +220,7 @@ const SupplierForm = ({
           {validationMessages.supplier_name}
         </p>
 
-        <label htmlFor="supplier_contact_person">
-          Contact Person<span className="text-red-500 text-sm">*</span>
-        </label>
+        <label htmlFor="supplier_contact_person">Contact Person</label>
         <input
           type="text"
           id="supplier_contact_person"
@@ -258,9 +246,7 @@ const SupplierForm = ({
           {validationMessages.supplier_contact_number}
         </p>
 
-        <label htmlFor="supplier_email_address">
-          Email Address<span className="text-red-500 text-sm">*</span>
-        </label>
+        <label htmlFor="supplier_email_address">Email Address</label>
         <input
           type="email"
           id="supplier_email_address"

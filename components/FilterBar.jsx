@@ -38,6 +38,10 @@ const FilterBar = ({
   const pathName = usePathname();
 
   useEffect(() => {
+    console.log("selected Cat", localCategory);
+  }, []);
+
+  useEffect(() => {
     const getCategories = async () => {
       try {
         setLoading(true);
@@ -133,12 +137,16 @@ const FilterBar = ({
             </label>
 
             {categories.map((category) => {
-              if (category.category_soft_deleted) return;
+              if (
+                category.category_soft_deleted ||
+                category.category_id === "no category"
+              )
+                return null;
               return (
                 <label
                   key={category.category_id}
                   className="flex items-center"
-                  htmlFor={category.category_name}
+                  htmlFor={category.category_id}
                 >
                   <input
                     type="radio"
@@ -149,7 +157,7 @@ const FilterBar = ({
                       setEditingCategoryID(category.category_id);
                     }}
                     className="hidden"
-                    id={category.category_name}
+                    id={category.category_id}
                   />
                   <span
                     className={`w-4 h-4 mr-2 border-2 rounded-full inline-block ${
@@ -190,8 +198,8 @@ const FilterBar = ({
         )}
         {categoryDropdownOpen && loading && (
           <div className="flex justify-center items-center h-10">
-            <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
             <p className="text-black">Loading...</p>
+            <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
           </div>
         )}
       </div>
@@ -292,8 +300,8 @@ const FilterBar = ({
                 })}
                 {supplierDropdownOpen && loading && (
                   <div className="flex justify-center items-center h-10">
-                    <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
                     <p className="text-black">Loading...</p>
+                    <span className="spinner-border-blue animate-spin w-10 h-10 border-2 border-mainButtonColor border-t-transparent rounded-full mr-2"></span>
                   </div>
                 )}
               </div>

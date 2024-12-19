@@ -37,7 +37,7 @@ const DashboardCard = ({
       {/* Data Section */}
       <div className="flex items-center sm:justify-center flex-1">
         <p className="sm:text-3xl text-xl font-bold sm:items-center">
-          {loading ? <ButtonLoading size="l" /> : formatData(data)}
+          {loading ? <ButtonLoading size="l" /> : data ? formatData(data) : ""}
         </p>
       </div>
     </div>

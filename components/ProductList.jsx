@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import Loading from "@components/Loading";
 import ProductCard from "@components/ProductCard";
 import AddProductCard from "./AddProductCard";
-//TODO: display if an inventory of a product is expired
-//TODO: tell bea inventories dont return the oldest inventory as expected
 
 const ProductList = ({
   selectedCategory = "all",

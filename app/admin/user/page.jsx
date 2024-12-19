@@ -8,6 +8,9 @@ import revenueIcon from "@public/icons/revenue_icon.png";
 import supplierIcon from "@public/icons/supplier_icon.png";
 import ButtonLoading from "@components/ButtonLoading";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+
+export const dynamic = "force-dynamic";
 
 const userPage = () => {
   const [loading, setLoading] = useState(false);
@@ -17,9 +20,25 @@ const userPage = () => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/admin/dashboard");
+        const response = await fetch("/api/admin/dashboard", {
+          headers: {
+            "Cache-Control": "no-store",
+          },
+          next: {
+            revalidate: 0,
+          },
+        });
         const data = await response.json();
         setData(data ? data?.data : null);
+        if (!response.ok) {
+          toast.error("Failed to fetch dashboard data", {
+            duration: 3000,
+            style: {
+              fontSize: "1.2rem",
+              padding: "16px",
+            },
+          });
+        }
       } catch (error) {
         console.error(error);
       } finally {
@@ -29,7 +48,7 @@ const userPage = () => {
     fetchDashboardData();
   }, []);
 
-  const chartHeight = 250; // Define a consistent height for both charts
+  const chartHeight = 250;
 
   const formatRevenue = (data) => {
     if (data > 1000) {
@@ -95,15 +114,16 @@ const userPage = () => {
                 xAxis={[
                   {
                     scaleType: "band",
-                    data: data?.profit?.map((item) =>
-                      new Date(item.date.start).toLocaleDateString()
-                    ),
+                    data:
+                      data?.profit?.map((item) =>
+                        new Date(item.date.start).toLocaleDateString()
+                      ) || [],
                     label: "Date",
                   },
                 ]}
                 series={[
                   {
-                    data: data?.profit?.map((item) => item.total),
+                    data: data?.profit?.map((item) => item.total) || [],
                     color: "#4285F4",
                   },
                 ]}
@@ -125,15 +145,16 @@ const userPage = () => {
                 xAxis={[
                   {
                     scaleType: "band",
-                    data: data?.sales.map((item) =>
-                      new Date(item.date.start).toLocaleDateString()
-                    ),
+                    data:
+                      data?.sales.map((item) =>
+                        new Date(item.date.start).toLocaleDateString()
+                      ) || [],
                     label: "Date",
                   },
                 ]}
                 series={[
                   {
-                    data: data?.sales.map((item) => item.total),
+                    data: data?.sales.map((item) => item.total) || [],
                     color: "#4285F4",
                   },
                 ]}

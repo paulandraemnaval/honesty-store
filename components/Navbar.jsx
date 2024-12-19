@@ -12,6 +12,7 @@ import managementIcon from "@public/icons/manage_icon.png";
 import managementIconSelected from "@public/icons/manage_icon_selected.png";
 import accountManagementIcon from "@public/icons/accounts_icon.png";
 import accountManagementIconSelected from "@public/icons/accounts_icon_selected.png";
+import BugIcon from "@public/icons/bug_icon.png";
 import Loading from "./Loading";
 const Navbar = () => {
   const pathName = usePathname();
@@ -37,6 +38,11 @@ const Navbar = () => {
     };
     getUser();
   }, []);
+
+  const openBugForms = () => {
+    const url = "https://forms.gle/mGP6DZj1SjSowDSy8";
+    window.open(url, "_blank");
+  };
 
   const getUserRole = () => {
     if (user?.account_role === "1") return "C.E.O";
@@ -259,8 +265,25 @@ const Navbar = () => {
             </div>
           </div>
         )}
+        <div className="w-full mt-auto">
+          <div
+            className={`w-full flex p-2 cursor-pointer transition-all duration-100 rounded-sm text-sm`}
+          >
+            <Image
+              src={BugIcon}
+              alt="manage_accounts_icon"
+              height={20}
+              width={25}
+            />
+            <button
+              className={`flex-1 items-center ml-5 flex text-mainButtonColor underline justify-center`}
+              onClick={openBugForms}
+            >
+              Report Bug
+            </button>
+          </div>
+        </div>
       </div>
-      {/* Mobile nav */}
 
       {/*--------------------------------mobile nav----------------------------------------*/}
 

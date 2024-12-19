@@ -4,15 +4,61 @@ import Image from "next/image";
 import defaultImage from "@public/defaultImages/default_profile_image.png";
 import bcryptjs from "bcryptjs";
 import { toast } from "react-hot-toast";
+
 const SignUpForm = () => {
   const [file, setFile] = useState({});
   const [isProcessing, setIsProcessing] = useState(false);
+  const [validationMessages, setValidationMessages] = useState({
+    email: "\u00A0",
+    name: "\u00A0",
+    password: "\u00A0",
+    confirmPassword: "\u00A0",
+  });
+
+  const validateForm = (formData) => {
+    const password = formData.get("password").trim();
+    const confirmPassword = formData.get("confirmPassword").trim();
+
+    const messages = {
+      email: formData.get("email").trim() ? "\u00A0" : "Email is required",
+      name: formData.get("name").trim() ? "\u00A0" : "Name is required",
+      password: password ? "\u00A0" : "Password is required",
+      confirmPassword:
+        confirmPassword === password ? "\u00A0" : "Passwords do not match",
+    };
+
+    setValidationMessages(messages);
+
+    Object.keys(messages).forEach((key) => {
+      const input = document.getElementById(key);
+      if (messages[key] !== "\u00A0") {
+        input.classList.add("border", "border-red-500");
+        input.classList.remove("border-gray-300");
+      } else {
+        input.classList.add("border-gray-300");
+        input.classList.remove("border-red-500");
+      }
+    });
+
+    return Object.values(messages).every((message) => message === "\u00A0");
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
 
     const form = e.target;
     const formData = new FormData(form);
+
+    if (!validateForm(formData)) {
+      toast.error("Please check the inputs and try again.", {
+        duration: 3000,
+        style: {
+          fontSize: "1.2rem",
+          padding: "16px",
+        },
+      });
+      return;
+    }
 
     const password = formData.get("password");
     formData.delete("password");
@@ -22,6 +68,22 @@ const SignUpForm = () => {
 
     formData.append("password", hashedPassword);
     formData.append("salt", salt);
+
+    // Add file handling logic
+    if (!file.file) {
+      try {
+        const response = await fetch(
+          "/defaultImages/default_profile_image.png"
+        );
+        const data = await response.blob();
+        formData.append("file", data, "default_profile_image.png");
+      } catch (err) {
+        console.error("Failed to fetch default image:", err);
+        return;
+      }
+    } else {
+      formData.append("file", file.file);
+    }
 
     try {
       setIsProcessing(true);
@@ -91,56 +153,57 @@ const SignUpForm = () => {
             Select A picture
           </label>
         </div>
-        <div className="mb-4">
-          <label htmlFor="role">Role</label>
-          <select
-            name="role"
-            id="role"
-            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm sm:text-sm outline-none focus:ring-1 focus:ring-mainButtonColor"
-            required
-          >
-            <option value="1">C.E.O.</option>
-            <option value="2">Treasurer</option>
-            <option value="3">Auditor</option>
-            <option value="4">Secretary</option>
-          </select>
-        </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="">
-            Email
-          </label>
+          <label htmlFor="email">Email</label>
           <input
             type="email"
             id="email"
             name="email"
             className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-1 focus:ring-mainButtonColor outline-none"
-            required
           />
+          <p className="text-red-500 text-sm mb-2">
+            {validationMessages.email}
+          </p>
         </div>
+
         <div className="mb-4">
-          <label htmlFor="username" className="">
-            Name
-          </label>
+          <label htmlFor="name">Name</label>
           <input
             type="text"
             id="name"
             name="name"
             className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm outline-none focus:ring-1 focus:ring-mainButtonColor"
-            required
           />
+          <p className="text-red-500 text-sm mb-2">{validationMessages.name}</p>
         </div>
+
         <div className="mb-4">
-          <label htmlFor="password" className="">
-            Password
-          </label>
+          <label htmlFor="password">Password</label>
           <input
             type="password"
             id="password"
             name="password"
             className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm outline-none focus:ring-1 focus:ring-mainButtonColor"
           />
+          <p className="text-red-500 text-sm mb-2">
+            {validationMessages.password}
+          </p>
         </div>
+
+        <div className="mb-4">
+          <label htmlFor="confirmPassword">Confirm Password</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            name="confirmPassword"
+            className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm outline-none focus:ring-1 focus:ring-mainButtonColor"
+          />
+          <p className="text-red-500 text-sm mb-2">
+            {validationMessages.confirmPassword}
+          </p>
+        </div>
+
         <div className="mb-4">
           <button
             type="submit"
