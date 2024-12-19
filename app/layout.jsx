@@ -5,42 +5,46 @@ import { useEffect, useRef } from "react";
 
 export default function RootLayout({ children }) {
   const connectionToastId = useRef(null);
+  const pingEndpoint = () => {
+    if (!navigator.onLine) {
+      if (!connectionToastId.current) {
+        connectionToastId.current = toast.error("No internet connection", {
+          duration: Infinity,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
+    } else {
+      if (connectionToastId.current) {
+        toast.dismiss(connectionToastId.current);
+        connectionToastId.current = null;
+        toast.success("Connected to the internet", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
+      }
+    }
+  };
 
   useEffect(() => {
-    const pingEndpoint = async () => {
-      try {
-        const response = await fetch("https://www.google.com/generate_204", {
-          method: "GET",
-          mode: "no-cors",
-        });
-
-        // If request succeeds, check if a "no connection" toast is showing and dismiss it
-        if (response.ok || response.type === "opaque") {
-          if (connectionToastId.current) {
-            toast.dismiss(connectionToastId.current);
-            connectionToastId.current = null;
-          }
-        } else {
-          throw new Error("Connection error");
-        }
-      } catch {
-        // Show a "no internet" toast if not already shown
-        if (!connectionToastId.current) {
-          connectionToastId.current = toast.error("No internet connection", {
-            duration: Infinity,
-            style: {
-              fontSize: "1.2rem",
-              padding: "16px",
-            },
-          });
-        }
-      }
-    };
-
+    // Run the check immediately
     pingEndpoint();
-    const intervalId = setInterval(pingEndpoint, 3000);
 
-    return () => clearInterval(intervalId);
+    // Set up an event listener for connection changes
+    const handleConnectionChange = () => pingEndpoint();
+
+    window.addEventListener("online", handleConnectionChange);
+    window.addEventListener("offline", handleConnectionChange);
+
+    return () => {
+      window.removeEventListener("online", handleConnectionChange);
+      window.removeEventListener("offline", handleConnectionChange);
+    };
   }, []);
 
   return (

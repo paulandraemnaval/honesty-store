@@ -77,6 +77,9 @@ const InventoryReport = ({
       setLoading(true);
       const start = new Date(startDate);
       const end = new Date(endDate);
+
+      end.setDate(end.getDate() + 1);
+
       const request = await fetch(
         `/api/admin/date?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
       );
@@ -86,7 +89,7 @@ const InventoryReport = ({
         const a = document.createElement("a");
         a.href = url;
         a.download = `Inventory Report from ${formatDate(start)} - ${formatDate(
-          end
+          new Date(end.setDate(end.getDate() - 1)) // Restore original display for download filename
         )}.pdf`;
         a.click();
         window.URL.revokeObjectURL(url);
