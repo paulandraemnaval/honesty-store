@@ -258,19 +258,27 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
 
     try {
       setIsProcessing(true);
+
       const formData = new FormData();
       formData.append("cash_inflow", cashInflowValue);
       formData.append("cash_outflow", cashOutflowValue);
+
       const request = await fetch("/api/admin/report", {
         method: "POST",
         body: formData,
       });
+
       if (request.ok) {
+        setErrorMessages({ cashInflow: "", cashOutflow: "" });
         setCashInflowValue("");
         setCashOutflowValue("");
+
         setRefresh((prev) => !prev);
+        handleShowCFUI();
+
         toast.success("Report created successfully", {
           duration: 3000,
+          id: "success-toast",
           style: {
             fontSize: "1.2rem",
             padding: "16px",
@@ -278,28 +286,38 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
         });
       } else if (request.status === 404) {
         toast.error(
-          "Cannot create a report in the same day. Please try again tomorrow",
+          "Cannot create a report on the same day. Please try again tomorrow.",
           {
             duration: 4000,
+            id: "error-toast-404", // Prevent duplicate error notifications
             style: {
               fontSize: "1.2rem",
               padding: "16px",
             },
           }
         );
+      } else {
+        toast.error("An unknown error occurred. Please try again.", {
+          duration: 4000,
+          id: "generic-error-toast",
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
+          },
+        });
       }
     } catch (err) {
-      toast.error("Failed to create report", {
-        duration: 3000,
+      console.error(err);
+      toast.error("Failed to create report due to a network issue.", {
+        duration: 4000,
+        id: "network-error-toast",
         style: {
           fontSize: "1.2rem",
           padding: "16px",
         },
       });
-      console.log(err);
     } finally {
       setIsProcessing(false);
-      handleShowCFUI();
     }
   };
 
