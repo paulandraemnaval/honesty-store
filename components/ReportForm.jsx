@@ -289,7 +289,7 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
           "Cannot create a report on the same day. Please try again tomorrow.",
           {
             duration: 4000,
-            id: "error-toast-404", // Prevent duplicate error notifications
+            id: "error-toast-404",
             style: {
               fontSize: "1.2rem",
               padding: "16px",
@@ -325,7 +325,6 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
     let valid = true;
     let newErrorMessages = { cashInflow: "", cashOutflow: "" };
 
-    // Cash inflow validation
     if (
       parseFloat(cashInflowValue) < 0 ||
       isNaN(cashInflowValue) ||
@@ -336,7 +335,6 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
       valid = false;
     }
 
-    // Cash outflow validation
     if (
       parseFloat(cashOutflowValue) < 0 ||
       isNaN(cashOutflowValue) ||
@@ -351,11 +349,9 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
     return valid;
   };
 
-  // Handle numeric input with up to 2 decimal places
   const handleInputChange = (e, setter) => {
     const value = e.target.value;
 
-    // Regex for numbers with optional decimal point and up to two decimals
     const regex = /^\d*\.?\d{0,2}$/;
 
     if (regex.test(value) || value === "") {
