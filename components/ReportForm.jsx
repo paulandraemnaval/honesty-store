@@ -89,13 +89,6 @@ const ReportForm = () => {
         });
       }
     } catch (err) {
-      toast.error("Failed to download report", {
-        duration: 3000,
-        style: {
-          fontSize: "1.2rem",
-          padding: "16px",
-        },
-      });
       console.log(err);
     } finally {
       setDownloadingStates((prevStates) => ({
@@ -294,14 +287,6 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
             },
           }
         );
-      } else {
-        toast.error("Failed to create report", {
-          duration: 3000,
-          style: {
-            fontSize: "1.2rem",
-            padding: "16px",
-          },
-        });
       }
     } catch (err) {
       toast.error("Failed to create report", {

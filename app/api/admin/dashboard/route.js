@@ -5,6 +5,8 @@ import { report1 } from "@utils/sheets";
 import { formatDate } from "@utils/formatDate";
 import { getProfitData, getSalesData } from "@utils/export";
 
+export const revalidate = 0;
+
 export async function GET(request) {
   try {
     let products, categories, suppliers;

@@ -11,23 +11,28 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 const userPage = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
 
+  const date = new Date();
   useEffect(() => {
     const fetchDashboardData = async () => {
       setLoading(true);
       try {
-        const response = await fetch("/api/admin/dashboard", {
-          headers: {
-            "Cache-Control": "no-store",
-          },
-          next: {
-            revalidate: 0,
-          },
-        });
+        const response = await fetch(
+          `/api/admin/dashboard?date=${date.getMilliseconds()}`,
+          {
+            headers: {
+              cache: "no-store",
+            },
+            next: {
+              revalidate: 0,
+            },
+          }
+        );
         const data = await response.json();
         setData(data ? data?.data : null);
         if (!response.ok) {
