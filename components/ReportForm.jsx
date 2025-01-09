@@ -89,13 +89,6 @@ const ReportForm = () => {
         });
       }
     } catch (err) {
-      toast.error("Failed to download report", {
-        duration: 3000,
-        style: {
-          fontSize: "1.2rem",
-          padding: "16px",
-        },
-      });
       console.log(err);
     } finally {
       setDownloadingStates((prevStates) => ({
@@ -265,19 +258,27 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
 
     try {
       setIsProcessing(true);
+
       const formData = new FormData();
       formData.append("cash_inflow", cashInflowValue);
       formData.append("cash_outflow", cashOutflowValue);
+
       const request = await fetch("/api/admin/report", {
         method: "POST",
         body: formData,
       });
+
       if (request.ok) {
+        setErrorMessages({ cashInflow: "", cashOutflow: "" });
         setCashInflowValue("");
         setCashOutflowValue("");
+
         setRefresh((prev) => !prev);
+        handleShowCFUI();
+
         toast.success("Report created successfully", {
           duration: 3000,
+          id: "success-toast",
           style: {
             fontSize: "1.2rem",
             padding: "16px",
@@ -285,9 +286,10 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
         });
       } else if (request.status === 404) {
         toast.error(
-          "Cannot create a report in the same day. Please try again tomorrow",
+          "Cannot create a report on the same day. Please try again tomorrow.",
           {
             duration: 4000,
+            id: "error-toast-404",
             style: {
               fontSize: "1.2rem",
               padding: "16px",
@@ -295,8 +297,9 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
           }
         );
       } else {
-        toast.error("Failed to create report", {
-          duration: 3000,
+        toast.error("An unknown error occurred. Please try again.", {
+          duration: 4000,
+          id: "generic-error-toast",
           style: {
             fontSize: "1.2rem",
             padding: "16px",
@@ -304,17 +307,17 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
         });
       }
     } catch (err) {
-      toast.error("Failed to create report", {
-        duration: 3000,
+      console.error(err);
+      toast.error("Failed to create report due to a network issue.", {
+        duration: 4000,
+        id: "network-error-toast",
         style: {
           fontSize: "1.2rem",
           padding: "16px",
         },
       });
-      console.log(err);
     } finally {
       setIsProcessing(false);
-      handleShowCFUI();
     }
   };
 
@@ -322,7 +325,6 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
     let valid = true;
     let newErrorMessages = { cashInflow: "", cashOutflow: "" };
 
-    // Cash inflow validation
     if (
       parseFloat(cashInflowValue) < 0 ||
       isNaN(cashInflowValue) ||
@@ -333,7 +335,6 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
       valid = false;
     }
 
-    // Cash outflow validation
     if (
       parseFloat(cashOutflowValue) < 0 ||
       isNaN(cashOutflowValue) ||
@@ -348,11 +349,9 @@ const FlowUI = ({ handleShowCFUI, setRefresh }) => {
     return valid;
   };
 
-  // Handle numeric input with up to 2 decimal places
   const handleInputChange = (e, setter) => {
     const value = e.target.value;
 
-    // Regex for numbers with optional decimal point and up to two decimals
     const regex = /^\d*\.?\d{0,2}$/;
 
     if (regex.test(value) || value === "") {

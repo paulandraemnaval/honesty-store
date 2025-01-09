@@ -75,6 +75,7 @@ export async function GET(request) {
           inventoryRef,
           where("inventory_last_updated", ">=", lastReport),
           where("inventory_last_updated", "<=", currentDate),
+          where("inventory_total_units", ">", 0),
           orderBy("inventory_timestamp", "desc")
         );
         snapshot = await getDocs(q);

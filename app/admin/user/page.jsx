@@ -10,6 +10,7 @@ import { useEffect, useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
 const userPage = () => {
   const [loading, setLoading] = useState(false);

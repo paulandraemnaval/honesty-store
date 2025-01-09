@@ -35,7 +35,7 @@ const AuthForm = () => {
         router.replace("/admin/user");
         console.log("Login successful.");
       } else {
-        toast.error(`Login failed. Please try again later`, {
+        toast.error(`Login failed. Check username or password`, {
           duration: 3000,
           style: {
             fontSize: "1.2rem",
