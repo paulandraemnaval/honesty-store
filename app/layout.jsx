@@ -38,7 +38,7 @@ export default function RootLayout({ children }) {
     };
 
     pingEndpoint();
-    const intervalId = setInterval(pingEndpoint, 3000);
+    const intervalId = setInterval(pingEndpoint, 10000);
 
     return () => clearInterval(intervalId);
   }, []);

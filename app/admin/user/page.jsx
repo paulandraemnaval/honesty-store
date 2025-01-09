@@ -1,13 +1,12 @@
 "use client";
 import { LineChart, BarChart } from "@mui/x-charts";
-import Image from "next/image";
 import profitIcon from "@public/icons/profit_icon.png";
 import productsIcon from "@public/icons/products_icon2.png";
 import DashboardCard from "@components/DashboardCard";
 import revenueIcon from "@public/icons/revenue_icon.png";
 import supplierIcon from "@public/icons/supplier_icon.png";
 import ButtonLoading from "@components/ButtonLoading";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 
 export const dynamic = "force-dynamic";
@@ -15,37 +14,43 @@ export const dynamic = "force-dynamic";
 const userPage = () => {
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState(null);
+  const hasFetchedData = useRef(false); // Prevent multiple API calls
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      setLoading(true);
-      try {
-        const response = await fetch("/api/admin/dashboard", {
-          headers: {
-            "Cache-Control": "no-store",
-          },
-          next: {
-            revalidate: 0,
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/admin/dashboard", {
+        headers: {
+          "Cache-Control": "no-store",
+        },
+        next: {
+          revalidate: 0,
+        },
+      });
+      if (response.ok) {
+        const jsonData = await response.json();
+        setData(jsonData?.data || null);
+      } else {
+        toast.error("Failed to fetch dashboard data", {
+          duration: 3000,
+          style: {
+            fontSize: "1.2rem",
+            padding: "16px",
           },
         });
-        const data = await response.json();
-        setData(data ? data?.data : null);
-        if (!response.ok) {
-          toast.error("Failed to fetch dashboard data", {
-            duration: 3000,
-            style: {
-              fontSize: "1.2rem",
-              padding: "16px",
-            },
-          });
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchDashboardData();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!hasFetchedData.current) {
+      hasFetchedData.current = true; // Ensure it's called only once
+      fetchDashboardData();
+    }
   }, []);
 
   const chartHeight = 250;
