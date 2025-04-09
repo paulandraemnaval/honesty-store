@@ -13,6 +13,7 @@ import {
 import bcryptjs from "bcryptjs";
 import { cookies } from "next/headers";
 import { encrypt } from "@utils/session";
+import { getUser } from "@utils/firebase";
 
 async function createSession(userId, path) {
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 1000);
@@ -75,10 +76,10 @@ export async function POST(request) {
       return NextResponse.json({ error: "User not found" }, { status: 400 });
     }
 
-    const email_salt = user.docs[0].data().account_salt;
+    //const email_salt = user.docs[0].data().account_salt;
 
-    const password_hash = await bcryptjs.hash(password, email_salt);
-    const accountData = await signInUser(email, password_hash);
+    //const password_hash = await bcryptjs.hash(password, email_salt);
+    const accountData = await signInUser(email, password);
 
     if (accountData instanceof Error) {
       console.log("Error in user sign-up:", accountData.message);
@@ -95,7 +96,7 @@ export async function POST(request) {
       "N/A",
       "Sign-In"
     );
-
+    await getUser();
     return NextResponse.json(
       {
         message: "Account signed in successfully",

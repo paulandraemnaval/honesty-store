@@ -162,7 +162,7 @@ export async function POST(request) {
         notification_id: notificationDoc.id,
         account_id: user.account_id,
         notification_title: "Restock Alert: Inventory Reorder Point Reached",
-        notification_body: `${restockItems.length} products have fallen below the reorder point. Please restock as soon as possible.`,
+        notification_body: `${restockItems.length} product/s have fallen below the reorder point. Please restock as soon as possible.`,
         notification_type: 0,
         notification_is_read: false,
         notification_timestamp: Timestamp.now(),
